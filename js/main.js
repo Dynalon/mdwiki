@@ -188,7 +188,7 @@
         // md_ready stage start
         $.md.stages.md_load.done(function(markdown) {
             createMainContent(markdown);
-            $.md.stages.md_ready.resolve()
+            $.md.stages.md_ready.resolve();
         });
         // md_ready stage end
 

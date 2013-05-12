@@ -30,19 +30,19 @@ see http://www.gnu.org/licenses/gpl-3.0.html
             $.gimmicks('alerts');
             return;
 
-            $.md.trigger('md_gimmicks_complete');
+            //$.md.trigger('md_gimmicks_complete');
 
             // activate syntax highlighting on <pre><code> blocks
             // via highlight.js
             /*$('pre code').each(function(i, e) {
                 hljs.highlightBlock(e)
             }); */
-            $.md.trigger('md_complete');
+            //$.md.trigger('md_complete');
 
-            $('html').removeClass('md-hidden-load');
+            //$('html').removeClass('md-hidden-load');
 
             // jump to an anchor if necessary
-            jumpToAnchor();
+            //jumpToAnchor();
         }
     };
     $.md.publicMethods = $.extend ({}, $.md.publicMethods, publicMethods);
@@ -67,9 +67,9 @@ see http://www.gnu.org/licenses/gpl-3.0.html
     function wrapParagraphText () {
         // TODO is this true for marked.js?
 
-	    // markdown gives us sometime paragraph that contain child tags (like img),
-	    // but the containing text is not wrapped. Make sure to wrap the text in the
-	    // paragraph into a <div>
+        // markdown gives us sometime paragraph that contain child tags (like img),
+        // but the containing text is not wrapped. Make sure to wrap the text in the
+        // paragraph into a <div>
 
 		// this also moves ANY child tags to the front of the paragraph!
 		$('#md-content p').each (function () {

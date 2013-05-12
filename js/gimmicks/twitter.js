@@ -15,7 +15,6 @@
 					href = 'https://twitter.com/' + user;
 				}
 				else {
-					console.log('TODO: auto create twitter button from link');
 					return;
 				}
 				// remove the leading @ if given

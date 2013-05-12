@@ -26,7 +26,6 @@ module.exports = function(grunt) {
             //'js/gimmicks/github_gist.js',
             'js/gimmicks/googlemaps.js',
             'js/gimmicks/image_linker.js',
-            'js/gimmicks/syntaxhighlight.js',
             //'js/gimmicks/twitter.js',
             'js/gimmicks/youtube_embed.js'
         ],
@@ -99,17 +98,22 @@ module.exports = function(grunt) {
                 noarg: true,
                 sub: true,
                 undef: true,
-                unused: true,
+                unused: false,
                 boss: true,
                 eqnull: true,
                 browser: true,
                 globals: {
-                    jQuery: true
+                    jQuery: true,
+                    marked: true,
+                    google: true
                 }
             },
-        },
-        gruntfile: {
-            src: 'Gruntfile.js'
+            gruntfile: {
+                src: 'Gruntfile.js'
+            },
+            js: {
+                src: ['js/*.js', 'js/**/*.js', '!js/marked.js']
+            }
         },
         lib_test: {
             src: ['lib/**/*.js', 'test/**/*.js']
@@ -119,6 +123,11 @@ module.exports = function(grunt) {
                 files: '<%= jshint.gruntfile.src %>',
                 tasks: ['jshint:gruntfile']
             },
+            js: {
+                files: ['js/*.js', 'js/**/*.js'],
+//                files: ['js/basic_skeleton.js'],
+                tasks: ['jshint']
+            }
         }
     });
 

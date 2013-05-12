@@ -175,42 +175,41 @@
         $pars.each(function() {
             var $p = $(this);
             var $images = $(this).find('img')
-	            .filter(function() {
+                .filter(function() {
                     // only select those images that have no parent anchor
                     return $(this).parents('a').length === 0;
                 })
-	            // add those anchors including images
-	            .add($(this).find ('a:has(img)'));
+                // add those anchors including images
+                .add($(this).find ('a:has(img)'));
 
             // create a new url group at the fron of the paragraph
             $p.prepend($('<ul class="thumbnails" />'));
-	        // move the images to the newly created ul
-	        $p.find('ul').eq(0).append($images);
+            // move the images to the newly created ul
+            $p.find('ul').eq(0).append($images);
 
-	        // wrap each image with a <li> that limits their space
-	        // the number of images in a paragraphs determines thei width / span
-	        if ($p.hasClass ('md-floatenv')) {
+            // wrap each image with a <li> that limits their space
+            // the number of images in a paragraphs determines thei width / span
+            if ($p.hasClass ('md-floatenv')) {
                 // float environments have smaller sizes for images
-		        if ($images.length === 1) {
+                if ($images.length === 1) {
                     $images.wrap('<li class="span6" />');
                 } else if ($images.length === 2) {
                     $images.wrap('<li class="span3" />');
                 } else {
                     $images.wrap('<li class="span2" />') ;
                 }
-	        } else {
+            } else {
                 // non-float => images are on their own single paragraph, make em larger
                 // but remember, our image resizing will make them only as large as they are
                 // but do no upscaling
-		        if ($images.length === 1) {
+                if ($images.length === 1) {
                     $images.wrap('<li class="span10" />');
                 } else if ($images.length === 2) {
                     $images.wrap('<li class="span5" />');
                 } else {
                     $images.wrap('<li class="span3" />');
                 }
-	        }
-
+            }
             // finally, every img gets its own wrapping thumbnail div
             $images.wrap('<div class="thumbnail" />');
         });

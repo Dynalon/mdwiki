@@ -9,7 +9,9 @@
 
         // geocode performs address to coordinate transformation
         geocoder.geocode ({ address: opt.address }, function (result, status) {
-            if (status != "OK") return;
+            if (status !== "OK") {
+                return;
+            }
 
             // add the retrieved coords to the options object
             var coords = result[0].geometry.location;
@@ -23,22 +25,22 @@
     }
     var methods = {
         googlemaps: function(opt) {
-            $maps_links = $(this);
-            var counter = (new Date).getTime ();
+            var $maps_links = $(this);
+            var counter = (new Date()).getTime ();
             return $maps_links.each(function() {
-                $this = $(this);
-                default_options = {
+                var $this = $(this);
+                var default_options = {
                     zoom: 11,
                     marker: true,
                     maptype: 'roadmap'
-                }
-                var options = $.extend ({}, default_options, opt);
+                };
+                var options = $.extend({}, default_options, opt);
 
 
                 if (options["address"] === undefined) {
                     options.address = $this.attr ('href');
                 }
-                var div_id = "google-map-" + Math.floor (Math.random() * 100000);
+                var div_id = 'google-map-' + Math.floor (Math.random() * 100000);
                 var $mapsdiv = $('<div class="md-external" id="' + div_id + '"/>');
                 /* TODO height & width must be set AFTER the theme script went through
                 implement an on event, maybe?

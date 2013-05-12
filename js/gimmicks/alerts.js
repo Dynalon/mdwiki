@@ -5,32 +5,34 @@
         // in original format
         alerts: function() {
 
-            var select_paragraphs = function (expressions) {
+            var select_paragraphs = function(expressions) {
                 var $exp = $([ "achtung", "attention", "warnung", "warning", "atención", "guarda", "advertimiento" ]);
-                var matched_p = new Array ();
+                var matched_p = [];
                 $("p").filter (function () {
-                    $par = $(this);
+                    var $par = $(this);
                     // check against each expression
                     $exp.each (function (i,trigger) {
                         var txt = $par.text().toLowerCase ();
                         // we match only paragrachps in which the 'trigger' expression
                         // is follow by a ! or :
-                        var re = new RegExp (trigger + "(:|!)+.*","i");
-                        if (txt.match (re) !== null)
-                        	matched_p.push ($par);
+                        var re = new RegExp (trigger + '(:|!)+.*','i');
+                        if (txt.match (re) !== null) {
+                            matched_p.push ($par);
+                        }
                     });
                 });
                 return matched_p;
             };
 
+            var $par;
             if (!(this instanceof jQuery)) {
                 // return those paragraphes
-                var $par = $(select_paragraphs ()); 
+                $par = $(select_paragraphs ());
             } else {
-                var $par = $(this);
-            } 
+                $par = $(this);
+            }
             return $par.each(function() {
-                $this = $(this);
+                var $this = $(this);
                 $this.addClass ("alert");
             });
         }
