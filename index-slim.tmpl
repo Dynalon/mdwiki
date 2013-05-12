@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<head>
+<%
+    var ownJsFile = grunt.config('uglify').dist.dest;
+
+    var extJsFiles = grunt.config('externalJsFilesSlim');
+    var extCssFiles = grunt.config('externalCssFilesSlim');
+
+    var extJsRefs = grunt.config('externalJsRefsSlim');
+    var extCssRefs = grunt.config('externalCssRefsSlim');
+
+    print(grunt.config('taskName'));
+    function print_script_ref(ref) {
+        print('<script type="text/javascript" src="//' + ref + '"></script>');
+    }
+    function print_style_ref(ref) {
+        print('<link rel="stylesheet" href="//' + ref + '" type="text/css"></link>');
+    }
+    function print_script_inline(name, content) {
+        print('<!-- START ' + name + ' -->\n');
+        print('<script type="text/javascript">');
+        print(content);
+        print('</script>\n');
+        print('<!-- END ' + name + ' -->\n');
+    }
+    function print_style_inline(name, content) {
+        print('<!-- START ' + name + ' -->\n');
+        print('<style>');
+        print(content);
+        print('</style>');
+        print('<!-- END ' + name + ' -->\n');
+    }
+
+    // external css as reference
+    for(var i = 0, len = extCssRefs.length; i < len; i++) {
+        print_style_ref(extCssRefs[i]);
+    }
+    // external JS as reference
+    for(var i = 0, len = extJsRefs.length; i < len; i++) {
+        print_script_ref(extJsRefs[i]);
+    }
+
+    // external css for inlinining
+    for(var i = 0, len = extCssFiles.length; i < len; i++) {
+        var fileContent = grunt.file.read(extCssFiles[i]);
+        print_style_inline(extCssFiles[i], fileContent);
+    }
+
+    // external js for inlinining
+    for(var i = 0, len = extJsFiles.length; i < len; i++) {
+        var fileContent = grunt.file.read(extJsFiles[i]);
+        print_script_inline(extJsFiles[i], fileContent);
+    }
+
+    // ownJsFiles, minified
+    var fileContent = grunt.file.read(ownJsFile);
+    print_script_inline(ownJsFile, fileContent);
+
+%>
+</head>
+<body>
+    <div id="md-all">
+        <div id="md-body">
+            <div id="md-title"></div>
+            <div id="md-menu">
+            </div>
+
+            <div id="md-content"></div>
+        </div>
+    </div>
+</body>
+<html>
+</html>
