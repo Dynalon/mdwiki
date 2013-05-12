@@ -100,6 +100,9 @@
     }
 
     function buildMenu () {
+        if ($('#md-menu a').length === 0) {
+            return;
+        }
         // wrap the remaining links in <li>
         $('#md-menu a').wrap('<li />');
 

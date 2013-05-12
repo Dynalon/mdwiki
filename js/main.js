@@ -80,6 +80,8 @@
         $.ajax('config.json').done(function(data){
             var configObject = $.parseJSON(data);
             dfdConfig.resolve(configObject);
+        }).fail(function() {
+            dfdConfig.resolve({});
         });
         return dfdConfig;
     }
@@ -136,7 +138,9 @@
         }
 
         $.when(dfdConfig, dfdMarkdown).done(function(config, markdown) {
-            $.md.config = config;
+            if (config) {
+                $.md.config = config;
+            }
             $.md.stages.md_init.resolve(markdown);
         });
 
@@ -194,7 +198,9 @@
 
         // basic_skeleton_ready stage start
         $.md.stages.md_ready.done(function(){
-            insertNavLinks($.md.config);
+            if ($.md.config.Navigation) {
+                insertNavLinks($.md.config);
+            }
             $.md('createBasicSkeleton');
             $.md.stages.basic_skeleton_ready.resolve();
         });
