@@ -88,6 +88,13 @@ module.exports = function(grunt) {
                 dest: 'dist/<%= pkg.name %>.min.js'
             }
         },
+        livereload: {
+            port: 35729 // Default livereload listening port.
+        },
+        reload: {
+            port: 35729,
+            liveReload: {}
+        },
         jshint: {
             options: {
                 curly: true,
@@ -126,7 +133,7 @@ module.exports = function(grunt) {
             js: {
                 files: ['js/*.js', 'js/**/*.js'],
 //                files: ['js/basic_skeleton.js'],
-                tasks: ['jshint']
+                tasks: ['jshint:js', 'all', 'livereload']
             }
         }
     });
@@ -136,8 +143,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-bower-task');
+    grunt.loadNpmTasks('grunt-contrib-livereload');
 
+//    grunt.task.run('livereload-start');
     grunt.registerTask('index_slim', 'Generate index.html depending on configuration', function() {
         var conf = grunt.config('index').slim,
         tmpl = grunt.file.read(conf.src);
@@ -155,8 +163,8 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('dev', ['jshint', 'concat:dev']);
-    grunt.registerTask('release-slim', ['jshint', 'concat:dev', 'uglify:dist', 'index_slim']);
-    grunt.registerTask('release-fat', ['jshint', 'concat:dev', 'uglify:dist', 'index_fat']);
+    grunt.registerTask('release-slim', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_slim']);
+    grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat']);
     grunt.registerTask('all', ['release-slim', 'release-fat' ]);
 
     // Default task.
