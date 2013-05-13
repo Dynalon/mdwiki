@@ -21,6 +21,8 @@
     "smarttabs": true,
     "globals": {
         "marked": true,
-        "jQuery": true
+        "jQuery": true,
+        "console": true,
+        "google": true
     }
 }

@@ -112,7 +112,8 @@ module.exports = function(grunt) {
                 globals: {
                     jQuery: true,
                     marked: true,
-                    google: true
+                    google: true,
+                    console: true
                 }
             },
             gruntfile: {
@@ -128,12 +129,16 @@ module.exports = function(grunt) {
         watch: {
             gruntfile: {
                 files: '<%= jshint.gruntfile.src %>',
-                tasks: ['jshint:gruntfile']
+                tasks: ['jshint:gruntfile', 'release-slim']
             },
             js: {
                 files: ['js/*.js', 'js/**/*.js'],
 //                files: ['js/basic_skeleton.js'],
-                tasks: ['jshint:js', 'all', 'livereload']
+                tasks: ['release-slim' ]
+            },
+            tmpl: {
+                files: ['index-*.tmpl'],
+                tasks: ['release-slim']
             }
         }
     });
@@ -162,8 +167,8 @@ module.exports = function(grunt) {
         grunt.log.writeln('Generated \'' + conf.dest + '\' from \'' + conf.src + '\'');
     });
 
-    grunt.registerTask('dev', ['jshint', 'concat:dev']);
-    grunt.registerTask('release-slim', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_slim']);
+    grunt.registerTask('dev', [ 'release-slim']);
+    grunt.registerTask('release-slim', [ 'jshint', 'concat:dev', 'index_slim']);
     grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat']);
     grunt.registerTask('all', ['release-slim', 'release-fat' ]);
 
