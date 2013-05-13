@@ -57,7 +57,9 @@
                 if ($.fn.gimmicks.methods[method]) {
                     return $.fn.gimmicks.methods[method].apply(this, [args]);
                 } else {
-                    $.error('Gimmick ' + method + ' does not exist on jquery.gimmicks');
+                    console.log('could not find the gimmick ' + method + '. Is it loaded?');
+                    return;
+                    //$.error('Gimmick ' + method + ' does not exist on jquery.gimmicks');
                 }
             }
         });
