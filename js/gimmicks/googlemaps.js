@@ -1,4 +1,5 @@
 (function($) {
+    'use strict';
     function set_map(opt, div_id) {
 
         // google uses rather complicated mapnames, we transform our simple ones
@@ -9,7 +10,7 @@
 
         // geocode performs address to coordinate transformation
         geocoder.geocode ({ address: opt.address }, function (result, status) {
-            if (status !== "OK") {
+            if (status !== 'OK') {
                 return;
             }
 
@@ -36,12 +37,11 @@
                 };
                 var options = $.extend({}, default_options, opt);
 
-
-                if (options["address"] === undefined) {
+                if (options.address === undefined) {
                     options.address = $this.attr ('href');
                 }
                 var div_id = 'google-map-' + Math.floor (Math.random() * 100000);
-                var $mapsdiv = $('<div class="md-external" id="' + div_id + '"/>');
+                var $mapsdiv = $('<div class="md-external md-external-nowidth" id="' + div_id + '"/>');
                 /* TODO height & width must be set AFTER the theme script went through
                 implement an on event, maybe?
                 if (options["width"] !== undefined) {
@@ -54,7 +54,6 @@
                     options["height"] = null;
                 }
                 */
-
                 $this.replaceWith ($mapsdiv);
                 // the div is already put into the site and will be formated,
                 // we can now run async
