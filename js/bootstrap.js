@@ -40,8 +40,9 @@
             //    $(".md-first-heading").css ("margin-top", "0");
 
             // external content should run after gimmicks were run
-            //$.md.bind ('md_gimmicks_complete', adjustExternalContent);
-
+            $.md.stages.bootstrap_skeleton_ready.done(function() {
+                adjustExternalContent();
+            });
         }
     };
     // register the public API functions
@@ -236,7 +237,7 @@
             .css ('height', '280px');
 
         // make it appear like an image thumbnal
-        $('iframe.md-external').addClass('thumbnail');
+        $('.md-external').addClass('thumbnail');
 
         //.wrap($("<ul class='thumbnails' />")).wrap($("<li class='span6' />"));
         $('div.md-external').not('.md-external-noheight')
