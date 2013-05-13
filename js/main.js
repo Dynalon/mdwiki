@@ -3,7 +3,9 @@
     // register our $.md object
     $.md = function (method){
         if ($.md.publicMethods[method]) {
-            return $.md.publicMethods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+            return $.md.publicMethods[method].apply(this,
+                Array.prototype.slice.call(arguments, 1)
+            );
         } else {
             $.error('Method ' + method + ' does not exist on jquery.md');
         }
@@ -66,10 +68,12 @@
         return dfd;
     }
     function transformMarkdown(markdown) {
-        marked.setOptions({
+        var options = {
             gfm: true,
-            tables: true
-        });
+            tables: true,
+            breaks: true
+        };
+        marked.setOptions(options);
 
         // get sample markdown
         var uglyHtml = marked(markdown);
@@ -97,6 +101,15 @@
         }
     }
 
+    function isRelativeUrl(url) {
+        // if there is :// in it, its considered absolute
+        // else its relative
+        if (url.indexOf("://") === -1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     // modify internal links so we load them through our engine
     function processPageLinks(domElement) {
         var html = $(domElement);
@@ -104,9 +117,7 @@
             var link = $(e);
             // link must be jquery collection
             var href = link.attr('href');
-            // if isRelativeLink(href)
-            var suffix = '.md';
-            if (href.indexOf(suffix, this.length - suffix.length) !== -1) {
+            if (isRelativeUrl(href) && false) {
                 var newHref = '#' + href;
                 link.attr('href', newHref);
                 link.click(function() {
