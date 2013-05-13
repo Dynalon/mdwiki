@@ -1,6 +1,11 @@
+var path = require('path');
+var lrSnippet = require('grunt-contrib-livereload/lib/utils').livereloadSnippet;
+
+var folderMount = function folderMount(connect, point) {
+    return connect.static(path.resolve(point));
+};
 /*global module:false*/
 module.exports = function(grunt) {
-    'use strict';
     // Project configuration.
 
     grunt.initConfig({
@@ -88,13 +93,6 @@ module.exports = function(grunt) {
                 dest: 'dist/<%= pkg.name %>.min.js'
             }
         },
-        livereload: {
-            port: 35729 // Default livereload listening port.
-        },
-        reload: {
-            port: 35729,
-            liveReload: {}
-        },
         jshint: {
             options: {
                 curly: true,
@@ -116,9 +114,9 @@ module.exports = function(grunt) {
                     console: true
                 }
             },
-            gruntfile: {
+            /*gruntfile: {
                 src: 'Gruntfile.js'
-            },
+            },*/
             js: {
                 src: ['js/*.js', 'js/**/*.js', '!js/marked.js']
             }
@@ -126,18 +124,19 @@ module.exports = function(grunt) {
         lib_test: {
             src: ['lib/**/*.js', 'test/**/*.js']
         },
-        watch: {
-            gruntfile: {
+         // Configuration to be run (and then tested)
+        regarde: {
+/*            gruntfile: {
                 files: '<%= jshint.gruntfile.src %>',
-                tasks: ['jshint:gruntfile', 'release-slim']
-            },
+                tasks: ['' ]
+            }, */
             js: {
                 files: ['js/*.js', 'js/**/*.js'],
 //                files: ['js/basic_skeleton.js'],
-                tasks: ['release-slim' ]
+                tasks: [ 'dev', 'livereload' ]
             },
             tmpl: {
-                files: ['index-*.tmpl'],
+                files: ['index-slim.tmpl', 'index-fat.tmpl'],
                 tasks: ['release-slim']
             }
         }
@@ -149,6 +148,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-livereload');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-regarde');
 
 //    grunt.task.run('livereload-start');
     grunt.registerTask('index_slim', 'Generate index.html depending on configuration', function() {
@@ -167,10 +168,12 @@ module.exports = function(grunt) {
         grunt.log.writeln('Generated \'' + conf.dest + '\' from \'' + conf.src + '\'');
     });
 
-    grunt.registerTask('dev', [ 'release-slim']);
-    grunt.registerTask('release-slim', [ 'jshint', 'concat:dev', 'index_slim']);
+    grunt.registerTask('dev', [ 'release-slim' ]);
+    grunt.registerTask('release-slim', [  'jshint', 'concat:dev', 'uglify:dist', 'index_slim']);
     grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat']);
-    grunt.registerTask('all', ['release-slim', 'release-fat' ]);
+    grunt.registerTask('all', ['release-slim', 'release-fat']);
+    grunt.registerTask('default', ['livereload-start', 'connect', 'regarde']);
+
 
     // Default task.
     grunt.registerTask('default', 'all');
