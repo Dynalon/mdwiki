@@ -10,7 +10,7 @@
             $.error('Method ' + method + ' does not exist on jquery.md');
         }
     };
-        // TODO remove events, use stages instead?
+    // TODO remove events, use stages instead?
     var events = [];
     var hookableEvents = new Array (
         'md_init',
@@ -63,6 +63,9 @@
     function fetchMainMarkdown(href) {
         var dfd = $.Deferred();
         $.ajax(href).done(function(data) {
+            var len = href.lastIndexOf('/');
+            var baseUrl = href.substring(0, len+1);
+            $.md.baseUrl = baseUrl;
             dfd.resolve(data);
         });
         return dfd;
@@ -104,7 +107,7 @@
     function isRelativeUrl(url) {
         // if there is :// in it, its considered absolute
         // else its relative
-        if (url.indexOf("://") === -1) {
+        if (url.indexOf('://') === -1) {
             return true;
         } else {
             return false;
@@ -113,16 +116,24 @@
     // modify internal links so we load them through our engine
     function processPageLinks(domElement) {
         var html = $(domElement);
-        html.find('a').each(function(i,e) {
+        html.find('a, img').each(function(i,e) {
             var link = $(e);
             // link must be jquery collection
-            var href = link.attr('href');
-            if (isRelativeUrl(href) && false) {
-                var newHref = '#' + href;
-                link.attr('href', newHref);
-                link.click(function() {
-                    loadContent(href);
-                });
+            var isImage = false;
+            var hrefAttribute = 'href';
+
+            if (!link.attr(hrefAttribute)) {
+                isImage = true;
+                hrefAttribute = 'src';
+            }
+            var href = link.attr(hrefAttribute);
+            if (isRelativeUrl(href)) {
+                var newHref = $.md.baseUrl + href;
+                if (!isImage) {
+                    link.attr(hrefAttribute, '#' + newHref);
+                } else {
+                    link.attr(hrefAttribute, newHref);
+                }
             }
         });
     }
@@ -229,6 +240,12 @@
         });
     }
     $(document).ready(function () {
+        $(window).hashchange(function () {
+            var href = window.location.hash.substring(1);
+            var hash = window.location.hash;
+            $.md.currentHash = hash;
+            loadContent(href);
+        });
         $.md('init');
     });
 }(jQuery));
