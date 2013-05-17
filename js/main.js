@@ -10,112 +10,123 @@
             $.error('Method ' + method + ' does not exist on jquery.md');
         }
     };
-    // TODO remove events, use stages instead?
-    var events = [];
-    var hookableEvents = new Array (
-        'md_init',
-        'md_load',
-        'md_ready',
-        'md_theme_complete',
-        'md_gimmicks_complete',
-        'md_complete'
-    );
 
-    $.md.stages = {
-        'md_init': $.Deferred(),
-        'md_load': $.Deferred(),
-        'md_ready': $.Deferred(),
-        'basic_skeleton_ready': $.Deferred(),
-        'bootstrap_skeleton_ready': $.Deferred(),
-        'postprocessing': $.Defered,
-        'all_ready': $.Defered
-    };
+    var stages = [];
 
-    // TODO check if we can remove this
-    // simple wrapper around $().bind
-    $.md.bind = function(ev, func) {
+    function init() {
+        $.md.config = {};
+        $.md.mainHref = '';
 
-        if ($.inArray (ev, hookableEvents) === -1) {
-            $.error ('Event ' + ev + ' not available');
-            return;
-        }
-        $(document).bind(ev, func);
-        // keep track of pushed events
-        events.push(ev);
-    };
-    $.md.trigger = function (ev) {
-        if ($.inArray (ev, hookableEvents) === -1) {
-            $.error('Event ' + ev + ' not available, can not trigger');
-            return;
-        }
-        $(document).trigger(ev);
-    };
+        stages = [
+            $.Stage('init'),
 
-    var publicMethods = {
-        init: function() {
-            bootUp();
-            runStages();
-        }
-    };
+            // loads config, initial markdown and navigation
+            $.Stage('load'),
+
+            // will transform the markdown to html
+            $.Stage('ready'),
+
+            // after we have a solid html skeleton
+            $.Stage('skel_ready'),
+
+            // after we have bootstrapified the skeleton
+            $.Stage('bootstrap_ready'),
+
+            // postprocess
+            $.Stage('postprocess'),
+
+            $.Stage('all_ready')
+        ];
+
+        $.md.stages = function(name) {
+            var m = $.grep(stages, function(e,i) {
+                return e.name === name;
+            });
+            if (m.length === 0) {
+                $.error('A stage by name ' + name + '  does not exist');
+            } else {
+                return m[0];
+            }
+        };
+    }
+    init();
+
+    function resetStages() {
+        var old_stages = stages;
+        stages = [];
+        $(old_stages).each(function(i,e) {
+            stages.push($.Stage(e.name));
+        });
+    }
+
+    var publicMethods = {};
     $.md.publicMethods = $.extend ({}, $.md.publicMethods, publicMethods);
 
+    function registerFetchMarkdown() {
+        var transformMarkdown = function(markdown) {
+            var options = {
+                gfm: true,
+                tables: true,
+                breaks: true
+            };
+            marked.setOptions(options);
 
-    function fetchMainMarkdown(href) {
-        var dfd = $.Deferred();
-        $.ajax(href).done(function(data) {
-            var len = href.lastIndexOf('/');
-            var baseUrl = href.substring(0, len+1);
-            $.md.baseUrl = baseUrl;
-            dfd.resolve(data);
-        });
-        return dfd;
-    }
-    function transformMarkdown(markdown) {
-        var options = {
-            gfm: true,
-            tables: true,
-            breaks: true
+            // get sample markdown
+            var uglyHtml = marked(markdown);
+            return uglyHtml;
         };
-        marked.setOptions(options);
+        var md = '';
 
-        // get sample markdown
-        var uglyHtml = marked(markdown);
-        return uglyHtml;
-    }
-    function fetchConfig() {
-        var dfdConfig = $.Deferred();
-        $.ajax('config.json').done(function(data){
-            var configObject = $.parseJSON(data);
-            dfdConfig.resolve(configObject);
-        }).fail(function() {
-            dfdConfig.resolve({});
+        $.md.stages('load').subscribe(function(done) {
+            $.ajax($.md.mainHref).done(function(data) {
+                // TODO do this elsewhere
+                md = data;
+                var len = $.md.mainHref.lastIndexOf('/');
+                var baseUrl = $.md.mainHref.substring(0, len+1);
+                $.md.baseUrl = baseUrl;
+                done();
+            });
         });
-        return dfdConfig;
+
+        $.md.stages('ready').subscribe(function(done) {
+            var uglyHtml = transformMarkdown(md);
+            $('#md-content').html(uglyHtml);
+            md = '';
+            done();
+        });
     }
 
-    // assemble a navigation
-    function insertNavLinks(config) {
-        var nav = $.md.config.Navigation;
-        for(var i=0;i<nav.length; i++) {
-            var anchor = $('<a/>');
-            anchor.attr('href', nav[i].Href);
-            anchor.text(nav[i].Text);
-            anchor.appendTo('#md-menu');
-        }
+    function registerCreateNavigation() {
+        // assemble a navigation
+        var insertNavLinks = function(config) {
+            var nav = $.md.config.Navigation;
+            if (nav === undefined) {
+                return;
+            }
+            for(var i=0;i<nav.length; i++) {
+                var anchor = $('<a/>');
+                anchor.attr('href', nav[i].Href);
+                anchor.text(nav[i].Text);
+                anchor.appendTo('#md-menu');
+            }
+        };
+        $.md.stages('postprocess').subscribe(function(done) {
+            processPageLinks($('#md-menu'));
+            done();
+        });
+
+        $.md.stages('ready').subscribe(function(done) {
+            insertNavLinks($.md.config);
+            done();
+        });
     }
 
-    function isRelativeUrl(url) {
-        // if there is :// in it, its considered absolute
-        // else its relative
-        if (url.indexOf('://') === -1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
     // modify internal links so we load them through our engine
-    function processPageLinks(domElement) {
+    function processPageLinks(domElement, baseUrl) {
         var html = $(domElement);
+        if (baseUrl === undefined) {
+            baseUrl = '';
+        }
         html.find('a, img').each(function(i,e) {
             var link = $(e);
             // link must be jquery collection
@@ -127,8 +138,8 @@
                 hrefAttribute = 'src';
             }
             var href = link.attr(hrefAttribute);
-            if (isRelativeUrl(href)) {
-                var newHref = $.md.baseUrl + href;
+            if ($.md.util.isRelativeUrl(href)) {
+                var newHref = baseUrl + href;
                 if (!isImage) {
                     link.attr(hrefAttribute, '#' + newHref);
                 } else {
@@ -138,114 +149,98 @@
         });
     }
 
-    function createMainContent(markdown) {
-        var uglyHtml = transformMarkdown(markdown);
-        $('#md-content').html(uglyHtml);
-        return uglyHtml;
+    function registerFetchConfig() {
+
+        $.md.stages('init').subscribe(function(done) {
+            $.ajax('config.json').done(function(data){
+                $.md.config = $.parseJSON(data);
+                done();
+            });
+        });
     }
-    $.md.config = {};
-    $.md.mainHref = '';
 
-    function bootUp() {
+    function registerClearContent() {
 
-        var dfdConfig = fetchConfig();
-        var dfdMarkdown = $.Deferred();
-
-        if (window.location.hash) {
-            $.md.mainHref = window.location.hash.substring(1);
-            dfdMarkdown = fetchMainMarkdown($.md.mainHref);
-        }
-        else {
-            dfdMarkdown.reject();
-        }
-
-        $.when(dfdConfig, dfdMarkdown).done(function(config, markdown) {
-            if (config) {
-                $.md.config = config;
-            }
-            $.md.stages.md_init.resolve(markdown);
+        $.md.stages('init').subscribe(function(done) {
+            $('#md-all').empty();
+            var skel ='<div id="md-body"><div id="md-title"></div><div id="md-menu">'+
+                '</div><div id="md-content"></div></div>';
+            $('#md-all').prepend($(skel));
+            //$('#md-content').empty();
+            done();
         });
 
-        $.when($.md.stages.md_ready).done(function(config, markdown) {
-        });
-
-        $.when($.md.stages.basic_skeleton_ready).done(function (){
-        });
-        $.when($.md.stages.bootstrap_skeleton_ready).done (function() {
-        });
-
-    }
-    function clearContent() {
-        $("#md-all").empty();
-        var skel ='<div id="md-body"><div id="md-title"></div><div id="md-menu">'+
-            '</div><div id="md-content"></div></div>';
-        $("#md-all").prepend($(skel));
     }
     function loadContent(href) {
-        // after all done, we reset the deferred's for the next
-        // iteration
-        $.md.stages.md_init = $.Deferred();
-        $.md.stages.md_load = $.Deferred();
-        $.md.stages.md_ready = $.Deferred();
-        $.md.stages.basic_skeleton_ready = $.Deferred();
-        $.md.stages.bootstrap_skeleton_ready = $.Deferred();
-        $.md.stages.postprocessing = $.Deferred();
-        $.md.stages.all_ready = $.Deferred();
 
         $.md.mainHref = href;
-        var dfdMarkdown = fetchMainMarkdown($.md.mainHref);
+
+        registerCreateNavigation();
+        registerFetchMarkdown();
+        registerClearContent();
+
+        $.md.stages('ready').subscribe(function(done) {
+            $.mdbootstrap('init');
+            $.mdbootstrap('bootstrapify');
+            done();
+        });
+        $.md.stages('bootstrap_ready').subscribe(function(done){
+            processPageLinks($('#md-content'), $.md.baseUrl);
+            done();
+        });
 
         runStages();
 
-        $.when(dfdMarkdown).done(function(markdown) {
-            clearContent();
-            $.md.stages.md_load.resolve(markdown);
-        });
-
     }
+
     function runStages() {
 
-        // md_load stage start
-        $.when($.md.stages.md_init).done(function(markdown) {
-            $.md.stages.md_load.resolve(markdown);
+        // wire the stages up
+        $.md.stages('init').done(function() {
+            $.md.stages('load').run();
         });
-        // md_load stage done
-
-        // md_ready stage start
-        $.md.stages.md_load.done(function(markdown) {
-            createMainContent(markdown);
-            $.md.stages.md_ready.resolve();
+        $.md.stages('load').done(function() {
+            $.md.stages('ready').run();
         });
-        // md_ready stage end
-
-        // basic_skeleton_ready stage start
-        $.md.stages.md_ready.done(function(){
-            if ($.md.config.Navigation) {
-                insertNavLinks($.md.config);
-            }
-            $.md('createBasicSkeleton');
-            $.md.stages.basic_skeleton_ready.resolve();
+        $.md.stages('ready').done(function() {
+            $.md.stages('skel_ready').run();
         });
-        // basic_skeleton_ready stage end
-
-        $.md.stages.basic_skeleton_ready.done(function(){
-            $.mdbootstrap('bootstrapify');
-            $.mdbootstrap('init');
-            $.md.stages.bootstrap_skeleton_ready.resolve();
+        $.md.stages('skel_ready').done(function() {
+            $.md.stages('bootstrap_ready').run();
+        });
+        $.md.stages('bootstrap_ready').done(function() {
+            $.md.stages('postprocess').run();
+        });
+        $.md.stages('postprocess').done(function() {
+            $.md.stages('all_ready').run();
+        });
+        $.md.stages('all_ready').done(function() {
+            // reset the stages for next iteration
+            resetStages();
         });
 
-        $.md.stages.bootstrap_skeleton_ready.done(function(){
-            processPageLinks($('#md-menu'));
-            processPageLinks($('#md-content'));
-        });
+        // trigger the whole process by runing the init stage
+        $.md.stages('init').run();
+        return;
+
     }
     $(document).ready(function () {
-        $(window).hashchange(function () {
+
+        // stage init stuff
+        registerFetchConfig();
+
+        if (window.location.hash === '') {
+            window.location.hash = '#index.md';
+        }
+        var href = window.location.hash.substring(1);
+
+        $(window).bind('hashchange', function () {
             var href = window.location.hash.substring(1);
             var hash = window.location.hash;
             $.md.currentHash = hash;
             loadContent(href);
         });
-        $.md('init');
+
+        loadContent(href);
     });
 }(jQuery));

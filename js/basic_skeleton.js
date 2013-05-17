@@ -1,7 +1,4 @@
-/* markdown.io assets (C) Timo Dörr
-licensed under GNU GPLv3
-see http://www.gnu.org/licenses/gpl-3.0.html
-*/
+
 (function($) {
 
     var publicMethods = {
@@ -27,7 +24,7 @@ see http://www.gnu.org/licenses/gpl-3.0.html
             // CALL GIMMICKS THAT ARE NOT TRIGGERED BY gimmick:FUNC() link
             $.gimmicks('colorbox');
             $.gimmicks('youtube');
-            $.gimmicks('alerts');
+            //$.gimmicks('alerts');
             return;
 
             //$.md.trigger('md_gimmicks_complete');

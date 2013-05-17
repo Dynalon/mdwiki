@@ -40,7 +40,7 @@
             //    $(".md-first-heading").css ("margin-top", "0");
 
             // external content should run after gimmicks were run
-            $.md.stages.bootstrap_skeleton_ready.done(function() {
+            $.md.stages('bootstrap_ready').done(function() {
                 adjustExternalContent();
             });
         }
@@ -151,7 +151,7 @@
 
         // HEADING
         var jumbo = $('<div class="jumbotron page-header" />');
-        var heading = $('<h1>');
+        var heading = $('<h1/>');
         heading.text($('#md_title').text());
         jumbo.append(heading);
         $('#md-title').wrapInner(jumbo);
