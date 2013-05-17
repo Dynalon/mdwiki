@@ -1,4 +1,19 @@
 (function($) {
+    // makes trouble, find out why
+    //'use strict';
+    var colorboxModule = {
+        name: 'colorbox',
+        scripts: [],
+        css: [],
+        load: function() {
+            $.md.stages('postprocess').subscribe(function(done) {
+                $.gimmicks('colorbox');
+                done();
+            });
+        }
+    };
+    $.md.registerModule(colorboxModule);
+
     var methods = {
         // takes a standard <img> tag and adds a hyperlink to the image source
         // needed since we scale down images via css and want them to be accessible

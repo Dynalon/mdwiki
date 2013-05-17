@@ -45,7 +45,7 @@
         };
 
         self.done(function() {
-            console.log('stage ' + self.name + ' completed successfully.');
+            //console.log('stage ' + self.name + ' completed successfully.');
         });
         self.fail(function() {
             console.log('stage ' + self.name + ' completed with errors!');

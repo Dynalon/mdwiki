@@ -19,4 +19,11 @@
         }
     };
     $.md.util = $.extend ({}, $.md.util, publicMethods);
+
+    // adds a :icontains selector to jQuery that is case insensitive
+    $.expr[':'].icontains = $.expr.createPseudo(function(arg) {
+        return function(elem) {
+            return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+        };
+    });
 }(jQuery));

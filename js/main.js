@@ -180,6 +180,11 @@
         registerClearContent();
 
         $.md.stages('ready').subscribe(function(done) {
+            $.md('createBasicSkeleton');
+            done();
+        });
+
+        $.md.stages('skel_ready').subscribe(function(done) {
             $.mdbootstrap('init');
             $.mdbootstrap('bootstrapify');
             done();

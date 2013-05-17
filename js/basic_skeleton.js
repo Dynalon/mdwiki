@@ -4,7 +4,6 @@
     var publicMethods = {
         createBasicSkeleton: function() {
 
-            $.md.trigger ('md_load');
             setPageTitle();
             wrapParagraphText();
             groupImages();
@@ -14,16 +13,12 @@
             removeBreaks();
             //markFirstHeading ();
 
-            $.md.trigger('md_ready');
-            // trigger our themeing
-            // TODO put that away
-            $.md.trigger('md_theme_complete');
 
             // TODO gimmicks should not be done in this stage
-            $.gimmicks ();
+            //$.gimmicks ();
             // CALL GIMMICKS THAT ARE NOT TRIGGERED BY gimmick:FUNC() link
-            $.gimmicks('colorbox');
-            $.gimmicks('youtube');
+            //$.gimmicks('colorbox');
+            //$.gimmicks('youtube');
             //$.gimmicks('alerts');
             return;
 
@@ -44,12 +39,7 @@
     };
     $.md.publicMethods = $.extend ({}, $.md.publicMethods, publicMethods);
 
-    // adds a :icontains selector to jQuery that is case insensitive
-    $.expr[':'].icontains = $.expr.createPseudo(function(arg) {
-        return function(elem) {
-            return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
-        };
-    });
+
 
     // set the page title to the browser document title, optionally picking
     // the first h1 element as title if no title is given
