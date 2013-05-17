@@ -4,3 +4,4 @@ dist/
 app/components
 md/
 .DS_Store
+.AppleDouble

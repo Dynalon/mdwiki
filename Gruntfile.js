@@ -17,6 +17,7 @@ module.exports = function(grunt) {
 
         ownJsFiles: [
             'js/marked.js',
+            'js/init.js',
             'js/stage.js',
             'js/main.js',
             'js/util.js',

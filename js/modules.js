@@ -15,14 +15,9 @@
                 // TODO
             });
         }
+        $.md.modules.push(module);
         // inject css into the dom
 
-        // wire up the load method
-        $.md.stages('load').subscribe(function(done) {
-            console.log("subscribing module");
-            module.load();
-            done();
-        });
         return;
     };
 }(jQuery));

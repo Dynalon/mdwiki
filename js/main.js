@@ -1,20 +1,10 @@
 (function($) {
     'use strict';
-    // register our $.md object
-    $.md = function (method){
-        if ($.md.publicMethods[method]) {
-            return $.md.publicMethods[method].apply(this,
-                Array.prototype.slice.call(arguments, 1)
-            );
-        } else {
-            $.error('Method ' + method + ' does not exist on jquery.md');
-        }
-    };
+
 
     var stages = [];
 
     function init() {
-        $.md.config = {};
         $.md.mainHref = '';
 
         stages = [
@@ -178,6 +168,14 @@
         registerCreateNavigation();
         registerFetchMarkdown();
         registerClearContent();
+
+        // wire up the load method of the modules
+        $.each($.md.modules, function(i, module) {
+            $.md.stages('load').subscribe(function(done) {
+                module.load();
+                done();
+            });
+        });
 
         $.md.stages('ready').subscribe(function(done) {
             $.md('createBasicSkeleton');
