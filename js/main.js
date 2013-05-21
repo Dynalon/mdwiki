@@ -1,35 +1,39 @@
 (function($) {
     'use strict';
 
-
-    var stages = [];
-
     function init() {
-        $.md.mainHref = '';
-
-        stages = [
+        $.md.stages = [
             $.Stage('init'),
 
             // loads config, initial markdown and navigation
             $.Stage('load'),
 
             // will transform the markdown to html
+            $.Stage('transform'),
+
+            // HTML transformation finished
             $.Stage('ready'),
 
-            // after we have a solid html skeleton
+            // after we have a polished html skeleton
             $.Stage('skel_ready'),
 
+            // will bootstrapify the skeleton
+            $.Stage('bootstrap'),
+
+            // before we run any gimmicks
+            $.Stage('pregimmick'),
+
             // after we have bootstrapified the skeleton
-            $.Stage('bootstrap_ready'),
+            $.Stage('gimmick'),
 
             // postprocess
-            $.Stage('postprocess'),
+            $.Stage('postgimmick'),
 
             $.Stage('all_ready')
         ];
 
-        $.md.stages = function(name) {
-            var m = $.grep(stages, function(e,i) {
+        $.md.stage = function(name) {
+            var m = $.grep($.md.stages, function(e,i) {
                 return e.name === name;
             });
             if (m.length === 0) {
@@ -42,10 +46,10 @@
     init();
 
     function resetStages() {
-        var old_stages = stages;
-        stages = [];
+        var old_stages = $.md.stages;
+        $.md.stages = [];
         $(old_stages).each(function(i,e) {
-            stages.push($.Stage(e.name));
+            $.md.stages.push($.Stage(e.name));
         });
     }
 
@@ -55,9 +59,9 @@
     function registerFetchMarkdown() {
         var transformMarkdown = function(markdown) {
             var options = {
-                gfm: true,
+                gfm: false,
                 tables: true,
-                breaks: true
+                breaks: false
             };
             marked.setOptions(options);
 
@@ -67,7 +71,7 @@
         };
         var md = '';
 
-        $.md.stages('load').subscribe(function(done) {
+        $.md.stage('transform').subscribe(function(done) {
             $.ajax($.md.mainHref).done(function(data) {
                 // TODO do this elsewhere
                 md = data;
@@ -78,7 +82,7 @@
             });
         });
 
-        $.md.stages('ready').subscribe(function(done) {
+        $.md.stage('ready').subscribe(function(done) {
             var uglyHtml = transformMarkdown(md);
             $('#md-content').html(uglyHtml);
             md = '';
@@ -100,12 +104,12 @@
                 anchor.appendTo('#md-menu');
             }
         };
-        $.md.stages('postprocess').subscribe(function(done) {
+        $.md.stage('bootstrap').subscribe(function(done) {
             processPageLinks($('#md-menu'));
             done();
         });
 
-        $.md.stages('ready').subscribe(function(done) {
+        $.md.stage('ready').subscribe(function(done) {
             insertNavLinks($.md.config);
             done();
         });
@@ -128,6 +132,10 @@
                 hrefAttribute = 'src';
             }
             var href = link.attr(hrefAttribute);
+
+            if (!isImage && $.md.util.isGimmickLink(link)) {
+                return;
+            }
             if ($.md.util.isRelativeUrl(href)) {
                 var newHref = baseUrl + href;
                 if (!isImage) {
@@ -141,7 +149,7 @@
 
     function registerFetchConfig() {
 
-        $.md.stages('init').subscribe(function(done) {
+        $.md.stage('init').subscribe(function(done) {
             $.ajax('config.json').done(function(data){
                 $.md.config = $.parseJSON(data);
                 done();
@@ -151,7 +159,7 @@
 
     function registerClearContent() {
 
-        $.md.stages('init').subscribe(function(done) {
+        $.md.stage('init').subscribe(function(done) {
             $('#md-all').empty();
             var skel ='<div id="md-body"><div id="md-title"></div><div id="md-menu">'+
                 '</div><div id="md-content"></div></div>';
@@ -169,26 +177,41 @@
         registerFetchMarkdown();
         registerClearContent();
 
+        // find out which link gimmicks we need
+        $.md.stage('ready').subscribe(function(done) {
+            $.md.findActiveLinkTrigger();
+            $.md.runGimmicksOnce();
+            $.md.loadRequiredScripts();
+            done();
+        });
+
         // wire up the load method of the modules
-        $.each($.md.modules, function(i, module) {
-            $.md.stages('load').subscribe(function(done) {
+        $.each($.md.gimmicks, function(i, module) {
+            if (module.load === undefined) {
+                return;
+            }
+            $.md.stage('load').subscribe(function(done) {
                 module.load();
                 done();
             });
         });
 
-        $.md.stages('ready').subscribe(function(done) {
+        $.md.stage('ready').subscribe(function(done) {
             $.md('createBasicSkeleton');
             done();
         });
 
-        $.md.stages('skel_ready').subscribe(function(done) {
+        $.md.stage('skel_ready').subscribe(function(done) {
             $.mdbootstrap('init');
             $.mdbootstrap('bootstrapify');
             done();
         });
-        $.md.stages('bootstrap_ready').subscribe(function(done){
+        $.md.stage('bootstrap').subscribe(function(done){
             processPageLinks($('#md-content'), $.md.baseUrl);
+            done();
+        });
+        $.md.stage('gimmick').subscribe(function(done) {
+            $.md.runLinkGimmicks();
             done();
         });
 
@@ -199,31 +222,40 @@
     function runStages() {
 
         // wire the stages up
-        $.md.stages('init').done(function() {
-            $.md.stages('load').run();
+        $.md.stage('init').done(function() {
+            $.md.stage('load').run();
         });
-        $.md.stages('load').done(function() {
-            $.md.stages('ready').run();
+        $.md.stage('load').done(function() {
+            $.md.stage('transform').run();
         });
-        $.md.stages('ready').done(function() {
-            $.md.stages('skel_ready').run();
+        $.md.stage('transform').done(function() {
+            $.md.stage('ready').run();
         });
-        $.md.stages('skel_ready').done(function() {
-            $.md.stages('bootstrap_ready').run();
+        $.md.stage('ready').done(function() {
+            $.md.stage('skel_ready').run();
         });
-        $.md.stages('bootstrap_ready').done(function() {
-            $.md.stages('postprocess').run();
+        $.md.stage('skel_ready').done(function() {
+            $.md.stage('bootstrap').run();
         });
-        $.md.stages('postprocess').done(function() {
-            $.md.stages('all_ready').run();
+        $.md.stage('bootstrap').done(function() {
+            $.md.stage('pregimmick').run();
         });
-        $.md.stages('all_ready').done(function() {
+        $.md.stage('pregimmick').done(function() {
+            $.md.stage('gimmick').run();
+        });
+        $.md.stage('gimmick').done(function() {
+            $.md.stage('postgimmick').run();
+        });
+        $.md.stage('postgimmick').done(function() {
+            $.md.stage('all_ready').run();
+        });
+        $.md.stage('all_ready').done(function() {
             // reset the stages for next iteration
             resetStages();
         });
 
         // trigger the whole process by runing the init stage
-        $.md.stages('init').run();
+        $.md.stage('init').run();
         return;
 
     }
@@ -236,6 +268,7 @@
             window.location.hash = '#index.md';
         }
         var href = window.location.hash.substring(1);
+
 
         $(window).bind('hashchange', function () {
             var href = window.location.hash.substring(1);

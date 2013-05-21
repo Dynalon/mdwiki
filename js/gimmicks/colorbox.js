@@ -1,18 +1,16 @@
 (function($) {
     // makes trouble, find out why
     //'use strict';
-    var colorboxModule = {
+    var colorboxGimmick = {
         name: 'colorbox',
-        scripts: [],
-        css: [],
         load: function() {
-            $.md.stages('postprocess').subscribe(function(done) {
+            $.md.stage('gimmick').subscribe(function(done) {
                 $.gimmicks('colorbox');
                 done();
             });
         }
     };
-    $.md.registerModule(colorboxModule);
+    $.md.registerGimmick(colorboxGimmick);
 
     var methods = {
         // takes a standard <img> tag and adds a hyperlink to the image source

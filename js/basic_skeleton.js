@@ -1,10 +1,10 @@
 
 (function($) {
-
     var publicMethods = {
         createBasicSkeleton: function() {
 
             setPageTitle();
+
             wrapParagraphText();
             groupImages();
             processPreviews();

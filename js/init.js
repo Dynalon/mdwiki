@@ -11,7 +11,10 @@
             $.error('Method ' + method + ' does not exist on jquery.md');
         }
     };
+    $.md.version = "0.1.0";
     $.md.config = {};
-    $.md.modules = [];
+    $.md.gimmicks = [];
+    $.md.stages = [];
+    $.md.mainHref = '';
 
 }(jQuery));

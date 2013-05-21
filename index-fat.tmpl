@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <head>
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
 <%
-    var ownJsFile = grunt.config('uglify').dist.dest;
+    //var ownJsFile = grunt.config('uglify').dist.dest;
+    var ownJsFile = grunt.config('concat').dev.dest;
+
     var extJsFiles = grunt.config('externalJsFilesFat');
     var extCssFiles = grunt.config('externalCssFilesFat');
 

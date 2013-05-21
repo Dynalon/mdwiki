@@ -1,30 +1,41 @@
 (function($) {
-	var methods = {
-		twitterfollow: function () {
-			var $this = $(this);
-			if ($this.length === 0)	{
-				$this = $('a:icontains(gimmick:TwitterFollow)');
-			}
-			return $this.each(function() {
-				var $this = $(this);
-				var user;
-				var href = $this.attr('href');
+    'use strict';
+    // no license information given in the widget.js -> OTHER
+    var twitterscript = '<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");<\/script>';
+    var twitterGimmick = {
+        name: 'TwitterGimmick',
+        version: $.md.version,
+        once: function() {
+            $.md.linkGimmick(this, 'twitterfollow', twitterfollow);
 
-				if (href.indexOf ('twitter.com') <= 0) {
-					user = $this.attr('href');
-					href = 'https://twitter.com/' + user;
-				}
-				else {
-					return;
-				}
-				// remove the leading @ if given
-				if (user[0] === '@') {
-					user = user.substring(1);
-				}
-				var twitter_src = $('<a href="' + href + '" class="twitter-follow-button" data-show-count="false" data-lang="en" data-show-screen-name="false">"'+ '@' + user + '</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>');
-				$this.replaceWith (twitter_src);
-			});
-		}
+            $.md.registerScript(this, twitterscript, {
+                license: 'OTHER',
+                loadstage: 'postgimmick',
+                finishstage: 'all_ready'
+            });
+
+        }
     };
-    $.fn.gimmicks.methods = $.extend ({}, $.fn.gimmicks.methods, methods);
+    $.md.registerGimmick(twitterGimmick);
+
+	var twitterfollow = function($links, opt, text) {
+		return $links.each(function(i, link) {
+			var $link = $(link);
+			var user;
+			var href = $link.attr('href');
+			if (href.indexOf ('twitter.com') <= 0) {
+				user = $link.attr('href');
+				href = 'https://twitter.com/' + user;
+			}
+			else {
+				return;
+			}
+			// remove the leading @ if given
+			if (user[0] === '@') {
+				user = user.substring(1);
+			}
+			var twitter_src = $('<a href="' + href + '" class="twitter-follow-button" data-show-count="false" data-lang="en" data-show-screen-name="false">'+ '@' + user + '</a>');
+			$link.replaceWith (twitter_src);
+		});
+    };
 }(jQuery));

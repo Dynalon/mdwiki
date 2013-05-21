@@ -1,19 +1,17 @@
 (function($) {
     'use strict';
-    var alertsModule = {
+    var alertsGimmick = {
         name: 'alerts',
         // TODO
         //version: $.md.version,
-        scripts: [],
-        css: [],
         load: function() {
-            $.md.stages('bootstrap_ready').subscribe(function(done) {
+            $.md.stage('bootstrap').subscribe(function(done) {
                 createAlerts();
                 done();
             });
         }
     };
-    $.md.registerModule(alertsModule);
+    $.md.registerGimmick(alertsGimmick);
 
     // takes a standard <img> tag and adds a hyperlink to the image source
     // needed since we scale down images via css and want them to be accessible

@@ -30,12 +30,13 @@ module.exports = function(grunt) {
             'js/gimmicks/alerts.js',
             'js/gimmicks/colorbox.js',
             'js/gimmicks/disqus.js',
-            //'js/gimmicks/facebooklike.js',
+            'js/gimmicks/facebooklike.js',
             'js/gimmicks/forkmeongithub.js',
             //'js/gimmicks/github_gist.js',
             'js/gimmicks/googlemaps.js',
             'js/gimmicks/image_linker.js',
-            //'js/gimmicks/twitter.js',
+            'js/gimmicks/leaflet.js',
+            'js/gimmicks/twitter.js',
             'js/gimmicks/youtube_embed.js'
         ],
 
@@ -115,6 +116,8 @@ module.exports = function(grunt) {
                     jQuery: true,
                     marked: true,
                     google: true,
+                    /* leaflet.js*/
+                    L: true,
                     console: true
                 }
             },
@@ -172,7 +175,14 @@ module.exports = function(grunt) {
         grunt.log.writeln('Generated \'' + conf.dest + '\' from \'' + conf.src + '\'');
     });
 
-    grunt.registerTask('dev', [ 'release-slim' ]);
+    grunt.registerTask( 'tests', 'Generate tests.html', function() {
+        var tmpl = grunt.file.read('tests/test.html');
+
+        grunt.file.write('dist/test.html', grunt.template.process(tmpl));
+        grunt.log.writeln('Generated test.html');
+    });
+
+    grunt.registerTask('dev', [ 'release-slim', 'release-fat' ]);
     grunt.registerTask('release-slim', [  'jshint', 'concat:dev', 'uglify:dist', 'index_slim']);
     grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat']);
     grunt.registerTask('all', ['release-slim', 'release-fat']);

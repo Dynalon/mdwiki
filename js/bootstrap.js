@@ -40,7 +40,7 @@
             //    $(".md-first-heading").css ("margin-top", "0");
 
             // external content should run after gimmicks were run
-            $.md.stages('bootstrap_ready').done(function() {
+            $.md.stage('bootstrap').done(function() {
                 adjustExternalContent();
             });
         }

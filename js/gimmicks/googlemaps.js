@@ -1,5 +1,51 @@
+// ugly, but the google loader requires the callback fn
+// to be in the global scope
+var googlemapsLoadDone;
+
+function googlemapsReady() {
+    'use strict';
+    googlemapsLoadDone.resolve();
+}
+
 (function($) {
     'use strict';
+    var scripturl = 'http://maps.google.com/maps/api/js?sensor=false&callback=googlemapsReady';
+
+    function googlemaps($links, opt, text) {
+        var $maps_links = $links;
+        var counter = (new Date()).getTime ();
+        return $maps_links.each(function(i,e) {
+            var $link = $(e);
+            var default_options = {
+                zoom: 11,
+                marker: true,
+                maptype: 'roadmap'
+            };
+            var options = $.extend({}, default_options, opt);
+            if (options.address === undefined) {
+                options.address = $link.attr ('href');
+            }
+            var div_id = 'google-map-' + Math.floor (Math.random() * 100000);
+            var $mapsdiv = $('<div class="md-external md-external-nowidth" id="' + div_id + '"/>');
+            /* TODO height & width must be set AFTER the theme script went through
+            implement an on event, maybe?
+            if (options["width"] !== undefined) {
+               console.log (options);
+                $mapsdiv.css('width', options["width"] + "px");
+                options["width"] = null;
+            }
+            if (options["height"] !== undefined) {
+                $mapsdiv.css('height', options["height"] + "px");
+                options["height"] = null;
+            }
+            */
+            $link.replaceWith ($mapsdiv);
+            // the div is already put into the site and will be formated,
+            // we can now run async
+            console.log('set map');
+            set_map (options, div_id);
+        });
+    }
     function set_map(opt, div_id) {
 
         // google uses rather complicated mapnames, we transform our simple ones
@@ -24,42 +70,30 @@
             }
         });
     }
-    var methods = {
-        googlemaps: function(opt) {
-            var $maps_links = $(this);
-            var counter = (new Date()).getTime ();
-            return $maps_links.each(function() {
-                var $this = $(this);
-                var default_options = {
-                    zoom: 11,
-                    marker: true,
-                    maptype: 'roadmap'
-                };
-                var options = $.extend({}, default_options, opt);
 
-                if (options.address === undefined) {
-                    options.address = $this.attr ('href');
-                }
-                var div_id = 'google-map-' + Math.floor (Math.random() * 100000);
-                var $mapsdiv = $('<div class="md-external md-external-nowidth" id="' + div_id + '"/>');
-                /* TODO height & width must be set AFTER the theme script went through
-                implement an on event, maybe?
-                if (options["width"] !== undefined) {
-                   console.log (options);
-                    $mapsdiv.css('width', options["width"] + "px");
-                    options["width"] = null;
-                }
-                if (options["height"] !== undefined) {
-                    $mapsdiv.css('height', options["height"] + "px");
-                    options["height"] = null;
-                }
-                */
-                $this.replaceWith ($mapsdiv);
-                // the div is already put into the site and will be formated,
-                // we can now run async
-                set_map (options, div_id);
+    var googleMapsGimmick = {
+        name: 'googlemaps',
+        version: $.md.version,
+        once: function() {
+            googlemapsLoadDone = $.Deferred();
+
+            // register the gimmick:googlemaps identifier
+            $.md.linkGimmick(this, 'googlemaps', googlemaps);
+
+            // load the googlemaps js from the google server
+            $.md.registerScript(this, scripturl, {
+                license: 'OTHER',
+                loadstage: 'skel_ready',
+                finishstage: 'bootstrap'
+            });
+
+            // defer the pregimmick phase until the google script fully loaded
+            $.md.stage('bootstrap').subscribe(function(done) {
+                googlemapsLoadDone.done(function() {
+                    done();
+                });
             });
         }
     };
-    $.gimmicks.methods = $.fn.gimmicks.methods = $.extend({}, $.fn.gimmicks.methods, methods);
+    $.md.registerGimmick(googleMapsGimmick);
 }(jQuery));
