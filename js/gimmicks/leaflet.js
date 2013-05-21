@@ -39,7 +39,7 @@
         version: $.md.version,
         once: function() {
             $.md.linkGimmick(this, 'leaflet', leaflet_map);
-            $.md.loadCss(this, cssUrl, {
+            $.md.registerCss(this, cssUrl, {
                 license: 'MIT',
                 stage: 'skel_ready'
             });

@@ -179,9 +179,7 @@
 
         // find out which link gimmicks we need
         $.md.stage('ready').subscribe(function(done) {
-            $.md.findActiveLinkTrigger();
-            $.md.runGimmicksOnce();
-            $.md.loadRequiredScripts();
+            $.md.initializeGimmicks();
             done();
         });
 

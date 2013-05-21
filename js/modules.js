@@ -1,20 +1,86 @@
 (function($) {
     'use strict';
-    var licenses = ['MIT', 'BSD', 'GPL', 'GPL2', 'GPL3', 'LGPL', 'LGPL2',
-        'APACHE2', 'PUBLICDOMAIN', 'OTHER'
-    ];
-    var registeredScripts = [];
-    var linkTriggers = [];
+
+    // PUBLIC API
+
+    $.md.registerGimmick = function(module) {
+        $.md.gimmicks.push(module);
+        return;
+    };
+
+    // registers a script for a gimmick, that is later dynamically loaded
+    // by the core.
+    // src may be an URL or direct javascript sourcecode. When options.callback
+    // is provided, the done() function is passed to the function and needs to
+    // be called.
+    $.md.registerScript = function(module, src, options) {
+        var scriptinfo = new ScriptInfo({
+            module: module,
+            src: src,
+            options: options
+        });
+        registeredScripts.push(scriptinfo);
+    };
+
+    // same as registerScript but for css. Note that we do not provide a
+    // callback when the load finishes
+    $.md.registerCss = function(module, url, options) {
+        var license = options.license,
+            stage = options.stage || 'skel_ready',
+            callback = options.callback;
+
+        checkLicense(license);
+        var tag = '<link rel="stylesheet" href="' + url + '" type="text/css"></link>';
+        $.md.stage(stage).subscribe(function(done) {
+            $('head').append(tag);
+            if (callback !== undefined) {
+                callback(done);
+            } else {
+                done();
+            }
+        });
+    };
+
+    // associate a link trigger for a gimmick. i.e. [gimmick:foo]() then
+    // foo is the trigger and will invoke the corresponding gimmick
+    $.md.linkGimmick = function(module, trigger, callback) {
+        var linktrigger = new LinkTrigger({
+            trigger: trigger,
+            module: module,
+            callback: callback
+        });
+        linkTriggers.push(linktrigger);
+    };
+
+    // TODO combine main.js and modules.js closure
+    $.md.initializeGimmicks = function () {
+        findActiveLinkTrigger();
+        runGimmicksOnce();
+        loadRequiredScripts();
+    };
+
+    // END PUBLIC API
+
+
     // triggers that we actually found on the page
+    // array of string
     var activeLinkTriggers = [];
 
+
+    // array of ScriptInfo
+    var registeredScripts = [];
     function ScriptInfo(initial) {
         this.module = undefined;
         this.options = {};
-        this.url = '';
+
+        // can ba an URL or javascript sourcecode
+        this.src = '';
 
         $.extend(this, initial);
     }
+
+    // array of linkTriggers
+    var linkTriggers = [];
     function LinkTrigger(initial) {
         this.trigger = undefined;
         this.module = undefined;
@@ -34,6 +100,11 @@
         document.body.appendChild(script);
     }
 
+    // since we are GPL, we have to be cautious what other scripts we load
+    // as delivering to the browser is considered delivering a derived work
+    var licenses = ['MIT', 'BSD', 'GPL', 'GPL2', 'GPL3', 'LGPL', 'LGPL2',
+        'APACHE2', 'PUBLICDOMAIN', 'OTHER'
+    ];
     function checkLicense(license, modulename) {
         if ($.inArray(license, licenses) === -1) {
             var availLicenses = JSON.stringify(licenses);
@@ -47,22 +118,12 @@
         }
     }
 
-
-    $.md.registerScript = function(module, url, options) {
-        var scriptinfo = new ScriptInfo({
-            module: module,
-            url: url,
-            options: options
-        });
-        registeredScripts.push(scriptinfo);
-    };
-
+    // will actually schedule the script load into the DOM.
     function loadScript(scriptinfo) {
 
         var module = scriptinfo.module,
-            url = scriptinfo.url,
+            src = scriptinfo.src,
             options = scriptinfo.options;
-        console.log(options);
 
         var license = options.license || 'OTHER',
             loadstage = options.loadstage || 'skel_ready',
@@ -75,20 +136,20 @@
         // start script loading
         console.log ('subscribing ' + module.name + 'to start: ' + loadstage + ' end in: ' + finishstage);
         $.md.stage(loadstage).subscribe(function(done) {
-            if (url.startsWith('//') || url.startsWith('http')) {
-                $.getScript(url, function() {
+            if (src.startsWith('//') || src.startsWith('http')) {
+                $.getScript(src, function() {
                     if (callback !== undefined) {
                         callback(done);
                     } else {
-                        console.log('script load done: ' + url);
+                        console.log('script load done: ' + src);
                         done();
                     }
                     loadDone.resolve();
                 });
             } else {
                 // inline script that we directly insert
-                insertInlineScript(url);
-                console.log('script inject done: ' + url);
+                insertInlineScript(src);
+                console.log('script inject done: ' + src);
                 loadDone.resolve();
                 done();
             }
@@ -102,33 +163,9 @@
         });
     }
 
-    $.md.loadCss = function(module, url, options) {
-        var license = options.license,
-            stage = options.stage || 'skel_ready',
-            callback = options.callback;
-
-        checkLicense(license);
-        var tag = '<link rel="stylesheet" href="' + url + '" type="text/css"></link>';
-        $.md.stage(stage).subscribe(function(done) {
-            $('head').append(tag);
-            if (callback !== undefined) {
-                callback(done);
-            } else {
-                done();
-            }
-        });
-    };
-
-    $.md.linkGimmick = function(module, name, callback) {
-        var linktrigger = new LinkTrigger({
-            trigger: name,
-            module: module,
-            callback: callback
-        });
-        linkTriggers.push(linktrigger);
-    };
-
-    $.md.findActiveLinkTrigger = function() {
+    // finds out that kind of trigger words are acutally used on a given page
+    // this is most likely a very small subset of all available gimmicks
+    function findActiveLinkTrigger() {
         var $gimmicks = $('a:icontains(gimmick:)');
         $gimmicks.each(function(i,e) {
             var parts = getGimmickLinkParts($(e));
@@ -137,12 +174,10 @@
             }
         });
         console.log('We need the modules: ' + JSON.stringify(activeLinkTriggers));
-    };
+    }
 
-    $.md.loadRequiredScripts = function() {
-        // TODO
+    function loadRequiredScripts() {
         // find each module responsible for the link trigger
-        // register to load the script
         $.each(activeLinkTriggers, function(i,trigger) {
             var module = findModuleByTrigger(trigger);
             if (module === undefined) {
@@ -152,11 +187,12 @@
             var scriptinfo = registeredScripts.filter(function(info) {
                 return info.module.name === module.name;
             })[0];
+            // register to load the script
             if (scriptinfo !== undefined) {
                 loadScript(scriptinfo);
             }
         });
-    };
+    }
 
     function findModuleByTrigger(trigger) {
         var ret;
@@ -205,8 +241,7 @@
         return { trigger: trigger, options: args, text: link_text };
     }
 
-
-    $.md.runGimmicksOnce = function() {
+    function runGimmicksOnce() {
         // runs the once: callback for each gimmick within the init stage
         $.each($.md.gimmicks, function(i, module) {
             if (module.once === undefined) {
@@ -214,10 +249,11 @@
             }
             module.once();
         });
-    };
+    }
 
     // activate all gimmicks on a page, that are contain the text gimmick:
-    $.md.runLinkGimmicks = function() {
+    // TODO make private / merge closures
+    $.md.runLinkGimmicks = function () {
         var $gimmicks = $('a:icontains(gimmick:)');
         $gimmicks.each(function() {
             var $link = $(this);
@@ -230,8 +266,4 @@
         });
     };
 
-    $.md.registerGimmick = function(module) {
-        $.md.gimmicks.push(module);
-        return;
-    };
 }(jQuery));
