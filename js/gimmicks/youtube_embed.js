@@ -1,5 +1,5 @@
 (function($) {
-    'use strict';
+    //'use strict';
     var youtubeGimmick = {
         name: 'youtube',
         load: function() {

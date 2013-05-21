@@ -1,4 +1,5 @@
 (function($) {
+    'use strict';
     var forkmeongithubGimmick = {
         name: 'forkmeongithub',
         version: $.md.version,

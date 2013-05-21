@@ -3,12 +3,11 @@
 var googlemapsLoadDone;
 
 function googlemapsReady() {
-    'use strict';
     googlemapsLoadDone.resolve();
 }
 
 (function($) {
-    'use strict';
+    //'use strict';
     var scripturl = 'http://maps.google.com/maps/api/js?sensor=false&callback=googlemapsReady';
 
     function googlemaps($links, opt, text) {

@@ -1,5 +1,5 @@
 (function($) {
-    'use strict';
+    //'use strict';
     var alertsGimmick = {
         name: 'alerts',
         // TODO

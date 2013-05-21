@@ -8,6 +8,22 @@
     // triggers that we actually found on the page
     var activeLinkTriggers = [];
 
+    function ScriptInfo(initial) {
+        this.module = undefined;
+        this.options = {};
+        this.url = '';
+
+        $.extend(this, initial);
+    }
+    function LinkTrigger(initial) {
+        this.trigger = undefined;
+        this.module = undefined;
+        this.callback = undefined;
+
+        $.extend(this, initial);
+    }
+
+
     function checkLicense(license, modulename) {
         if ($.inArray(license, licenses) === -1) {
             var availLicenses = JSON.stringify(licenses);
@@ -23,11 +39,11 @@
 
 
     $.md.registerScript = function(module, url, options) {
-        var scriptinfo = {
+        var scriptinfo = new ScriptInfo({
             module: module,
             url: url,
             options: options
-        };
+        });
         registeredScripts.push(scriptinfo);
     };
 
@@ -94,11 +110,12 @@
     };
 
     $.md.linkGimmick = function(module, name, callback) {
-        linkTriggers.push({
+        var linktrigger = new LinkTrigger({
             trigger: name,
             module: module,
             callback: callback
         });
+        linkTriggers.push(linktrigger);
     };
 
     $.md.findActiveLinkTrigger = function() {

@@ -1,5 +1,5 @@
 (function($) {
-    'use strict';
+    //'use strict';
     var jsUrl = 'http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.js';
     var cssUrl = 'http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css';
 
