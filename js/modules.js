@@ -23,6 +23,16 @@
         $.extend(this, initial);
     }
 
+    // jQuery does some magic when inserting inline scripts, so better
+    // use vanilla JS. See:
+    // http://stackoverflow.com/questions/610995/jquery-cant-append-script-element
+    function insertInlineScript(src) {
+        // scripts always need to go directly into the DOM
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.text = src;
+        document.body.appendChild(script);
+    }
 
     function checkLicense(license, modulename) {
         if ($.inArray(license, licenses) === -1) {
@@ -77,7 +87,7 @@
                 });
             } else {
                 // inline script that we directly insert
-                $('body').append($(url));
+                insertInlineScript(url);
                 console.log('script inject done: ' + url);
                 loadDone.resolve();
                 done();
