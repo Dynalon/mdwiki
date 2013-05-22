@@ -272,7 +272,8 @@
             var href = window.location.hash.substring(1);
             var hash = window.location.hash;
             $.md.currentHash = hash;
-            loadContent(href);
+            location.reload();
+            //loadContent(href);
         });
 
         loadContent(href);
