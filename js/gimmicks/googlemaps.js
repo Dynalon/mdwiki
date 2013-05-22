@@ -86,11 +86,16 @@ function googlemapsReady() {
                 finishstage: 'bootstrap'
             });
 
-            // defer the pregimmick phase until the google script fully loaded
             $.md.stage('bootstrap').subscribe(function(done) {
-                googlemapsLoadDone.done(function() {
+                // defer the pregimmick phase until the google script fully loaded
+                if ($.md.triggerIsActive('googlemaps')) {
+                    googlemapsLoadDone.done(function() {
+                        done();
+                    });
+                } else {
+                    // immediately return as there will never a load success
                     done();
-                });
+                }
             });
         }
     };

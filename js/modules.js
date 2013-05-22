@@ -52,6 +52,15 @@
         linkTriggers.push(linktrigger);
     };
 
+    $.md.triggerIsActive = function(trigger) {
+        if (activeLinkTriggers.indexOf(trigger) === -1) {
+            return false;
+        } else {
+            return true;
+        }
+    };
+
+    var initialized = false;
     // TODO combine main.js and modules.js closure
     $.md.initializeGimmicks = function () {
         findActiveLinkTrigger();
