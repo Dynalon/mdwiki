@@ -33,6 +33,7 @@ module.exports = function(grunt) {
             'js/gimmicks/facebooklike.js',
             'js/gimmicks/forkmeongithub.js',
             //'js/gimmicks/github_gist.js',
+            'js/gimmicks/gist.js',
             'js/gimmicks/googlemaps.js',
             'js/gimmicks/image_linker.js',
             'js/gimmicks/leaflet.js',
@@ -65,7 +66,10 @@ module.exports = function(grunt) {
             'netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js'
         ],
         externalCssRefsSlim: [
-            'netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap-combined.min.css'
+            'netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap-combined.min.css',
+//            'netdna.bootstrapcdn.com/bootswatch/2.3.1/slate/bootstrap.min.css',
+//            'www.3solarmasses.com/retriever-bootstrap/css/retriever.css'
+//            '3solarmasses.com/corgi-bootstrap/css/corgi.css'
         ],
 
         index: {
@@ -133,10 +137,10 @@ module.exports = function(grunt) {
         },
          // Configuration to be run (and then tested)
         regarde: {
-/*            gruntfile: {
-                files: '<%= jshint.gruntfile.src %>',
-                tasks: ['' ]
-            }, */
+            gruntfile: {
+                files: 'Gruntfile.js',
+                tasks: [ 'dev', 'livereload' ]
+            },
             js: {
                 files: ['js/*.js', 'js/**/*.js'],
 //                files: ['js/basic_skeleton.js'],

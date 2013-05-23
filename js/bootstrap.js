@@ -184,7 +184,8 @@
                     return $(this).parents('a').length === 0;
                 })
                 // add those anchors including images
-                .add($(this).find ('a:has(img)'));
+                .add($(this).find ('a:has(img)'))
+                .addClass('thumbnail');
 
             // create a new url group at the fron of the paragraph
             $p.prepend($('<ul class="thumbnails" />'));
@@ -193,7 +194,8 @@
 
             // wrap each image with a <li> that limits their space
             // the number of images in a paragraphs determines thei width / span
-            if ($p.hasClass ('md-floatenv')) {
+            // FLOATS disabled for now
+            if (false && $p.hasClass ('md-floatenv')) {
                 // float environments have smaller sizes for images
                 if ($images.length === 1) {
                     $images.wrap('<li class="span6" />');
@@ -208,6 +210,7 @@
                 // but do no upscaling
                 if ($images.length === 1) {
                     $images.wrap('<li class="span10" />');
+
                 } else if ($images.length === 2) {
                     $images.wrap('<li class="span5" />');
                 } else {
@@ -215,7 +218,7 @@
                 }
             }
             // finally, every img gets its own wrapping thumbnail div
-            $images.wrap('<div class="thumbnail" />');
+            //$images.wrap('<div class="thumbnail" />');
         });
         // apply float to the ul thumbnails
         $('.md-floatenv.md-float-left ul').addClass ('pull-left');

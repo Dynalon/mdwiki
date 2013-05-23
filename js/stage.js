@@ -32,7 +32,7 @@
                 // display an error if our done() callback is not called
                 $.md.util.wait(2500).done(function() {
                     if(d.state() !== 'resolved') {
-                        $.error('FATAL: Timeout reached for done callback in stage: ' + self.name +
+                        console.log('WARN: Timeout reached for done callback in stage: ' + self.name +
                             '. Did you forget a done() call in a .subscribe() ?');
                     }
                 });

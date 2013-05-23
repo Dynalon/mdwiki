@@ -219,6 +219,7 @@
         if (link_text.match(/gimmick:/i) === null) {
             return null;
         }
+        var href = $.trim($link.attr('href'));
         var r = new RegExp(/gimmick:\s*([^(\s]*)\s*(\(\s*{?(.*)\s*}?\s*\))*/i);
         var matches = r.exec(link_text);
         if (matches === null || matches[1] === undefined) {
@@ -247,7 +248,7 @@
                 $.error('error parsing argument of gimmick: ' + link_text + 'giving error: ' + err);
             }
         }
-        return { trigger: trigger, options: args, text: link_text };
+        return { trigger: trigger, options: args, href: href };
     }
 
     function runGimmicksOnce() {
@@ -269,7 +270,7 @@
             var args = getGimmickLinkParts($link);
             $.each(linkTriggers, function(i,e) {
                 if (args.trigger === e.trigger) {
-                    e.callback($link, args.options, args.text);
+                    e.callback($link, args.options, args.href);
                 }
             });
         });
