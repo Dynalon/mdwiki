@@ -104,8 +104,27 @@
         if ($('#md-menu a').length === 0) {
             return;
         }
+        var h = $('#md-menu');
+        // make toplevel a a dropdown
+        h.find('> a[href=""]')
+            .attr('data-toggle', 'dropdown')
+            .addClass('dropdown-toggle')
+            .attr('href','')
+            .append('<b class="caret"/>');
+        h.find('ul').addClass('dropdown-menu');
+        h.find('ul li').addClass('dropdown');
+
+        $('#md-menu h1').replaceWith(function() {
+            var brand = $('<a class="brand"/>').text($(this).text());
+            return brand;
+        });
         // wrap the remaining links in <li>
-        $('#md-menu a').wrap('<li />');
+        $('#md-menu > a').wrap('<li />');
+        $('#md-menu ul').each(function(i,e) {
+            var ul = $(e);
+            ul.appendTo(ul.prev());
+            ul.parent('li').addClass('dropdown');
+        });
 
         // TODO use dividers in the navbar
         // remove p around the links in the menu

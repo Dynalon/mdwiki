@@ -44,7 +44,7 @@
     // set the page title to the browser document title, optionally picking
     // the first h1 element as title if no title is given
     function setPageTitle() {
-        var $pageTitle = $('h1').eq(0);
+        var $pageTitle = $('#md-content h1').eq(0);
         if ($.trim($pageTitle.text()).length > 0) {
             $('#md-title').prepend($pageTitle);
             var title = $pageTitle.text();

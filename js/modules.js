@@ -62,7 +62,7 @@
 
     var initialized = false;
     // TODO combine main.js and modules.js closure
-    $.md.initializeGimmicks = function () {
+    $.md.initializeGimmicks = function() {
         findActiveLinkTrigger();
         runGimmicksOnce();
         loadRequiredScripts();

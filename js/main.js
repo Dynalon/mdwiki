@@ -90,30 +90,6 @@
         });
     }
 
-    function registerCreateNavigation() {
-        // assemble a navigation
-        var insertNavLinks = function(config) {
-            var nav = $.md.config.Navigation;
-            if (nav === undefined) {
-                return;
-            }
-            for(var i=0;i<nav.length; i++) {
-                var anchor = $('<a/>');
-                anchor.attr('href', nav[i].Href);
-                anchor.text(nav[i].Text);
-                anchor.appendTo('#md-menu');
-            }
-        };
-        $.md.stage('bootstrap').subscribe(function(done) {
-            processPageLinks($('#md-menu'));
-            done();
-        });
-
-        $.md.stage('ready').subscribe(function(done) {
-            insertNavLinks($.md.config);
-            done();
-        });
-    }
 
     // modify internal links so we load them through our engine
     function processPageLinks(domElement, baseUrl) {
@@ -147,6 +123,40 @@
         });
     }
 
+    var navMD = '';
+    function registerBuildNavigation() {
+
+        $.md.stage('init').subscribe(function(done) {
+            $.ajax('navigation.md')
+            .done(function(data) {
+                navMD = data;
+                done();
+            })
+            .fail(function() {
+                done();
+            });
+        });
+
+        $.md.stage('transform').subscribe(function(done) {
+            if (navMD === '') { return; }
+
+            var navHtml = marked(navMD);
+            var h = $('<div>' + navHtml + '</div>');
+            h.find('p').each(function(i,e) {
+                var el = $(e);
+                el.replaceWith(el.html());
+            });
+            $('#md-menu').append(h.html());
+            done();
+        });
+
+        $.md.stage('bootstrap').subscribe(function(done) {
+            processPageLinks($('#md-menu'));
+            done();
+        });
+
+    }
+
     function registerFetchConfig() {
 
         $.md.stage('init').subscribe(function(done) {
@@ -155,6 +165,7 @@
                 done();
             });
         });
+
     }
 
     function registerClearContent() {
@@ -173,12 +184,11 @@
 
         $.md.mainHref = href;
 
-        registerCreateNavigation();
         registerFetchMarkdown();
         registerClearContent();
 
         // find out which link gimmicks we need
-        $.md.stage('ready').subscribe(function(done) {
+        $.md.stage('ready').subscribe(function(done) {
             $.md.initializeGimmicks();
             done();
         });
@@ -214,7 +224,6 @@
         });
 
         runStages();
-
     }
 
     function runStages() {
@@ -261,12 +270,12 @@
 
         // stage init stuff
         registerFetchConfig();
+        registerBuildNavigation();
 
         if (window.location.hash === '') {
             window.location.hash = '#index.md';
         }
         var href = window.location.hash.substring(1);
-
 
         $(window).bind('hashchange', function () {
             var href = window.location.hash.substring(1);
