@@ -29,7 +29,6 @@ function googlemapsReady() {
             /* TODO height & width must be set AFTER the theme script went through
             implement an on event, maybe?
             if (options["width"] !== undefined) {
-               console.log (options);
                 $mapsdiv.css('width', options["width"] + "px");
                 options["width"] = null;
             }
@@ -41,7 +40,6 @@ function googlemapsReady() {
             $link.replaceWith ($mapsdiv);
             // the div is already put into the site and will be formated,
             // we can now run async
-            console.log('set map');
             set_map (options, div_id);
         });
     }

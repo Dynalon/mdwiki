@@ -1,5 +1,7 @@
 (function($) {
     'use strict';
+    var log = $.md.getLogger();
+
     $.Stage = function(name) {
         var self = $.extend($.Deferred(), {});
         self.name = name;
@@ -32,7 +34,7 @@
                 // display an error if our done() callback is not called
                 $.md.util.wait(2500).done(function() {
                     if(d.state() !== 'resolved') {
-                        console.log('WARN: Timeout reached for done callback in stage: ' + self.name +
+                        log.fatal('Timeout reached for done callback in stage: ' + self.name +
                             '. Did you forget a done() call in a .subscribe() ?');
                     }
                 });
@@ -59,10 +61,10 @@
         };
 
         self.done(function() {
-            console.log('stage ' + self.name + ' completed successfully.');
+            log.debug('stage ' + self.name + ' completed successfully.');
         });
         self.fail(function() {
-            console.log('stage ' + self.name + ' completed with errors!');
+            log.debug('stage ' + self.name + ' completed with errors!');
         });
         return self;
     };

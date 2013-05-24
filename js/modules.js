@@ -29,7 +29,7 @@
             stage = options.stage || 'skel_ready',
             callback = options.callback;
 
-        checkLicense(license);
+        checkLicense(license, module);
         var tag = '<link rel="stylesheet" href="' + url + '" type="text/css"></link>';
         $.md.stage(stage).subscribe(function(done) {
             $('head').append(tag);
@@ -70,6 +70,8 @@
 
     // END PUBLIC API
 
+
+    var log = $.md.getLogger();
 
     // triggers that we actually found on the page
     // array of string
@@ -114,14 +116,14 @@
     var licenses = ['MIT', 'BSD', 'GPL', 'GPL2', 'GPL3', 'LGPL', 'LGPL2',
         'APACHE2', 'PUBLICDOMAIN', 'OTHER'
     ];
-    function checkLicense(license, modulename) {
+    function checkLicense(license, module) {
         if ($.inArray(license, licenses) === -1) {
             var availLicenses = JSON.stringify(licenses);
-            console.log('license ' + license + ' is not known.');
-            console.log('Known licenses:' + availLicenses);
+            log.warn('license ' + license + ' is not known.');
+            log.warn('Known licenses:' + availLicenses);
 
         } else if (license === 'OTHER') {
-            console.log('WARNING: Module ' + modulename + ' uses a script'+
+            log.warn('WARNING: Module ' + module.name + ' uses a script'+
                 ' with unknown license. This may be a GPL license violation if'+
                 ' this website is publically available!');
         }
@@ -141,16 +143,16 @@
 
         var loadDone = $.Deferred();
 
-        checkLicense(license);
+        checkLicense(license, module);
         // start script loading
-        console.log ('subscribing ' + module.name + 'to start: ' + loadstage + ' end in: ' + finishstage);
+        log.debug('subscribing ' + module.name + ' to start: ' + loadstage + ' end in: ' + finishstage);
         $.md.stage(loadstage).subscribe(function(done) {
             if (src.startsWith('//') || src.startsWith('http')) {
                 $.getScript(src, function() {
                     if (callback !== undefined) {
                         callback(done);
                     } else {
-                        console.log('script load done: ' + src);
+                        log.debug('module' + module.name + ' script load done: ' + src);
                         done();
                     }
                     loadDone.resolve();
@@ -158,7 +160,7 @@
             } else {
                 // inline script that we directly insert
                 insertInlineScript(src);
-                console.log('script inject done: ' + src);
+                log.debug('module' + module.name + ' script inject done');
                 loadDone.resolve();
                 done();
             }
@@ -182,7 +184,7 @@
                 activeLinkTriggers.push(parts.trigger);
             }
         });
-        console.log('We need the modules: ' + JSON.stringify(activeLinkTriggers));
+        log.debug('Scanning for required gimmick links: ' + JSON.stringify(activeLinkTriggers));
     }
 
     function loadRequiredScripts() {
@@ -190,7 +192,7 @@
         $.each(activeLinkTriggers, function(i,trigger) {
             var module = findModuleByTrigger(trigger);
             if (module === undefined) {
-                console.log('Gimmick link: "' + trigger + '" not registered by any module');
+                log.error('Gimmick link: "' + trigger + '" found but no suitable gimmick loaded');
                 return;
             }
             var scriptinfo = registeredScripts.filter(function(info) {

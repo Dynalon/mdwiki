@@ -18,6 +18,7 @@ module.exports = function(grunt) {
         ownJsFiles: [
             'js/marked.js',
             'js/init.js',
+            'js/logging.js',
             'js/stage.js',
             'js/main.js',
             'js/util.js',
@@ -42,6 +43,7 @@ module.exports = function(grunt) {
         ],
 
         // files that we include in the fat release (basically everything)
+        // ONLY PUT ALREADY MINIFIED FILES IN HERE!
         externalJsFilesFat: [
             'extlib/js/jquery-1.8.3.min.js',
             'extlib/js/jquery.colorbox.min.js',
@@ -56,6 +58,7 @@ module.exports = function(grunt) {
         externalCssFilesSlim: [
             'extlib/css/colorbox.css'
         ],
+        // ONLY PUT ALREADY MINIFIED FILES IN HERE!
         externalJsFilesSlim: [
             'extlib/js/jquery.colorbox.min.js'
         ],
