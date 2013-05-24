@@ -2,7 +2,6 @@
     'use strict';
 
     // PUBLIC API
-
     $.md.registerGimmick = function(module) {
         $.md.gimmicks.push(module);
         return;
@@ -231,7 +230,7 @@
         var trigger = matches[1].toLowerCase();
         var args = null;
         // getting the parameters
-        if (matches[3] !== undefined) {
+        if (matches[2] !== undefined) {
             // remove whitespaces
             var params = $.trim(matches[3].toString());
             // remove the closing } if present
@@ -247,7 +246,7 @@
                 /*jshint -W061 */
                 args = eval(params);
             } catch (err) {
-                $.error('error parsing argument of gimmick: ' + link_text + 'giving error: ' + err);
+                log.error('error parsing argument of gimmick: ' + link_text + 'giving error: ' + err);
             }
         }
         return { trigger: trigger, options: args, href: href };
