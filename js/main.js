@@ -276,11 +276,11 @@
             window.location.hash = '#index.md';
         }
         var href = window.location.hash.substring(1);
+        $.md.currentHash = window.location.hash;
 
         $(window).bind('hashchange', function () {
             var href = window.location.hash.substring(1);
             var hash = window.location.hash;
-            $.md.currentHash = hash;
             location.reload();
             //loadContent(href);
         });

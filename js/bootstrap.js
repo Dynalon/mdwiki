@@ -32,7 +32,6 @@
             replaceImageParagraphs();
 
             //pullRightBumper ();
-            //highlightActiveLink ();
 
             // remove the margin for headings h1 and h2 that are the first
             // on page
@@ -42,6 +41,7 @@
             // external content should run after gimmicks were run
             $.md.stage('bootstrap').done(function() {
                 adjustExternalContent();
+                highlightActiveLink ();
             });
         }
     };
@@ -196,16 +196,17 @@
         jumbo.append(heading);
         $('#md-title').wrapInner(jumbo);
     }
+
     function highlightActiveLink () {
         // when no menu is used, return
         if ($('#md-menu').find ('li').length === 0) {
             return;
         }
 		// get the filename of the currently visited page
-		var filename = $(window.location.href.split ('/')).last ()[0];
+		var filename = $.md.currentHash || '';
 
 		if (filename.length === 0) {
-            filename = 'index.txt';
+            filename = 'index.md';
         }
 		var selector = 'li:has(a[href$="' + filename + '"])';
 		$('#md-menu').find (selector).addClass ('active');
