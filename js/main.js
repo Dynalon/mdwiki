@@ -139,7 +139,6 @@
 
         $.md.stage('transform').subscribe(function(done) {
             if (navMD === '') { return; }
-
             var navHtml = marked(navMD);
             var h = $('<div>' + navHtml + '</div>');
             h.find('p').each(function(i,e) {

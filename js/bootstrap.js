@@ -58,7 +58,7 @@
         navStyle = 'top';
         var $menuContent = $('#md-menu').html ();
 
-        $('#md-menu').addClass ('navbar navbar-fixed-top navbar');
+        $('#md-menu').addClass ('navbar navbar-fixed-top');
         var menusrc = '';
         menusrc += '<div class="navbar-inner">';
         menusrc += '<div id="md-menu-inner" class="container">';
@@ -114,23 +114,44 @@
         h.find('ul').addClass('dropdown-menu');
         h.find('ul li').addClass('dropdown');
 
+        // replace hr with dividers
+        $('#md-menu hr').each(function(i,e) {
+            var hr = $(e);
+            var prev = hr.prev();
+            var next = hr.next();
+            if (prev.is('ul') && prev.length >= 0) {
+                prev.append($('<li class="divider"/>'));
+                hr.remove();
+                if (next.is('ul')) {
+                    next.find('li').appendTo(prev);
+                    next.remove();
+                }
+                // next ul should now be empty
+            }
+            return;
+        });
+        // remove empty uls
+        $('#md-menu ul').each(function(i,e) {
+            var ul = $(e);
+            if (ul.find('li').length === 0) {
+                ul.remove();
+            }
+        });
+
+        $('#md-menu hr').replaceWith($('<li class="divider-vertical"/>'));
+
         $('#md-menu h1').replaceWith(function() {
             var brand = $('<a class="brand"/>').text($(this).text());
             return brand;
         });
-        // wrap the remaining links in <li>
+
+        // wrap the toplevel links in <li>
         $('#md-menu > a').wrap('<li />');
         $('#md-menu ul').each(function(i,e) {
             var ul = $(e);
             ul.appendTo(ul.prev());
             ul.parent('li').addClass('dropdown');
         });
-
-        // TODO use dividers in the navbar
-        // remove p around the links in the menu
-        /*$('#md-menu p').replaceWith(function() {
-            return $(this).html();
-        }); */
 
         // call the user specifed menu function
         if ($.inArray('buildMenu', $.mdbootstrap.events) === -1) {
