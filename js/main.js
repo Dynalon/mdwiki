@@ -59,9 +59,9 @@
     function registerFetchMarkdown() {
         var transformMarkdown = function(markdown) {
             var options = {
-                gfm: false,
+                gfm: true,
                 tables: true,
-                breaks: false
+                breaks: true
             };
             marked.setOptions(options);
 

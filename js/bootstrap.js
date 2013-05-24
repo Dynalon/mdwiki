@@ -31,6 +31,7 @@
             changeHeading();
             replaceImageParagraphs();
 
+            $('table').addClass('table');
             //pullRightBumper ();
 
             // remove the margin for headings h1 and h2 that are the first
