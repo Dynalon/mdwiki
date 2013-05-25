@@ -203,8 +203,7 @@
         if ($('#md-menu').find ('li').length === 0) {
             return;
         }
-		// get the filename of the currently visited page
-		var filename = $.md.currentHash ||'';
+		var filename = $.md.mainHref;
 
 		if (filename.length === 0) {
             filename = 'index.md';

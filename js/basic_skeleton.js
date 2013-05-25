@@ -7,22 +7,22 @@
             wrapParagraphText();
             groupImages();
             removeBreaks();
-            //processPreviews();
-            //addInpageAnchors ();
-            //markFirstHeading ();
+            addInpageAnchors ();
 
+            $.md.stage('all_ready').subscribe(function(done) {
+                scrollToInPageAnchor();
+                done();
+            });
             return;
 
+            //processPreviews();
+            //markFirstHeading ();
             // activate syntax highlighting on <pre><code> blocks
             // via highlight.js
             /*$('pre code').each(function(i, e) {
                 hljs.highlightBlock(e)
             }); */
 
-            //$('html').removeClass('md-hidden-load');
-
-            // jump to an anchor if necessary
-            //jumpToAnchor();
         }
     };
     $.md.publicMethods = $.extend ({}, $.md.publicMethods, publicMethods);
@@ -146,13 +146,15 @@
         // and heading text where spaces are replaced by underscores
         $('h1,h2,h3,h4,h5,h6').each (function () {
             var $heading = $(this);
-            var name = $.trim ($heading.text ());
-            var $anchor1 = $('<a />').attr ('name', name).addClass('md-inpage-anchor md-inpage-anchor-space');
-            $heading.wrap ($anchor1);
+            $heading.addClass('md-inpage-anchor');
+
+            //var name = $.trim ($heading.text ());
+            //var $anchor1 = $('<a />').attr ('name', name).addClass('md-inpage-anchor md-inpage-anchor-space');
+            //$heading.wrap ($anchor1);
             // replace spaces with underscores and add that anchor, too
-            name = name.replace (/ /g, '_');
-            var $anchor2 = $('<a />').attr ('name', name).addClass ('md-inpage-anchor md-inpage-anchor-underscore');
-            $heading.wrap ($anchor2);
+            //name = name.replace (/ /g, '_');
+            //var $anchor2 = $('<a />').attr ('name', name).addClass ('md-inpage-anchor md-inpage-anchor-underscore');
+            //$heading.wrap ($anchor2);
         });
     }
     /*
@@ -182,25 +184,27 @@
             $(firstElem).addClass('md-first-heading');
         }
     }*/
-    function jumpToAnchor() {
-        // browser behave differently when using a link with a hashtag #
-        // Safari waits until JS is finished and then jumps, others dont.
-        // so we explicitly jump to the hash once the page load has finished
-        var hash = window.location.hash.substring (1, window.location.hash.length).toLowerCase ();
-        if (hash !== undefined && hash !== null && hash.length > 0) {
-            // find the anchor for that hash
-            var doBreak = false;
-            $('a.md-inpage-anchor').each (function () {
-                var $this = $(this);
-                if ($this.attr('name').toLowerCase () === hash.toLowerCase () && !doBreak) {
-                    this.scrollIntoView (true);
-                    //var name = $this.attr('name').toLowerCase ();
-                    //window.location.hash = '#' + $this.attr ('name');
-                    doBreak = true;
-                    return;
-                }
-            });
-        }
+    function scrollToInPageAnchor() {
+        if ($.md.inPageAnchor === '') { return; }
+
+        // we match case insensitive
+        var spaceAnchor = $.md.inPageAnchor.toLowerCase();
+        var underscoreAnchor = spaceAnchor.replace(/ /g, '_');
+        var doBreak = false;
+
+        $('*.md-inpage-anchor').each (function () {
+            if (doBreak) { return; }
+
+            var $this = $(this);
+            var match = $this.text().toLowerCase().replace(/ /g, '_');
+            if (spaceAnchor === match || underscoreAnchor === match) {
+                this.scrollIntoView (true);
+                // TODO actually figure the real height of the navbar, because
+                // custom themes may have different height
+                window.scrollBy(0, -50);
+                doBreak = true;
+            }
+        });
     }
 
 }(jQuery));

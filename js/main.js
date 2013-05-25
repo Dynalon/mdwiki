@@ -286,6 +286,7 @@
             $.md.stage('postgimmick').run();
         });
         $.md.stage('postgimmick').done(function() {
+            $('html').removeClass('md-hidden-load');
             $.md.stage('all_ready').run();
         });
         $.md.stage('all_ready').done(function() {
@@ -296,27 +297,37 @@
         // trigger the whole process by runing the init stage
         $.md.stage('init').run();
         return;
-
     }
+
+    function extractHashData() {
+        // first char is the #
+        var href = window.location.hash.substring(1);
+
+        // extract possible in-page anchor
+        var ex_pos = href.indexOf('!');
+        if (ex_pos !== -1) {
+            $.md.inPageAnchor = href.substring(ex_pos + 1);
+            $.md.mainHref = href.substring(0, ex_pos);
+        } else {
+            $.md.mainHref = href;
+        }
+    }
+
     $(document).ready(function () {
 
         // stage init stuff
         registerFetchConfig();
         registerBuildNavigation();
+        extractHashData();
 
         if (window.location.hash === '') {
             window.location.hash = '#index.md';
         }
-        var href = window.location.hash.substring(1);
-        $.md.currentHash = window.location.hash;
 
         $(window).bind('hashchange', function () {
-            var href = window.location.hash.substring(1);
-            var hash = window.location.hash;
             location.reload();
-            //loadContent(href);
         });
 
-        loadContent(href);
+        loadContent($.md.mainHref);
     });
 }(jQuery));

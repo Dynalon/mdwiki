@@ -4,7 +4,6 @@
         name: 'gist',
         once: function() {
             $.md.linkGimmick(this, 'gist', gist);
-
         }
     };
     $.md.registerGimmick(gistGimmick);
@@ -38,7 +37,7 @@
  * Licensed under the MIT license.
  */
 
-;(function( $, window, document, undefined ){
+(function( $, window, document, undefined ){
     "use strict";
 
     //
@@ -126,7 +125,8 @@
                     src = options.url_template.replace(/\{id\}/g, id).replace(/\{file\}/g, file);
 
                     // (2) this will trigger our _write function
-                    $.getScript(src);
+                    $.getScript(src, function() {
+                    });
                 }
             });
         },

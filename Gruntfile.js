@@ -151,7 +151,7 @@ module.exports = function(grunt) {
             },
             tmpl: {
                 files: ['index-slim.tmpl', 'index-fat.tmpl'],
-                tasks: ['release-slim']
+                tasks: ['dev', 'livereload']
             }
         }
     });

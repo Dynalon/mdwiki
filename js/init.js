@@ -1,6 +1,10 @@
 (function($) {
     'use strict';
 
+    // hide the whole page so we dont see the DOM flickering
+    // will be shown upon page load complete or error
+    $('html').addClass('md-hidden-load');
+
     // register our $.md object
     $.md = function (method){
         if ($.md.publicMethods[method]) {
@@ -15,8 +19,14 @@
     $.md.config = {};
     $.md.gimmicks = [];
     $.md.stages = [];
-    $.md.mainHref = '';
     $.md.debug = true;
+
+    // the location of the main markdown file we display
+    $.md.mainHref = '';
+
+    // the in-page anchor that is specified after the !
+    $.md.inPageAnchor = '';
+
 
     $.md.loglevel = {
         TRACE: 10,
