@@ -71,15 +71,23 @@
         };
         var md = '';
 
-        $.md.stage('transform').subscribe(function(done) {
+        $.md.stage('init').subscribe(function(done) {
             $.ajax($.md.mainHref).done(function(data) {
                 // TODO do this elsewhere
                 md = data;
-                var len = $.md.mainHref.lastIndexOf('/');
-                var baseUrl = $.md.mainHref.substring(0, len+1);
-                $.md.baseUrl = baseUrl;
+                done();
+            }).fail(function() {
+                var log = $.md.getLogger();
+                log.fatal('Could not get ' + $.md.mainHref);
                 done();
             });
+        });
+
+        $.md.stage('transform').subscribe(function(done) {
+            var len = $.md.mainHref.lastIndexOf('/');
+            var baseUrl = $.md.mainHref.substring(0, len+1);
+            $.md.baseUrl = baseUrl;
+            done();
         });
 
         $.md.stage('ready').subscribe(function(done) {
@@ -124,12 +132,19 @@
     }
 
     var navMD = '';
+    $.md.NavgiationDfd = $.Deferred();
+    $.ajax('navigation.md').done(function(data) {
+        navMD = data;
+        $.md.NavgiationDfd.resolve();
+    }).fail(function() {
+        $.md.NavgiationDfd.reject();
+    });
+
     function registerBuildNavigation() {
 
         $.md.stage('init').subscribe(function(done) {
-            $.ajax('navigation.md')
-            .done(function(data) {
-                navMD = data;
+            //$.ajax('navigation.md')
+            $.md.NavgiationDfd.done(function() {
                 done();
             })
             .fail(function() {
@@ -138,7 +153,12 @@
         });
 
         $.md.stage('transform').subscribe(function(done) {
-            if (navMD === '') { return; }
+            if (navMD === '') {
+                var log = $.md.getLogger();
+                log.info('no navgiation.md found, not using a navbar');
+                done();
+                return;
+            }
 
             var navHtml = marked(navMD);
             var h = $('<div>' + navHtml + '</div>');
@@ -157,15 +177,27 @@
 
     }
 
+    $.md.ConfigDfd = $.Deferred();
+    $.ajax('config.json').done(function(data) {
+        $.md.config = $.parseJSON(data);
+        $.md.ConfigDfd.resolve();
+    }).fail(function() {
+        $.md.ConfigDfd.reject();
+    });
     function registerFetchConfig() {
 
         $.md.stage('init').subscribe(function(done) {
-            $.ajax('config.json').done(function(data){
-                $.md.config = $.parseJSON(data);
+            // TODO 404 won't get cached, requesting it every reload is not good
+            // maybe use cookies? or disable re-loading of the page
+            //$.ajax('config.json').done(function(data){
+            $.md.ConfigDfd.done(function(){
+                done();
+            }).fail(function() {
+                var log = $.md.getLogger();
+                log.info('No config.json found, using default settings');
                 done();
             });
         });
-
     }
 
     function registerClearContent() {

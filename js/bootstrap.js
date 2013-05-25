@@ -31,7 +31,7 @@
             changeHeading();
             replaceImageParagraphs();
 
-            $('table').addClass('table');
+            $('table').addClass('table').addClass('table-bordered');
             //pullRightBumper ();
 
             // remove the margin for headings h1 and h2 that are the first
@@ -204,7 +204,7 @@
             return;
         }
 		// get the filename of the currently visited page
-		var filename = $.md.currentHash || '';
+		var filename = $.md.currentHash ||'';
 
 		if (filename.length === 0) {
             filename = 'index.md';

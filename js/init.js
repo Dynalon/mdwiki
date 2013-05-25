@@ -16,6 +16,7 @@
     $.md.gimmicks = [];
     $.md.stages = [];
     $.md.mainHref = '';
+    $.md.debug = true;
 
     $.md.loglevel = {
         TRACE: 10,

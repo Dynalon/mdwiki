@@ -4,32 +4,20 @@
         createBasicSkeleton: function() {
 
             setPageTitle();
-
             wrapParagraphText();
             groupImages();
-            processPreviews();
-            //addInpageAnchors ();
-
             removeBreaks();
+            //processPreviews();
+            //addInpageAnchors ();
             //markFirstHeading ();
 
-
-            // TODO gimmicks should not be done in this stage
-            //$.gimmicks ();
-            // CALL GIMMICKS THAT ARE NOT TRIGGERED BY gimmick:FUNC() link
-            //$.gimmicks('colorbox');
-            //$.gimmicks('youtube');
-            //$.gimmicks('alerts');
             return;
-
-            //$.md.trigger('md_gimmicks_complete');
 
             // activate syntax highlighting on <pre><code> blocks
             // via highlight.js
             /*$('pre code').each(function(i, e) {
                 hljs.highlightBlock(e)
             }); */
-            //$.md.trigger('md_complete');
 
             //$('html').removeClass('md-hidden-load');
 
@@ -100,9 +88,6 @@
 		// since we use non-markdown-standard line wrapping, we get lots of
 		// <br> elements we don't want.
 
-        // remove linebreaks from the menu
-        $('#md-menu br').remove ();
-
         // remove a leading <br> from floatclasses, that happen to
         // get insertet after an image
         $('.md-floatenv').find ('.md-text').each (function () {
@@ -170,6 +155,7 @@
             $heading.wrap ($anchor2);
         });
     }
+    /*
     function processPreviews () {
         // if we had a preview, we need to process it
         $('.md-preview-begin').each (function () {
@@ -182,8 +168,8 @@
             // TODO localized versions
             $this.replaceWith ($previewDiv);
         });
-    }
-    function markFirstHeading() {
+    } */
+    /*function markFirstHeading() {
         // TODO replace, maybe css selector magic?
         // if the page starts with a heading first or second degree,
         // mark this heading to be the first one
@@ -195,7 +181,7 @@
         if (firstElem[0].tagName === 'H1' || firstElem[0].tagName === 'H2') {
             $(firstElem).addClass('md-first-heading');
         }
-    }
+    }*/
     function jumpToAnchor() {
         // browser behave differently when using a link with a hashtag #
         // Safari waits until JS is finished and then jumps, others dont.
