@@ -42,7 +42,8 @@
             // external content should run after gimmicks were run
             $.md.stage('bootstrap').done(function() {
                 adjustExternalContent();
-                highlightActiveLink ();
+                highlightActiveLink();
+                createPageContentMenu();
             });
         }
     };
@@ -161,6 +162,70 @@
             $.mdbootstrap.trigger ('buildMenu');
         }
     }
+    function isVisibleInViewport(e) {
+        var el = $(e);
+        var top = $(window).scrollTop();
+        var bottom = top + $(window).height();
+
+        var eltop = el.offset().top;
+        var elbottom = eltop + el.height();
+
+        return (elbottom <= bottom) && (eltop >= top);
+    }
+
+    function createPageContentMenu () {
+        $(window).scroll(function() {
+            var $first;
+            $('*.md-inpage-anchor').each(function(i,e) {
+                if ($first === undefined) {
+                    var h = $(e);
+                    if (isVisibleInViewport(h)) {
+                        $first = h;
+                    }
+                }
+            });
+            // highlight in the right menu
+            $('#md-page-menu a').each(function(i,e) {
+                var $a = $(e);
+                if ($a.text() === $first.text()) {
+                    console.log($a.text());
+                    $('#md-page-menu li.active').removeClass('active');
+                    $a.parent('li').addClass('active');
+                }
+            });
+        });
+
+        // assemble the menu
+        var $headings = $('#md-content').find('h1,h2,h3');
+
+        var affixDiv = $('<div id="md-page-menu" />');
+        affixDiv.affix({
+            //offset: affix.position() - 50,
+            offset: 130
+        });
+        //affix.css('top','-250px');
+
+        var $ul = $('<ul style="width: 200px" class="nav nav-tabs nav-stacked"/>');
+        affixDiv.append($ul);
+        $headings.each(function(i,e) {
+            var $heading = $(e);
+            var $li = $('<li/>');
+            var $a = $('<a />');
+            $a.attr('href', $heading.text());
+            $a.click(function(ev) {
+                ev.preventDefault();
+
+                var $this = $(this);
+                $.md.scrollToInPageAnchor($this.text());
+            });
+            $a.text($heading.text());
+            $li.append($a);
+            $ul.append($li);
+        });
+
+        //menu.css('width','100%');
+        $('#md-right-column').append(affixDiv);
+    }
 
     function createPageSkeleton() {
 
@@ -178,6 +243,8 @@
 
         $('#md-content').addClass('span10');
         $('#md-title').addClass('span10');
+
+        $('#md-content-row').append('<div class="span2" id="md-right-column"/>');
     }
     function pullRightBumper (){
  /*     $("span.bumper").each (function () {

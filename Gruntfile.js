@@ -47,10 +47,10 @@ module.exports = function(grunt) {
         externalJsFilesFat: [
             'extlib/js/jquery-1.8.3.min.js',
             'extlib/js/jquery.colorbox.min.js',
-            'extlib/js/bootstrap-2.1.0.min.js'
+            'extlib/js/bootstrap-2.3.0.min.js'
         ],
         externalCssFilesFat: [
-            'extlib/css/bootstrap-combined-2.1.0.min.css',
+            'extlib/css/bootstrap-combined-2.3.0.min.css',
             'extlib/css/colorbox.css'
         ],
 
@@ -189,7 +189,8 @@ module.exports = function(grunt) {
         grunt.log.writeln('Generated test.html');
     });
 
-    grunt.registerTask('dev', [ 'release-slim', 'release-fat' ]);
+//    grunt.registerTask('dev', [ 'release-slim', 'release-fat' ]);
+    grunt.registerTask('dev', [ 'release-slim' ]);
     grunt.registerTask('release-slim', [  'jshint', 'concat:dev', 'uglify:dist', 'index_slim']);
     grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat']);
     grunt.registerTask('all', ['release-slim', 'release-fat']);

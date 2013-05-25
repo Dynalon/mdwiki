@@ -10,7 +10,9 @@
             addInpageAnchors ();
 
             $.md.stage('all_ready').subscribe(function(done) {
-                scrollToInPageAnchor();
+                if ($.md.inPageAnchor !== '') {
+                    $.md.scrollToInPageAnchor($.md.inPageAnchor);
+                }
                 done();
             });
             return;
@@ -184,11 +186,10 @@
             $(firstElem).addClass('md-first-heading');
         }
     }*/
-    function scrollToInPageAnchor() {
-        if ($.md.inPageAnchor === '') { return; }
+    $.md.scrollToInPageAnchor = function(anchor) {
 
         // we match case insensitive
-        var spaceAnchor = $.md.inPageAnchor.toLowerCase();
+        var spaceAnchor = anchor.toLowerCase();
         var underscoreAnchor = spaceAnchor.replace(/ /g, '_');
         var doBreak = false;
 
@@ -205,6 +206,6 @@
                 doBreak = true;
             }
         });
-    }
+    };
 
 }(jQuery));
