@@ -47,10 +47,10 @@ module.exports = function(grunt) {
         externalJsFilesFat: [
             'extlib/js/jquery-1.8.3.min.js',
             'extlib/js/jquery.colorbox.min.js',
-            'extlib/js/bootstrap-2.3.0.min.js'
+            'extlib/js/bootstrap-2.3.2.min.js'
         ],
         externalCssFilesFat: [
-            'extlib/css/bootstrap-combined-2.3.0.min.css',
+            'extlib/css/bootstrap-combined-2.3.2.min.css',
             'extlib/css/colorbox.css'
         ],
 
@@ -66,10 +66,10 @@ module.exports = function(grunt) {
         // references we add in the slim release (refs to CDN locations)
         externalJsRefsSlim: [
             'ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js',
-            'netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/js/bootstrap.min.js'
+            'netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'
         ],
         externalCssRefsSlim: [
-            'netdna.bootstrapcdn.com/twitter-bootstrap/2.1.0/css/bootstrap-combined.min.css',
+            'netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css',
 //            'netdna.bootstrapcdn.com/bootswatch/2.3.1/slate/bootstrap.min.css',
 //            'www.3solarmasses.com/retriever-bootstrap/css/retriever.css'
 //            '3solarmasses.com/corgi-bootstrap/css/corgi.css'
@@ -78,11 +78,11 @@ module.exports = function(grunt) {
         index: {
             slim: {
                 src: 'index-slim.tmpl',
-                dest: 'dist/index.html'
+                dest: 'dist/index-slim.html'
             },
             fat: {
                 src: 'index-fat.tmpl',
-                dest: 'dist/index-full.html'
+                dest: 'dist/index-fat.html'
             }
         },
 
@@ -194,9 +194,9 @@ module.exports = function(grunt) {
     grunt.registerTask('release-slim', [  'jshint', 'concat:dev', 'uglify:dist', 'index_slim']);
     grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat']);
     grunt.registerTask('all', ['release-slim', 'release-fat']);
-    grunt.registerTask('default', ['livereload-start', 'connect', 'regarde']);
-
 
     // Default task.
-    grunt.registerTask('default', 'all');
+    grunt.registerTask('watch', [ 'release-slim', 'release-fat', 'livereload-start', 'regarde' ]);
+    grunt.registerTask('default', [ 'watch' ]);
+
 };

@@ -43,7 +43,10 @@
             $.md.stage('bootstrap').done(function() {
                 adjustExternalContent();
                 highlightActiveLink();
-                createPageContentMenu();
+
+                if ($.md.config.useSideMenu === true) {
+                    createPageContentMenu();
+                }
             });
         }
     };
@@ -188,7 +191,6 @@
             $('#md-page-menu a').each(function(i,e) {
                 var $a = $(e);
                 if ($a.text() === $first.text()) {
-                    console.log($a.text());
                     $('#md-page-menu li.active').removeClass('active');
                     $a.parent('li').addClass('active');
                 }

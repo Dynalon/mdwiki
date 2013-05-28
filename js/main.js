@@ -1,5 +1,7 @@
 (function($) {
-    //'use strict';
+    'use strict';
+
+    var log = $.md.getLogger();
 
     function init() {
         $.md.stages = [
@@ -179,7 +181,12 @@
 
     $.md.ConfigDfd = $.Deferred();
     $.ajax('config.json').done(function(data) {
-        $.md.config = $.parseJSON(data);
+        try {
+            $.md.config = $.parseJSON(data);
+        } catch(err) {
+            log.error('config.json was not JSON parsable: ' + err);
+        }
+        log.info('Found a valid config.json file, using configuration');
         $.md.ConfigDfd.resolve();
     }).fail(function() {
         $.md.ConfigDfd.reject();
