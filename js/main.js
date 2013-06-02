@@ -293,10 +293,10 @@
             $.md.stage('postgimmick').run();
         });
         $.md.stage('postgimmick').done(function() {
-            $('html').removeClass('md-hidden-load');
             $.md.stage('all_ready').run();
         });
         $.md.stage('all_ready').done(function() {
+            $('html').removeClass('md-hidden-load');
             // reset the stages for next iteration
             resetStages();
         });
@@ -332,7 +332,7 @@
         }
 
         $(window).bind('hashchange', function () {
-            location.reload();
+            window.location.reload(false);
         });
 
         loadContent($.md.mainHref);

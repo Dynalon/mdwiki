@@ -51,6 +51,7 @@ module.exports = function(grunt) {
             'js/gimmicks/googlemaps.js',
             'js/gimmicks/image_linker.js',
             'js/gimmicks/leaflet.js',
+            'js/gimmicks/themechooser.js',
             'js/gimmicks/twitter.js',
             'js/gimmicks/youtube_embed.js'
         ],
@@ -197,7 +198,7 @@ module.exports = function(grunt) {
     grunt.registerTask('all', ['devel', 'release-slim', 'release-fat']);
 
     // Default task.
-    grunt.registerTask('watch', [ 'release-slim', 'release-fat', 'livereload-start', 'regarde' ]);
+    grunt.registerTask('watch', [ 'devel', 'release-slim', 'release-fat', 'livereload-start', 'regarde' ]);
     grunt.registerTask('default', [ 'watch' ]);
 
 };

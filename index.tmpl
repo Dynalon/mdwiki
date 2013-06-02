@@ -40,7 +40,7 @@
     }
     function print_style_inline(name, content) {
         print('<!-- START ' + name + ' -->\n');
-        print('<style>');
+        print('<style id="style:' + name + '">');
         print(content);
         print('</style>');
         print('<!-- END ' + name + ' -->\n');
