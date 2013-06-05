@@ -196,14 +196,18 @@
         var $headings = $('#md-content').find('h1,h2,h3');
 
         var affixDiv = $('<div id="md-page-menu" />');
+
+        var top_spacing = $('#md-menu').height() + 15;
         affixDiv.affix({
             //offset: affix.position() - 50,
             offset: 130
         });
+        affixDiv.css('top', top_spacing);
         //affix.css('top','-250px');
 
         var $ul = $('<ul style="width: 200px" class="nav nav-tabs nav-stacked"/>');
         affixDiv.append($ul);
+
         $headings.each(function(i,e) {
             var $heading = $(e);
             var $li = $('<li/>');

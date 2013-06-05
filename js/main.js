@@ -163,6 +163,7 @@
 
             var navHtml = marked(navMD);
             var h = $('<div>' + navHtml + '</div>');
+            // TODO .html() is evil!!!
             h.find('p').each(function(i,e) {
                 var el = $(e);
                 el.replaceWith(el.html());
