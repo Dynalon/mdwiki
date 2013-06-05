@@ -22,12 +22,9 @@
 
     // PUBLIC API functions that are exposed
     var publicMethods = {
-        init: function () {
-            buildMenu ();
-        },
         bootstrapify: function () {
-
             createPageSkeleton();
+            buildMenu ();
             changeHeading();
             replaceImageParagraphs();
 
@@ -61,19 +58,18 @@
             return;
         }
         navStyle = 'top';
-        var $menuContent = $('#md-menu').html ();
+        var $menuContent = $('#md-menu').children();
 
         $('#md-menu').addClass ('navbar navbar-fixed-top');
         var menusrc = '';
         menusrc += '<div class="navbar-inner">';
         menusrc += '<div id="md-menu-inner" class="container">';
         menusrc += '<ul id="md-menu-ul" class="nav">';
-        menusrc += $menuContent;
         menusrc += '</ul></div></div>';
 
-        // put the new content in
-        $('#md-menu').empty ();
-        $('#md-menu').wrapInner ($(menusrc));
+        var $bootstrapmenu  = $(menusrc);
+        $bootstrapmenu.appendTo('#md-menu');
+        $('#md-menu-ul').append($menuContent);
 
 
         // the menu should be the first element in the body
@@ -87,6 +83,7 @@
     }
     function buildSubNav() {
         // replace with the navbar skeleton
+        /* BROKEN CODE
         if ($('#md-menu').length <= 0) {
             return;
         }
@@ -103,6 +100,7 @@
         $('#md-menu').addClass ('span12');
 
         $('#md-menu-container').insertAfter ($('#md-title-container'));
+        */
     }
 
     function buildMenu () {
@@ -110,7 +108,8 @@
             return;
         }
         var h = $('#md-menu');
-        // make toplevel a a dropdown
+
+        // make toplevel <a> a dropdown
         h.find('> a[href=""]')
             .attr('data-toggle', 'dropdown')
             .addClass('dropdown-toggle')
@@ -159,11 +158,7 @@
         });
 
         // call the user specifed menu function
-        if ($.inArray('buildMenu', $.mdbootstrap.events) === -1) {
-            buildTopNav();
-        } else {
-            $.mdbootstrap.trigger ('buildMenu');
-        }
+        buildTopNav();
     }
     function isVisibleInViewport(e) {
         var el = $(e);

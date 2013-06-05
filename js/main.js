@@ -145,7 +145,6 @@
     function registerBuildNavigation() {
 
         $.md.stage('init').subscribe(function(done) {
-            //$.ajax('navigation.md')
             $.md.NavgiationDfd.done(function() {
                 done();
             })
@@ -214,7 +213,6 @@
             var skel ='<div id="md-body"><div id="md-title"></div><div id="md-menu">'+
                 '</div><div id="md-content"></div></div>';
             $('#md-all').prepend($(skel));
-            //$('#md-content').empty();
             done();
         });
 
@@ -229,6 +227,7 @@
         // find out which link gimmicks we need
         $.md.stage('ready').subscribe(function(done) {
             $.md.initializeGimmicks();
+            $.md.registerLinkGimmicks();
             done();
         });
 
@@ -249,19 +248,13 @@
         });
 
         $.md.stage('skel_ready').subscribe(function(done) {
-            $.mdbootstrap('init');
-            $.mdbootstrap('bootstrapify');
             done();
         });
         $.md.stage('bootstrap').subscribe(function(done){
+            $.mdbootstrap('bootstrapify');
             processPageLinks($('#md-content'), $.md.baseUrl);
             done();
         });
-        $.md.stage('gimmick').subscribe(function(done) {
-            $.md.runLinkGimmicks();
-            done();
-        });
-
         runStages();
     }
 

@@ -2,6 +2,7 @@
     'use strict';
 
     var themes = [
+        { name: 'bootstrap', url: '//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css' },
         { name: 'amelia', url: '//netdna.bootstrapcdn.com/bootswatch/2.3.2/amelia/bootstrap.min.css' },
         { name: 'cerulean', url: '//netdna.bootstrapcdn.com/bootswatch/2.3.2/cerulean/bootstrap.min.css' },
         { name: 'cosmo', url: '//netdna.bootstrapcdn.com/bootswatch/2.3.2/cosmo/bootstrap.min.css' },
@@ -20,8 +21,13 @@
         name: 'Themes',
         version: $.md.version,
         once: function() {
-            $.md.linkGimmick(this, 'themechooser', choose_theme);
+            $.md.linkGimmick(this, 'themechooser', choose_theme, 'skel_ready');
             $.md.linkGimmick(this, 'theme', apply_theme);
+
+            $.md.stage('bootstrap').subscribe(function(done) {
+                restore_theme();
+                done();
+            });
         }
     };
     $.md.registerGimmick(themeChooserGimmick);
@@ -66,15 +72,32 @@
     };
 
     var choose_theme = function($links, opt, text) {
-        return $links.each(function(i, link) {
-            var $link = $(link);
+        return $links.each(function(i, e) {
+            var $this = $(e);
+            var $chooser = $('<a href=""></a><ul></ul>'
+            );
+            $chooser.eq(0).text(text);
 
-            $link.click(function(ev) {
-                ev.preventDefault();
-                set_theme(opt);
+            $.each(themes, function(i, theme) {
+                var $li = $('<li></li>');
+                $chooser.eq(1).append($li);
+                var $a = $('<a/>')
+                    .text(theme.name)
+                    .attr('href', 'fpp')
+                    .click(function(ev) {
+                        ev.preventDefault();
+                        set_theme(theme);
+                        window.localStorage.theme = theme.name;
+                    })
+                    .appendTo($li);
             });
-            $link.text($link.attr('href'));
-            $link.attr('href','#');
+            $this.replaceWith($chooser);
         });
+    };
+
+    var restore_theme = function() {
+        if (window.localStorage.theme) {
+            set_theme({ name: window.localStorage.theme });
+        }
     };
 }(jQuery));

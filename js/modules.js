@@ -42,10 +42,14 @@
 
     // associate a link trigger for a gimmick. i.e. [gimmick:foo]() then
     // foo is the trigger and will invoke the corresponding gimmick
-    $.md.linkGimmick = function(module, trigger, callback) {
+    $.md.linkGimmick = function(module, trigger, callback, stage) {
+        if (stage === undefined) {
+            stage = 'gimmick';
+        }
         var linktrigger = new LinkTrigger({
             trigger: trigger,
             module: module,
+            stage: stage,
             callback: callback
         });
         linkTriggers.push(linktrigger);
@@ -264,17 +268,37 @@
 
     // activate all gimmicks on a page, that are contain the text gimmick:
     // TODO make private / merge closures
-    $.md.runLinkGimmicks = function () {
-        var $gimmicks = $('a:icontains(gimmick:)');
-        $gimmicks.each(function() {
-            var $link = $(this);
-            var args = getGimmickLinkParts($link);
-            $.each(linkTriggers, function(i,e) {
-                if (args.trigger === e.trigger) {
-                    e.callback($link, args.options, args.href);
+    $.md.registerLinkGimmicks = function () {
+        var $gimmick_links = $('a:icontains(gimmick:)');
+        $gimmick_links.each(function(i, e) {
+            var $link = $(e);
+            var gimmick_arguments = getGimmickLinkParts($link);
+
+            $.each(linkTriggers, function(i, linktrigger) {
+                if (gimmick_arguments.trigger === linktrigger.trigger) {
+                    subscribeLinkTrigger($link, gimmick_arguments, linktrigger);
                 }
             });
         });
     };
 
+    function subscribeLinkTrigger($link, args, linktrigger) {
+        log.debug('Subscribing gimmick ' + linktrigger.module.name + ' to stage: ' + linktrigger.stage);
+
+        $.md.stage(linktrigger.stage).subscribe(function(done) {
+            // it is possible that broken modules or any other transformation removed the $link
+            // from the dom in the meantime
+            if (!jQuery.contains(document.documentElement, $link[0])) {
+                log.error ('LINK IS NOT IN THE DOM ANYMORE: ');
+                console.log($link);
+            }
+
+            log.debug('Running gimmick ' + linktrigger.module.name);
+
+            linktrigger.callback($link, args.options, args.href, done);
+
+            // if the gimmick didn't call done, we trigger it here
+            done();
+        });
+    }
 }(jQuery));
