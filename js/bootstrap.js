@@ -37,7 +37,7 @@
             //    $(".md-first-heading").css ("margin-top", "0");
 
             // external content should run after gimmicks were run
-            $.md.stage('bootstrap').done(function() {
+            $.md.stage('postgimmick').done(function() {
                 adjustExternalContent();
                 highlightActiveLink();
 
@@ -70,7 +70,6 @@
         var $bootstrapmenu  = $(menusrc);
         $bootstrapmenu.appendTo('#md-menu');
         $('#md-menu-ul').append($menuContent);
-
 
         // the menu should be the first element in the body
         $('#md-menu-container').prependTo ('#md-all');
@@ -134,6 +133,7 @@
             }
             return;
         });
+
         // remove empty uls
         $('#md-menu ul').each(function(i,e) {
             var ul = $(e);
@@ -197,7 +197,8 @@
 
         var affixDiv = $('<div id="md-page-menu" />');
 
-        var top_spacing = $('#md-menu').height() + 15;
+        //var top_spacing = $('#md-menu').height() + 15;
+        var top_spacing = 70;
         affixDiv.affix({
             //offset: affix.position() - 50,
             offset: 130

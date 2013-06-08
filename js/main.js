@@ -125,7 +125,7 @@
             if ($.md.util.isRelativeUrl(href)) {
                 var newHref = baseUrl + href;
                 if (!isImage) {
-                    link.attr(hrefAttribute, '#' + newHref);
+                    link.attr(hrefAttribute, '#!' + newHref);
                 } else {
                     link.attr(hrefAttribute, newHref);
                 }
@@ -291,6 +291,12 @@
         });
         $.md.stage('all_ready').done(function() {
             $('html').removeClass('md-hidden-load');
+
+            // phantomjs hook when we are done
+            if (typeof window.callPhantom === 'function') {
+                window.callPhantom({});
+            }
+
             // reset the stages for next iteration
             resetStages();
         });
@@ -302,7 +308,7 @@
 
     function extractHashData() {
         // first char is the #
-        var href = window.location.hash.substring(1);
+        var href = window.location.hash.substring(2);
 
         // extract possible in-page anchor
         var ex_pos = href.indexOf('!');
@@ -322,7 +328,7 @@
         extractHashData();
 
         if (window.location.hash === '') {
-            window.location.hash = '#index.md';
+            window.location.hash = '#!index.md';
         }
 
         $(window).bind('hashchange', function () {

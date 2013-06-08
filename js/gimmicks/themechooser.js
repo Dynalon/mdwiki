@@ -21,7 +21,7 @@
         name: 'Themes',
         version: $.md.version,
         once: function() {
-            $.md.linkGimmick(this, 'themechooser', choose_theme, 'skel_ready');
+            $.md.linkGimmick(this, 'themechooser', themechooser, 'skel_ready');
             $.md.linkGimmick(this, 'theme', apply_theme);
 
             $.md.stage('bootstrap').subscribe(function(done) {
@@ -71,7 +71,7 @@
         });
     };
 
-    var choose_theme = function($links, opt, text) {
+    var themechooser = function($links, opt, text) {
         return $links.each(function(i, e) {
             var $this = $(e);
             var $chooser = $('<a href=""></a><ul></ul>'
@@ -86,11 +86,13 @@
                     .attr('href', 'fpp')
                     .click(function(ev) {
                         ev.preventDefault();
-                        set_theme(theme);
                         window.localStorage.theme = theme.name;
+                        window.location.reload();
                     })
                     .appendTo($li);
             });
+            $chooser.eq(1).append('<li class="divider" /:>');
+            $chooser.eq(1).append('<li><a href="http://www.bootswatch.com">Powered by Bootswatch</a></li>');
             $this.replaceWith($chooser);
         });
     };
