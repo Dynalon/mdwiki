@@ -37,13 +37,14 @@
             //    $(".md-first-heading").css ("margin-top", "0");
 
             // external content should run after gimmicks were run
-            $.md.stage('postgimmick').done(function() {
+            $.md.stage('postgimmick').subscribe(function(done) {
                 adjustExternalContent();
                 highlightActiveLink();
 
-                if ($.md.config.useSideMenu === true) {
+                /*if ($.md.config.useSideMenu === true) {
                     createPageContentMenu();
-                }
+                }*/
+                done();
             });
         }
     };

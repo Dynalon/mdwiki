@@ -24,10 +24,6 @@
             $.md.linkGimmick(this, 'themechooser', themechooser, 'skel_ready');
             $.md.linkGimmick(this, 'theme', apply_theme);
 
-            $.md.stage('bootstrap').subscribe(function(done) {
-                restore_theme();
-                done();
-            });
         }
     };
     $.md.registerGimmick(themeChooserGimmick);
@@ -35,18 +31,21 @@
     var log = $.md.getLogger();
 
     var set_theme = function(theme) {
+        theme.inverse = theme.inverse || false;
+
         if (theme.url === undefined) {
             if (!theme.name) {
                 log.error('Theme name must be given!');
                 return;
             }
-            theme = themes.filter(function(t) {
+            var saved_theme = themes.filter(function(t) {
                 return t.name === theme.name;
             })[0];
-            if (!theme) {
+            if (!saved_theme) {
                 log.error('Theme ' + name + ' not found, removing link');
                 return;
             }
+            theme = $.extend(theme, saved_theme);
         }
 
         // in devel & fat version the style is inlined, remove it
@@ -58,13 +57,25 @@
         $('<link rel="stylesheet" type="text/css">')
             .attr('href', theme.url)
             .appendTo('head');
+
+        if (theme.inverse === true) {
+            $('#md-menu').addClass ('navbar-inverse');
+        } else {
+            $('#md-menu').removeClass ('navbar-inverse');
+        }
     };
 
     var apply_theme = function($links, opt, text) {
+        opt.name = opt.name || text;
         return $links.each(function(i, link) {
             $.md.stage('postgimmick').subscribe(function(done) {
                 var $link = $(link);
-                set_theme(opt);
+
+                // only set a theme if no theme from the choser is selected
+                if (window.localStorage.theme === undefined) {
+                    set_theme(opt);
+                }
+
                 $link.remove();
                 done();
             });
@@ -72,6 +83,12 @@
     };
 
     var themechooser = function($links, opt, text) {
+
+        $.md.stage('bootstrap').subscribe(function(done) {
+            restore_theme(opt);
+            done();
+        });
+
         return $links.each(function(i, e) {
             var $this = $(e);
             var $chooser = $('<a href=""></a><ul></ul>'
@@ -91,15 +108,28 @@
                     })
                     .appendTo($li);
             });
-            $chooser.eq(1).append('<li class="divider" /:>');
+
+            $chooser.eq(1).append('<li class="divider" />');
+            var $li = $('<li/>');
+            var $a_use_default = $('<a>Use default</a>');
+            $a_use_default.click(function(ev) {
+                ev.preventDefault();
+                window.localStorage.removeItem('theme');
+                window.location.reload();
+            });
+            $li.append($a_use_default);
+            $chooser.eq(1).append($li);
+
+            $chooser.eq(1).append('<li class="divider" />');
             $chooser.eq(1).append('<li><a href="http://www.bootswatch.com">Powered by Bootswatch</a></li>');
             $this.replaceWith($chooser);
         });
     };
 
-    var restore_theme = function() {
+    var restore_theme = function(opt) {
         if (window.localStorage.theme) {
-            set_theme({ name: window.localStorage.theme });
+            opt = $.extend({ name: window.localStorage.theme }, opt);
+            set_theme(opt);
         }
     };
 }(jQuery));

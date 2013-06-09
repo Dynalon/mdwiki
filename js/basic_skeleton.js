@@ -29,12 +29,16 @@
     };
     $.md.publicMethods = $.extend ({}, $.md.publicMethods, publicMethods);
 
-
-
     // set the page title to the browser document title, optionally picking
     // the first h1 element as title if no title is given
     function setPageTitle() {
-        var $pageTitle = $('#md-content h1').eq(0);
+        var $pageTitle;
+        if ($.md.config.title) {
+            // HACK we use .html so we can embed img tags
+            $pageTitle = $('<h1/>').html($.md.config.title);
+        } else {
+            $pageTitle = $('#md-content h1').eq(0);
+        }
         if ($.trim($pageTitle.text()).length > 0) {
             $('#md-title').prepend($pageTitle);
             var title = $pageTitle.text();

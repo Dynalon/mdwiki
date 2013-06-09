@@ -286,6 +286,8 @@
         log.debug('Subscribing gimmick ' + linktrigger.module.name + ' to stage: ' + linktrigger.stage);
 
         $.md.stage(linktrigger.stage).subscribe(function(done) {
+            args.options = args.options || {};
+
             // it is possible that broken modules or any other transformation removed the $link
             // from the dom in the meantime
             if (!jQuery.contains(document.documentElement, $link[0])) {
@@ -294,7 +296,6 @@
             }
 
             log.debug('Running gimmick ' + linktrigger.module.name);
-
             linktrigger.callback($link, args.options, args.href, done);
 
             // if the gimmick didn't call done, we trigger it here

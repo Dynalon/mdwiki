@@ -125,6 +125,7 @@
             if ($.md.util.isRelativeUrl(href)) {
                 var newHref = baseUrl + href;
                 if (!isImage) {
+
                     link.attr(hrefAttribute, '#!' + newHref);
                 } else {
                     link.attr(hrefAttribute, newHref);
@@ -183,10 +184,10 @@
     $.ajax('config.json').done(function(data) {
         try {
             $.md.config = $.parseJSON(data);
+            log.info('Found a valid config.json file, using configuration');
         } catch(err) {
             log.error('config.json was not JSON parsable: ' + err);
         }
-        log.info('Found a valid config.json file, using configuration');
         $.md.ConfigDfd.resolve();
     }).fail(function() {
         $.md.ConfigDfd.reject();
@@ -292,13 +293,14 @@
         $.md.stage('all_ready').done(function() {
             $('html').removeClass('md-hidden-load');
 
+            // reset the stages for next iteration
+            resetStages();
+
             // phantomjs hook when we are done
             if (typeof window.callPhantom === 'function') {
                 window.callPhantom({});
             }
 
-            // reset the stages for next iteration
-            resetStages();
         });
 
         // trigger the whole process by runing the init stage
@@ -307,8 +309,13 @@
     }
 
     function extractHashData() {
-        // first char is the #
-        var href = window.location.hash.substring(2);
+        // first char is the # or #!
+        var href;
+        if (window.location.hash.startsWith('#!')) {
+            href = window.location.hash.substring(2);
+        } else {
+            href = window.location.hash.substring(1);
+        }
 
         // extract possible in-page anchor
         var ex_pos = href.indexOf('!');
@@ -327,7 +334,10 @@
         registerBuildNavigation();
         extractHashData();
 
-        if (window.location.hash === '') {
+        if (window.location.hash === '' ||
+            window.location.hash === '#'||
+            window.location.hash === '#!')
+        {
             window.location.hash = '#!index.md';
         }
 
