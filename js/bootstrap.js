@@ -233,16 +233,16 @@
     function createPageSkeleton() {
 
         $('#md-title').wrap('<div class="container" id="md-title-container"/>');
-        $('#md-title').wrap('<div class="row" id="md-title-row"/>');
+        $('#md-title').wrap('<div class="row-fluid" id="md-title-row"/>');
 
         $('#md-menu').wrap('<div class="container" id="md-menu-container"/>');
-        $('#md-menu').wrap('<div class="row" id="md-menu-row"/>');
+        $('#md-menu').wrap('<div class="row-fluid" id="md-menu-row"/>');
 
         $('#md-content').wrap('<div class="container" id="md-content-container"/>');
-        $('#md-content').wrap('<div class="row" id="md-content-row"/>');
+        $('#md-content').wrap('<div class="row-fluid" id="md-content-row"/>');
 
         $('#md-body').wrap('<div class="container" id="md-body-container"/>');
-        $('#md-body').wrap('<div class="row" id="md-body-row"/>');
+        $('#md-body').wrap('<div class="row-fluid" id="md-body-row"/>');
 
         $('#md-content').addClass('span10');
         $('#md-title').addClass('span10');
