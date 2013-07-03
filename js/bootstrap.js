@@ -41,9 +41,9 @@
                 adjustExternalContent();
                 highlightActiveLink();
 
-                /*if ($.md.config.useSideMenu === true) {
+                if ($.md.config.useSideMenu === true) {
                     createPageContentMenu();
-                }*/
+                }
                 done();
             });
         }

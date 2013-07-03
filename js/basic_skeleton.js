@@ -33,7 +33,7 @@
     // the first h1 element as title if no title is given
     function setPageTitle() {
         var $pageTitle;
-        if ($.md.config.title) {
+        if ($.md.config.title instanceof String) {
             // HACK we use .html so we can embed img tags
             $pageTitle = $('<h1/>').html($.md.config.title);
         } else {

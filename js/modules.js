@@ -286,7 +286,7 @@
         log.debug('Subscribing gimmick ' + linktrigger.module.name + ' to stage: ' + linktrigger.stage);
 
         $.md.stage(linktrigger.stage).subscribe(function(done) {
-            args.options = args.options || {};
+            args.options = args.options ||{};
 
             // it is possible that broken modules or any other transformation removed the $link
             // from the dom in the meantime

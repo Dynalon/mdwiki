@@ -66,7 +66,7 @@
     };
 
     var apply_theme = function($links, opt, text) {
-        opt.name = opt.name || text;
+        opt.name = opt.name || text;
         return $links.each(function(i, link) {
             $.md.stage('postgimmick').subscribe(function(done) {
                 var $link = $(link);
