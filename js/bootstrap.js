@@ -61,12 +61,11 @@
         navStyle = 'top';
         var $menuContent = $('#md-menu').children();
 
-        $('#md-menu').addClass ('navbar navbar-fixed-top');
+        $('#md-menu').addClass ('navbar navbar-default navbar-fixed-top');
         var menusrc = '';
-        menusrc += '<div class="navbar-inner">';
         menusrc += '<div id="md-menu-inner" class="container">';
-        menusrc += '<ul id="md-menu-ul" class="nav">';
-        menusrc += '</ul></div></div>';
+        menusrc += '<ul id="md-menu-ul" class="nav navbar-nav">';
+        menusrc += '</ul></div>';
 
         var $bootstrapmenu  = $(menusrc);
         $bootstrapmenu.appendTo('#md-menu');
@@ -97,7 +96,7 @@
         menusrc += '</ul></div>';
         $('#md-menu').empty();
         $('#md-menu').wrapInner($(menusrc));
-        $('#md-menu').addClass ('span12');
+        $('#md-menu').addClass ('col-md-12');
 
         $('#md-menu-container').insertAfter ($('#md-title-container'));
         */
@@ -146,7 +145,7 @@
         $('#md-menu hr').replaceWith($('<li class="divider-vertical"/>'));
 
         $('#md-menu h1').replaceWith(function() {
-            var brand = $('<a class="brand"/>').text($(this).text());
+            var brand = $('<a class="navbar-brand"/>').text($(this).text());
             return brand;
         });
 
@@ -207,7 +206,7 @@
         affixDiv.css('top', top_spacing);
         //affix.css('top','-250px');
 
-        var $ul = $('<ul style="width: 200px" class="nav nav-tabs nav-stacked"/>');
+        var $ul = $('<ul style="width: 200px" class="nav nav-pills nav-stacked"/>');
         affixDiv.append($ul);
 
         $headings.each(function(i,e) {
@@ -233,35 +232,35 @@
     function createPageSkeleton() {
 
         $('#md-title').wrap('<div class="container" id="md-title-container"/>');
-        $('#md-title').wrap('<div class="row-fluid" id="md-title-row"/>');
+        $('#md-title').wrap('<div class="row" id="md-title-row"/>');
 
         $('#md-menu').wrap('<div class="container" id="md-menu-container"/>');
-        $('#md-menu').wrap('<div class="row-fluid" id="md-menu-row"/>');
+        $('#md-menu').wrap('<div class="row" id="md-menu-row"/>');
 
         $('#md-content').wrap('<div class="container" id="md-content-container"/>');
-        $('#md-content').wrap('<div class="row-fluid" id="md-content-row"/>');
+        $('#md-content').wrap('<div class="row" id="md-content-row"/>');
 
         $('#md-body').wrap('<div class="container" id="md-body-container"/>');
-        $('#md-body').wrap('<div class="row-fluid" id="md-body-row"/>');
+        $('#md-body').wrap('<div class="row" id="md-body-row"/>');
 
-        $('#md-content').addClass('span10');
-        $('#md-title').addClass('span10');
+        $('#md-content').addClass('col-md-10');
+        $('#md-title').addClass('col-md-10');
 
-        $('#md-content-row').append('<div class="span2" id="md-right-column"/>');
+        $('#md-content-row').append('<div class="col-md-2" id="md-right-column"/>');
     }
     function pullRightBumper (){
  /*     $("span.bumper").each (function () {
 			$this = $(this);
 			$this.prev().addClass ("pull-right");
 		});
-*/
 		$('span.bumper').addClass ('pull-right');
+*/
     }
 
     function changeHeading() {
 
         // HEADING
-        var jumbo = $('<div class="jumbotron page-header" />');
+        var jumbo = $('<div class="page-header" />');
         var heading = $('<h1/>');
         heading.text($('#md_title').text());
         jumbo.append(heading);
@@ -296,12 +295,12 @@
                 })
                 // add those anchors including images
                 .add($(this).find ('a:has(img)'))
-                .addClass('thumbnail');
+                .addClass('img-thumbnail');
 
             // create a new url group at the fron of the paragraph
-            $p.prepend($('<ul class="thumbnails" />'));
+            //$p.prepend($('<ul class="thumbnails" />'));
             // move the images to the newly created ul
-            $p.find('ul').eq(0).append($images);
+            //$p.find('ul').eq(0).append($images);
 
             // wrap each image with a <li> that limits their space
             // the number of images in a paragraphs determines thei width / span
@@ -309,31 +308,31 @@
             if (false && $p.hasClass ('md-floatenv')) {
                 // float environments have smaller sizes for images
                 if ($images.length === 1) {
-                    $images.wrap('<li class="span6" />');
+                    $images.wrap('<div class="col-md-6" />');
                 } else if ($images.length === 2) {
-                    $images.wrap('<li class="span3" />');
+                    $images.wrap('<div class="col-md-3" />');
                 } else {
-                    $images.wrap('<li class="span2" />') ;
+                    $images.wrap('<div class="col-md-2" />') ;
                 }
             } else {
                 // non-float => images are on their own single paragraph, make em larger
                 // but remember, our image resizing will make them only as large as they are
                 // but do no upscaling
                 if ($images.length === 1) {
-                    $images.wrap('<li class="span10" />');
+                    $images.wrap('<div class="col-md-10" />');
 
                 } else if ($images.length === 2) {
-                    $images.wrap('<li class="span5" />');
+                    $images.wrap('<div class="col-md-5" />');
                 } else {
-                    $images.wrap('<li class="span3" />');
+                    $images.wrap('<div class="col-md-3" />');
                 }
             }
             // finally, every img gets its own wrapping thumbnail div
             //$images.wrap('<div class="thumbnail" />');
         });
         // apply float to the ul thumbnails
-        $('.md-floatenv.md-float-left ul').addClass ('pull-left');
-        $('.md-floatenv.md-float-right ul').addClass ('pull-right');
+        //$('.md-floatenv.md-float-left ul').addClass ('pull-left');
+        //$('.md-floatenv.md-float-right ul').addClass ('pull-right');
     }
 
     function adjustExternalContent() {
@@ -351,16 +350,16 @@
             .css ('height', '280px');
 
         // make it appear like an image thumbnal
-        $('.md-external').addClass('thumbnail');
+        $('.md-external').addClass('img-thumbnail');
 
-        //.wrap($("<ul class='thumbnails' />")).wrap($("<li class='span6' />"));
+        //.wrap($("<ul class='thumbnails' />")).wrap($("<li class='col-md-6' />"));
         $('div.md-external').not('.md-external-noheight')
             .css('height', '280px');
         $('div.md-external').not('.md-external-nowidth')
             .css('width', '450px');
 
         // // make it appear like an image thumbnal
-        // $("div.md-external").addClass("thumbnail").wrap($("<ul class='thumbnails' />")).wrap($("<li class='span10' />"));
+        // $("div.md-external").addClass("thumbnail").wrap($("<ul class='thumbnails' />")).wrap($("<li class='col-md-10' />"));
 
         // $("div.md-external-large").css('width', "700px")
     }
