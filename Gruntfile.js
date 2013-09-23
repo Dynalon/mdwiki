@@ -1,10 +1,3 @@
-var path = require('path');
-var lrSnippet = require('grunt-contrib-livereload/lib/utils').livereloadSnippet;
-
-var folderMount = function folderMount(connect, point) {
-    'use strict';
-    return connect.static(path.resolve(point));
-};
 var createIndex = function (grunt, taskname) {
     'use strict';
     var conf = grunt.config('index')[taskname],
@@ -16,6 +9,7 @@ var createIndex = function (grunt, taskname) {
     grunt.file.write(conf.dest, grunt.template.process(tmpl));
     grunt.log.writeln('Generated \'' + conf.dest + '\' from \'' + conf.template + '\'');
 };
+
 /*global module:false*/
 module.exports = function(grunt) {
     'use strict';
@@ -70,19 +64,19 @@ module.exports = function(grunt) {
         // ONLY PUT ALREADY MINIFIED FILES IN HERE!
         externalJsFiles: [
             'extlib/js/jquery-1.8.3.min.js',
-            'extlib/js/bootstrap-2.3.2.min.js'
+            'extlib/js/bootstrap-3.0.0.min.js'
         ],
         externalCssFiles: [
-            'extlib/css/bootstrap-combined-2.3.2.min.css'
+            'extlib/css/bootstrap-3.0.0.min.css'
         ],
 
         // references we add in the slim release (stuff available on CDN locations)
         externalJsRefs: [
             'ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js',
-            'netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js'
+            'netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js'
         ],
         externalCssRefs: [
-            'netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css',
+            'netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css',
 //            'netdna.bootstrapcdn.com/bootswatch/2.3.1/slate/bootstrap.min.css',
 //            'www.3solarmasses.com/retriever-bootstrap/css/retriever.css'
 //            '3solarmasses.com/corgi-bootstrap/css/corgi.css'
@@ -154,32 +148,28 @@ module.exports = function(grunt) {
         lib_test: {
             src: ['lib/**/*.js', 'test/**/*.js']
         },
-         // Configuration to be run (and then tested)
-        regarde: {
-            gruntfile: {
-                files: 'Gruntfile.js',
-                tasks: [ 'devel', 'livereload' ]
-            },
-            js: {
-                files: ['js/*.js', 'js/**/*.js'],
-//                files: ['js/basic_skeleton.js'],
-                tasks: [ 'devel', 'livereload' ]
-            },
-            tmpl: {
-                files: ['index.tmpl'],
-                tasks: ['devel', 'livereload']
-            }
+        watch: {
+            files: [
+                'Gruntfile.js',
+                'js/*.js',
+                'js/**/*.js',
+                'index.tmpl'
+            ],
+            tasks: ['default']
+        },
+        reload: {
+            port: 35729,
+            liveReload: {}
         }
     });
 
     // These plugins provide necessary tasks.
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-livereload');
-    grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-regarde');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-reload');
 
     grunt.registerTask('index_slim', 'Generate slim index.html, most scripts on CDN', function() {
         createIndex(grunt, 'slim');
@@ -193,13 +183,12 @@ module.exports = function(grunt) {
         createIndex(grunt, 'devel');
     });
 
-    grunt.registerTask('release-slim', [  'jshint', 'concat:dev', 'uglify:dist', 'index_slim']);
+    grunt.registerTask('release-slim', [  'jshint', 'concat:dev', 'uglify:dist', 'index_slim', 'reload', 'watch']);
     grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat']);
-    grunt.registerTask('devel', [ 'jshint', 'concat:dev', 'index_devel']);
+    grunt.registerTask('devel', [ 'jshint', 'concat:dev', 'index_devel', 'reload', 'watch']);
     grunt.registerTask('all', ['devel', 'release-slim', 'release-fat']);
 
     // Default task.
-    grunt.registerTask('watch', [ 'devel', 'release-slim', 'release-fat', 'livereload-start', 'regarde' ]);
-    grunt.registerTask('default', [ 'watch' ]);
+    grunt.registerTask('default', [ 'devel', 'release-slim', 'release-fat', 'reload', 'watch' ]);
 
 };
