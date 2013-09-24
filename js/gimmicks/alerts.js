@@ -24,7 +24,7 @@
             $p.addClass('alert');
 
             if (type === 'note') {
-                //$p.addClass('');
+                $p.addClass('alert-info');
             } else if (type === 'hint') {
                 $p.addClass('alert-success');
             } else if (type === 'warning') {

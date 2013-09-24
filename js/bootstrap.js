@@ -37,13 +37,16 @@
             //    $(".md-first-heading").css ("margin-top", "0");
 
             // external content should run after gimmicks were run
+            $.md.stage('pregimmick').subscribe(function(done) {
+                if ($.md.config.useSideMenu === true) {
+                    createPageContentMenu();
+                }
+                done();
+            });
             $.md.stage('postgimmick').subscribe(function(done) {
                 adjustExternalContent();
                 highlightActiveLink();
 
-                if ($.md.config.useSideMenu === true) {
-                    createPageContentMenu();
-                }
                 done();
             });
         }
@@ -172,7 +175,17 @@
     }
 
     function createPageContentMenu () {
+
+        var recalc_width = function () {
+            // if the page menu is affixed, it is not a child of the
+            // <md-left-column> anymore and therefore does not inherit
+            // its width. On every resize, change the class accordingly
+            var width_left_column = $('#md-left-column').css('width');
+            $('#md-page-menu').css('width', width_left_column);
+        };
+
         $(window).scroll(function() {
+            recalc_width($('#md-page-menu'));
             var $first;
             $('*.md-inpage-anchor').each(function(i,e) {
                 if ($first === undefined) {
@@ -186,8 +199,9 @@
             $('#md-page-menu a').each(function(i,e) {
                 var $a = $(e);
                 if ($a.text() === $first.text()) {
-                    $('#md-page-menu li.active').removeClass('active');
-                    $a.parent('li').addClass('active');
+                    $('#md-page-menu a.active').removeClass('active');
+                    //$a.parent('a').addClass('active');
+                    $a.addClass('active');
                 }
             });
         });
@@ -206,12 +220,13 @@
         affixDiv.css('top', top_spacing);
         //affix.css('top','-250px');
 
-        var $ul = $('<ul style="width: 200px" class="nav nav-pills nav-stacked"/>');
-        affixDiv.append($ul);
+        var $pannel = $('<div class="panel panel-default"><ul class="list-group"/></div>');
+        var $ul = $pannel.find("ul");
+        affixDiv.append($pannel);
 
         $headings.each(function(i,e) {
             var $heading = $(e);
-            var $li = $('<li/>');
+            var $li = $('<li class="list-group-item" />');
             var $a = $('<a />');
             $a.attr('href', $heading.text());
             $a.click(function(ev) {
@@ -225,8 +240,17 @@
             $ul.append($li);
         });
 
+        $(window).resize(function () {
+            recalc_width($('#md-page-menu'));
+        });
+        $.md.stage('postgimmick').subscribe(function (done) {
+            // recalc_width();
+            done();
+        });
+
         //menu.css('width','100%');
-        $('#md-right-column').append(affixDiv);
+        $('#md-left-column').append(affixDiv);
+
     }
 
     function createPageSkeleton() {
@@ -246,7 +270,7 @@
         $('#md-content').addClass('col-md-10');
         $('#md-title').addClass('col-md-10');
 
-        $('#md-content-row').append('<div class="col-md-2" id="md-right-column"/>');
+        $('#md-content-row').prepend('<div class="col-md-2" id="md-left-column"/>');
     }
     function pullRightBumper (){
  /*     $("span.bumper").each (function () {

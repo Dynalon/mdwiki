@@ -155,7 +155,7 @@ module.exports = function(grunt) {
                 'js/**/*.js',
                 'index.tmpl'
             ],
-            tasks: ['default']
+            tasks: ['devel']
         },
         reload: {
             port: 35729,
@@ -189,6 +189,8 @@ module.exports = function(grunt) {
     grunt.registerTask('all', ['devel', 'release-slim', 'release-fat']);
 
     // Default task.
-    grunt.registerTask('default', [ 'devel', 'release-slim', 'release-fat', 'reload', 'watch' ]);
+    grunt.registerTask('default',
+        [ 'devel', 'release-slim', 'release-fat', 'reload', 'watch' ]
+    );
 
 };
