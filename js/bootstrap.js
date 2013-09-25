@@ -84,12 +84,14 @@
 
         navbar +=   '<div class="collapse navbar-collapse navbar-ex1-collapse">';
         navbar +=     '<ul class="nav navbar-nav" />';
+        navbar +=     '<ul class="nav navbar-nav navbar-right" />';
         navbar +=   '</div>';
         navbar += '</div>';
         var $navbar = $(navbar);
-        
+
         $navbar.appendTo('#md-menu');
-        $('#md-menu ul.nav').append($menuContent);
+        // .eq(0) becase we dont want navbar-right to be appended to
+        $('#md-menu ul.nav').eq(0).append($menuContent);
 
         // the menu should be the first element in the body
         $('#md-menu').prependTo ('#md-all');
