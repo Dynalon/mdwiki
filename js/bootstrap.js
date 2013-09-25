@@ -64,18 +64,41 @@
         navStyle = 'top';
         var $menuContent = $('#md-menu').children();
 
-        $('#md-menu').addClass ('navbar navbar-default navbar-fixed-top');
-        var menusrc = '';
-        menusrc += '<div id="md-menu-inner" class="container">';
-        menusrc += '<ul id="md-menu-ul" class="nav navbar-nav">';
-        menusrc += '</ul></div>';
+        // $('#md-menu').addClass ('navbar navbar-default navbar-fixed-top');
+        // var menusrc = '';
+        // menusrc += '<div id="md-menu-inner" class="container">';
+        // menusrc += '<ul id="md-menu-ul" class="nav navbar-nav">';
+        // menusrc += '</ul></div>';
 
-        var $bootstrapmenu  = $(menusrc);
-        $bootstrapmenu.appendTo('#md-menu');
-        $('#md-menu-ul').append($menuContent);
+        var navbar = '';
+        navbar += '<div class="navbar navbar-default navbar-fixed-top" role="navigation">';
+        navbar +=   '<div class="navbar-header">';
+        navbar +=     '<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">';
+        navbar +=       '<span class="sr-only">Toggle navigation</span>';
+        navbar +=       '<span class="icon-bar"></span>';
+        navbar +=       '<span class="icon-bar"></span>';
+        navbar +=       '<span class="icon-bar"></span>';
+        navbar +=     '</button>';
+        navbar +=     '<a class="navbar-brand" href="#"></a>';
+        navbar +=   '</div>';
+
+        navbar +=   '<div class="collapse navbar-collapse navbar-ex1-collapse">';
+        navbar +=     '<ul class="nav navbar-nav" />';
+        navbar +=   '</div>';
+        navbar += '</div>';
+        var $navbar = $(navbar);
+        
+        $navbar.appendTo('#md-menu');
+        $('#md-menu ul.nav').append($menuContent);
 
         // the menu should be the first element in the body
-        $('#md-menu-container').prependTo ('#md-all');
+        $('#md-menu').prependTo ('#md-all');
+
+        var brand_text = $('#md-menu h1').text();
+        $('#md-menu h1').remove();
+        console.log('brand: ' + brand_text);
+        $('a.navbar-brand').text(brand_text);
+
 
         // then comes md-title, and afterwards md-content
         // offset md-title to account for the fixed menu space
@@ -147,10 +170,6 @@
 
         $('#md-menu hr').replaceWith($('<li class="divider-vertical"/>'));
 
-        $('#md-menu h1').replaceWith(function() {
-            var brand = $('<a class="navbar-brand"/>').text($(this).text());
-            return brand;
-        });
 
         // wrap the toplevel links in <li>
         $('#md-menu > a').wrap('<li />');
@@ -268,7 +287,7 @@
         $('#md-body').wrap('<div class="row" id="md-body-row"/>');
 
         $('#md-content').addClass('col-md-10');
-        $('#md-title').addClass('col-md-10');
+        $('#md-title').addClass('col-md-12');
 
         $('#md-content-row').prepend('<div class="col-md-2" id="md-left-column"/>');
     }
@@ -354,6 +373,9 @@
             // finally, every img gets its own wrapping thumbnail div
             //$images.wrap('<div class="thumbnail" />');
         });
+        // image groups are always a row
+        $('p.md-image-group').addClass('row');
+
         // apply float to the ul thumbnails
         //$('.md-floatenv.md-float-left ul').addClass ('pull-left');
         //$('.md-floatenv.md-float-right ul').addClass ('pull-right');
