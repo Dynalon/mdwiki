@@ -396,7 +396,7 @@
             .css ('height', '280px');
 
         // make it appear like an image thumbnal
-        $('.md-external').addClass('img-thumbnail');
+        //$('.md-external').addClass('img-thumbnail');
 
         //.wrap($("<ul class='thumbnails' />")).wrap($("<li class='col-md-6' />"));
         $('div.md-external').not('.md-external-noheight')
