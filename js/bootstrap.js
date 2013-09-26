@@ -219,7 +219,7 @@
             // highlight in the right menu
             $('#md-page-menu a').each(function(i,e) {
                 var $a = $(e);
-                if ($a.text() === $first.text()) {
+                if ($first && $a.text() === $first.text()) {
                     $('#md-page-menu a.active').removeClass('active');
                     //$a.parent('a').addClass('active');
                     $a.addClass('active');
@@ -339,9 +339,10 @@
                     return $(this).parents('a').length === 0;
                 })
                 // add those anchors including images
-                .add($(this).find ('a:has(img)'))
+                .add($(this).find ('img'))
+                .addClass('img-responsive')
                 .addClass('img-thumbnail');
-
+                
             // create a new url group at the fron of the paragraph
             //$p.prepend($('<ul class="thumbnails" />'));
             // move the images to the newly created ul
@@ -363,13 +364,18 @@
                 // non-float => images are on their own single paragraph, make em larger
                 // but remember, our image resizing will make them only as large as they are
                 // but do no upscaling
-                if ($images.length === 1) {
-                    $images.wrap('<div class="col-md-10" />');
 
+                // TODO replace by calculation
+                if ($images.length === 1) {
+                    $images.wrap('<div class="col-sm-12" />');
                 } else if ($images.length === 2) {
-                    $images.wrap('<div class="col-md-5" />');
+                    $images.wrap('<div class="col-sm-6" />');
+                } else if ($images.length === 3) {
+                    $images.wrap('<div class="col-sm-4" />');
+                } else if ($images.length === 4) {
+                    $images.wrap('<div class="col-sm-3" />');
                 } else {
-                    $images.wrap('<div class="col-md-3" />');
+                    $images.wrap('<div class="col-sm-2" />');
                 }
             }
             // finally, every img gets its own wrapping thumbnail div
