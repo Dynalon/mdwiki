@@ -1,8 +1,4 @@
 (function($) {
-    //  BUG: this gimmick sometimes kills the page load, find out why
-    // before re-enabling
-    if (true) { return; }
-    
     //'use strict';
     // no license information given in the widget.js -> OTHER
     var twitterscript = '!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");';
@@ -13,7 +9,7 @@
             $.md.linkGimmick(this, 'twitterfollow', twitterfollow);
 
             $.md.registerScript(this, twitterscript, {
-                license: 'OTHER',
+                license: 'EXCEPTION',
                 loadstage: 'postgimmick',
                 finishstage: 'all_ready'
             });
@@ -29,7 +25,7 @@
 			var href = $link.attr('href');
 			if (href.indexOf ('twitter.com') <= 0) {
 				user = $link.attr('href');
-				href = 'https://twitter.com/' + user;
+				href = '//twitter.com/' + user;
 			}
 			else {
 				return;

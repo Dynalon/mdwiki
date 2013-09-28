@@ -40,6 +40,7 @@
             $.md.stage('pregimmick').subscribe(function(done) {
                 if ($.md.config.useSideMenu !== false) {
                     createPageContentMenu();
+                    addFooter();
                 }
                 done();
             });
@@ -424,4 +425,28 @@
         // $("div.md-external-large").css('width', "700px")
     }
 
+    // note: the footer is part of the GPLv3 legal information
+    // and may not be removed or hidden to comply with licensing conditions.
+    function addFooter() {
+        var navbar = '';
+        navbar += '<div id="#md-copyright-footer" class="navbar navbar-default navbar-fixed-bottom">';
+        navbar +=     '<ul class="nav navbar-nav navbar-left">';
+        navbar +=       '<p class="navbar-text">';
+        navbar +=       '</p>';
+        navbar +=     '</ul>';
+        navbar +=     '<ul class="nav navbar-nav navbar-right">';
+        navbar +=       '<p class="navbar-text">';
+        navbar +=          'Website created with <a href="http://www.mdwiki.info">MDwiki</a> ';
+        navbar +=         '(&copy; 2013 Timo D&ouml;rr and contributors.) ';
+        navbar +=         '<a href="http://www.mdwiki.info">MDwiki</a> is free software licensed under ';
+        navbar +=         '<a href="http://www.mdwiki.info/license">GNU GPLv3 (additional terms apply).</a>';
+        navbar +=       '</p>';
+        navbar +=     '</ul>';
+        navbar +=   '</div>';
+        navbar += '</div>';
+        var $navbar = $(navbar);
+        $navbar.css('position', 'relative');
+        $navbar.css('margin-top', '1em');
+        $('#md-all').append ($navbar);
+    }
 }(jQuery));

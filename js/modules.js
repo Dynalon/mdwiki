@@ -117,7 +117,7 @@
     // since we are GPL, we have to be cautious what other scripts we load
     // as delivering to the browser is considered delivering a derived work
     var licenses = ['MIT', 'BSD', 'GPL', 'GPL2', 'GPL3', 'LGPL', 'LGPL2',
-        'APACHE2', 'PUBLICDOMAIN', 'OTHER'
+        'APACHE2', 'PUBLICDOMAIN', 'EXCEPTION', 'OTHER'
     ];
     function checkLicense(license, module) {
         if ($.inArray(license, licenses) === -1) {
