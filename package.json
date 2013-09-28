@@ -10,7 +10,8 @@
     "grunt-reload": "git://github.com/webxl/grunt-reload.git",
     "grunt-contrib-jshint": "~0.6.2",
     "bower": "~1.2.6",
-    "grunt-contrib-uglify": "~0.2.4"
+    "grunt-contrib-uglify": "~0.2.4",
+    "grunt-shell": "~0.4.0"
   },
   "engines": {
     "node": ">=0.8.0"

@@ -2,6 +2,7 @@ node_modules
 bower_components/
 node_modules/
 dist/
+release/
 .tmp
 app/components
 md/

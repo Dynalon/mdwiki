@@ -28,7 +28,7 @@
             } else if (type === 'hint') {
                 $p.addClass('alert-success');
             } else if (type === 'warning') {
-                $p.addClass('alert-error');
+                $p.addClass('alert-warning');
             }
         });
     }
@@ -37,7 +37,7 @@
     function select_paragraphs() {
         var note = ['note', 'beachte' ];
         var warning = [ 'achtung', 'attention', 'warnung', 'warning', 'atención', 'guarda', 'advertimiento' ];
-        var hint = ['hint', 'tipp', 'hinweis'];
+        var hint = ['hint', 'tipp', 'tip', 'hinweis'];
         var exp = note.concat(warning);
         exp = exp.concat(hint);
         var matches = [];

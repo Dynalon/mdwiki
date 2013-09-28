@@ -108,15 +108,15 @@ module.exports = function(grunt) {
         index: {
             fat: {
                 template: 'index.tmpl',
-                dest: 'dist/index-fat.html'
+                dest: 'dist/mdwiki.html'
             },
             slim: {
                 template: 'index.tmpl',
-                dest: 'dist/index-slim.html'
+                dest: 'dist/mdwiki-slim.html'
             },
             devel: {
                 template: 'index.tmpl',
-                dest: 'dist/index-devel.html'
+                dest: 'dist/mdwiki-devel.html'
             }
         },
         jshint: {
@@ -153,6 +153,34 @@ module.exports = function(grunt) {
         lib_test: {
             src: ['lib/**/*.js', 'test/**/*.js']
         },
+        copy: {
+            release_fat: {
+                expand: false,
+                flatten: true,
+                src: [ 'dist/mdwiki.html' ],
+                dest: 'release/mdwiki-<%= grunt.config("pkg").version %>/mdwiki.html'
+            },
+            release_slim: {
+                expand: false,
+                flatten: true,
+                src: [ 'dist/mdwiki-slim.html' ],
+                dest: 'release/mdwiki-<%= grunt.config("pkg").version %>/mdwiki-slim.html'
+            },
+            release_legal: {
+                expand: true,
+                flatten: true,
+                src: [ 'release_templates/*' ],
+                dest: 'release/mdwiki-<%= grunt.config("pkg").version %>/'
+            }
+        },
+        shell: {                                // Task
+            zip_release: {
+                options: {
+                    stdout: true
+                },
+                command: 'cd release && zip -r mdwiki-<%= grunt.config("pkg").version %>.zip mdwiki-<%= grunt.config("pkg").version %>'
+            }
+        },
         watch: {
             files: [
                 'Gruntfile.js',
@@ -174,6 +202,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-shell');
     grunt.loadNpmTasks('grunt-reload');
 
     grunt.registerTask('index_slim', 'Generate slim index.html, most scripts on CDN', function() {
@@ -192,6 +221,10 @@ module.exports = function(grunt) {
     grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat' ]);
     grunt.registerTask('devel', [ 'jshint', 'concat:dev', 'index_devel', 'reload', 'watch' ]);
 
+    grunt.registerTask('release',[
+        'release-slim', 'release-fat', 'copy:release_slim', 'copy:release_fat', 'copy:release_legal',
+        'shell:zip_release'
+    ]);
     // Default task.
     grunt.registerTask('default',
         [ 'release-slim', 'release-fat' ]

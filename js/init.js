@@ -15,7 +15,6 @@
             $.error('Method ' + method + ' does not exist on jquery.md');
         }
     };
-    $.md.version = '0.1.0';
     $.md.config = {};
     $.md.gimmicks = [];
     $.md.stages = [];
@@ -36,6 +35,7 @@
         ERROR: 50,
         FATAL: 60
     };
-    $.md.logThreshold = $.md.loglevel.DEBUG;
+    // $.md.logThreshold = $.md.loglevel.DEBUG;
+    $.md.logThreshold = $.md.loglevel.WARN;
 
 }(jQuery));
