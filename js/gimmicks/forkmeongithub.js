@@ -47,7 +47,7 @@
             var href = $link.attr('href');
     //                var body_pos_top = $('#md-body').offset ().top;
             var body_pos_top = 0;
-            var github_link = $('<a href="'+ href +'"><img style="position: absolute; top: ' + body_pos_top + ';'+pos+': 0; border: 0;" src="'+base_href+'" alt="Fork me on GitHub"></a>');
+            var github_link = $('<a class="forkmeongithub" href="'+ href +'"><img style="position: absolute; top: ' + body_pos_top + ';'+pos+': 0; border: 0;" src="'+base_href+'" alt="Fork me on GitHub"></a>');
             // to avoid interfering with other div / scripts, we remove the link and prepend it to the body
             // the fork me ribbon is positioned absolute anyways
             $('body').prepend (github_link);

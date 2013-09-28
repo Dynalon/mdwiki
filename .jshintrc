@@ -23,6 +23,8 @@
         "marked": true,
         "jQuery": true,
         "console": true,
-        "google": true
+        "google": true,
+        "hljs": true,
+        "L": true
     }
 }

@@ -40,16 +40,14 @@
         once: function() {
             $.md.linkGimmick(this, 'leaflet', leaflet_map);
             $.md.registerCss(this, cssUrl, {
-                license: 'MIT',
                 stage: 'skel_ready'
             });
 
             $.md.registerScript(this, jsUrl, {
-                license: 'MIT',
                 loadstage: 'pregimmick',
                 finishstage: 'pregimmick'
             });
         }
     };
-    //$.md.registerGimmick(leafletGimmick);
+    $.md.registerGimmick(leafletGimmick);
 }(jQuery));

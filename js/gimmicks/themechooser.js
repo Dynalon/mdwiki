@@ -40,21 +40,27 @@
                 return t.name === theme.name;
             })[0];
             if (!saved_theme) {
-                log.error('Theme ' + name + ' not found, removing link');
+                log.error('Theme ' + name + ' not found, removing link')    ;
                 return;
             }
             theme = $.extend(theme, saved_theme);
         }
 
-        // in devel & fat version the style is inlined, remove it
-        $('style[id*=bootstrap]').remove();
 
         $('link[rel=stylesheet][href*="netdna.bootstrapcdn.com"]')
             .remove();
 
-        $('<link rel="stylesheet" type="text/css">')
-            .attr('href', theme.url)
-            .appendTo('head');
+        // slim instance has no bootstrap hardcoded in
+        var has_default_bootstrap_css = $('style[id*=bootstrap]').length > 0;
+
+        if (theme.name !== 'bootstrap' || !has_default_bootstrap_css) {
+            // in devel & fat version the style is inlined, remove it
+            $('style[id*=bootstrap]').remove();
+
+            $('<link rel="stylesheet" type="text/css">')
+                .attr('href', theme.url)
+                .appendTo('head');
+        }
 
         if (theme.inverse === true) {
             $('#md-menu').removeClass ('navbar-default');

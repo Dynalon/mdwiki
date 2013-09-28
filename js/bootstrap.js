@@ -38,7 +38,7 @@
 
             // external content should run after gimmicks were run
             $.md.stage('pregimmick').subscribe(function(done) {
-                if ($.md.config.useSideMenu === true) {
+                if ($.md.config.useSideMenu !== false) {
                     createPageContentMenu();
                 }
                 done();
@@ -98,7 +98,6 @@
 
         var brand_text = $('#md-menu h1').text();
         $('#md-menu h1').remove();
-        console.log('brand: ' + brand_text);
         $('a.navbar-brand').text(brand_text);
 
 
@@ -197,6 +196,17 @@
 
     function createPageContentMenu () {
 
+        // assemble the menu
+        var $headings = $('#md-content').find('h2');
+
+        if ($headings.length === 0) {
+            return;
+        }
+
+        $('#md-content').removeClass ('col-md-12');
+        $('#md-content').addClass ('col-md-9');
+        $('#md-content-row').prepend('<div class="col-md-3" id="md-left-column"/>');
+
         var recalc_width = function () {
             // if the page menu is affixed, it is not a child of the
             // <md-left-column> anymore and therefore does not inherit
@@ -227,8 +237,6 @@
             });
         });
 
-        // assemble the menu
-        var $headings = $('#md-content').find('h1,h2,h3');
 
         var affixDiv = $('<div id="md-page-menu" />');
 
@@ -288,10 +296,9 @@
         $('#md-body').wrap('<div class="container" id="md-body-container"/>');
         $('#md-body').wrap('<div class="row" id="md-body-row"/>');
 
-        $('#md-content').addClass('col-md-10');
         $('#md-title').addClass('col-md-12');
+        $('#md-content').addClass('col-md-12');
 
-        $('#md-content-row').prepend('<div class="col-md-2" id="md-left-column"/>');
     }
     function pullRightBumper (){
  /*     $("span.bumper").each (function () {
@@ -307,7 +314,6 @@
         // HEADING
         var jumbo = $('<div class="page-header" />');
         var heading = $('<h1/>');
-        heading.text($('#md_title').text());
         jumbo.append(heading);
         $('#md-title').wrapInner(jumbo);
     }
@@ -342,7 +348,7 @@
                 .add($(this).find ('img'))
                 .addClass('img-responsive')
                 .addClass('img-thumbnail');
-                
+
             // create a new url group at the fron of the paragraph
             //$p.prepend($('<ul class="thumbnails" />'));
             // move the images to the newly created ul

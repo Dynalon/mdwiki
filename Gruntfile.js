@@ -44,8 +44,9 @@ module.exports = function(grunt) {
             //'js/gimmicks/github_gist.js',
             'js/gimmicks/gist.js',
             'js/gimmicks/googlemaps.js',
+            'js/gimmicks/highlight.js',
             'js/gimmicks/image_linker.js',
-            'js/gimmicks/leaflet.js',
+            // 'js/gimmicks/leaflet.js',
             'js/gimmicks/themechooser.js',
             'js/gimmicks/twitter.js',
             'js/gimmicks/youtube_embed.js'
@@ -64,20 +65,23 @@ module.exports = function(grunt) {
         // ONLY PUT ALREADY MINIFIED FILES IN HERE!
         externalJsFiles: [
             'extlib/js/jquery-1.8.3.min.js',
-            'extlib/js/bootstrap-3.0.0.min.js'
+            'extlib/js/bootstrap-3.0.0.min.js',
+            'extlib/js/highlight-7.3.pack.min.js'
         ],
         externalCssFiles: [
-            'extlib/css/bootstrap-3.0.0.min.css'
+            'extlib/css/highlight.github.css',
+            'extlib/css/bootstrap-3.0.0.min.css',
         ],
 
         // references we add in the slim release (stuff available on CDN locations)
         externalJsRefs: [
             'ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js',
-            'netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js'
+            'netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js',
+            'yandex.st/highlightjs/7.3/highlight.min.js'
         ],
         externalCssRefs: [
             'netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css',
-//            'netdna.bootstrapcdn.com/bootswatch/2.3.1/slate/bootstrap.min.css',
+            'yandex.st/highlightjs/7.3/styles/github.min.css'
 //            'www.3solarmasses.com/retriever-bootstrap/css/retriever.css'
 //            '3solarmasses.com/corgi-bootstrap/css/corgi.css'
         ],
@@ -133,6 +137,7 @@ module.exports = function(grunt) {
                     jQuery: true,
                     marked: true,
                     google: true,
+                    hljs: true,
                     /* leaflet.js*/
                     L: true,
                     console: true
@@ -183,14 +188,13 @@ module.exports = function(grunt) {
         createIndex(grunt, 'devel');
     });
 
-    grunt.registerTask('release-slim', [  'jshint', 'concat:dev', 'uglify:dist', 'index_slim', 'reload', 'watch']);
-    grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat']);
-    grunt.registerTask('devel', [ 'jshint', 'concat:dev', 'index_devel', 'reload', 'watch']);
-    grunt.registerTask('all', ['devel', 'release-slim', 'release-fat']);
+    grunt.registerTask('release-slim',[  'jshint', 'concat:dev', 'uglify:dist', 'index_slim' ]);
+    grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat' ]);
+    grunt.registerTask('devel', [ 'jshint', 'concat:dev', 'index_devel', 'reload', 'watch' ]);
 
     // Default task.
     grunt.registerTask('default',
-        [ 'devel', 'release-slim', 'release-fat', 'reload', 'watch' ]
+        [ 'release-slim', 'release-fat' ]
     );
 
 };

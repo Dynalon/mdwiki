@@ -43,6 +43,8 @@
             $('#md-title').prepend($pageTitle);
             var title = $pageTitle.text();
             document.title = title;
+        } else {
+            $('#md-title').remove();
         }
     }
     function wrapParagraphText () {
