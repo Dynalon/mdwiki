@@ -16,14 +16,14 @@ How to build
 
     bower install
 
-    # (or if not installed globally)
+    (or if not installed globally)
     ./node_modules/.bin/bower install
 
 5. Build MDwiki
 
     grunt release
 
-    # (or if not installed globally)
+    (or if not installed globally)
     ./node_modules/.bin/grunt release
 
 6. Find the `mdwiki.html` in the `release/` and `dist/` folder
