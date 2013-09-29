@@ -27,3 +27,4 @@ How to build
     ./node_modules/.bin/grunt release
 
 6. Find the `mdwiki.html` in the `release/` and `dist/` folder
+
