@@ -439,7 +439,7 @@
         navbar +=          'Website created with <a href="http://dynalon.github.io/mdwiki">MDwiki</a> ';
         navbar +=         '(&copy; 2013 Timo D&ouml;rr and contributors.) ';
         navbar +=         '<a href="http://dynalon.github.io/mdwiki">MDwiki</a> is free software licensed under ';
-        navbar +=         '<a href="http://github.com/Dynalon/mdwiki/tree/LICENSE.txt">GNU GPLv3 (additional terms apply).</a>';
+        navbar +=         '<a href="http://github.com/Dynalon/mdwiki/tree/blob/master/LICENSE.txt">GNU GPLv3 (additional terms apply).</a>';
         navbar +=       '</p>';
         navbar +=     '</ul>';
         navbar +=   '</div>';
