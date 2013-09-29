@@ -1,7 +1,9 @@
 Quick Start
 ===========
 
-Note: If you are already familiar with Markdown, you might want to look at [the source of this wiki](#), which is itself created with MDwiki.
+Note: If you are already familiar with Markdown, you might want to look at [the source of this wiki][src], which is itself created with MDwiki.
+
+  [src]: https://github.com/Dynalon/mdwiki/tree/gh-pages
 
 Markdown
 --------
