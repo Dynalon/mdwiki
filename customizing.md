@@ -30,4 +30,11 @@ You can create a `config.json` file in the same folder as the `mdwiki.html` file
 
   * `UseSideNav: false` - disable the side navigation
 
+A sample `config.json` might thus look like this:
+
+```javascript
+{
+    "UseSideNav": true
+}
+
 Note: More configuration options will be available in future versions of MDwiki
