@@ -3,8 +3,13 @@ MDwiki
 
 100% static file, client-side CMS/wiki done in Javascript. See http://dynalon.github.io/mdwiki for more info and documentation.
 
-How to build
-------------
+Download
+--------
+
+See <https://github.com/Dynalon/mdwiki/releases> for readily precompiled releases.
+
+How to build from source
+------------------------
 
 1. Install node.js >= 0.8 and npm (if not included)
 2. Clone this repo
