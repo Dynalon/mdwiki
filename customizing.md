@@ -1,10 +1,9 @@
 Customizing
 ===========
 
-Theming
--------
+Theme chooser
+-------------
 
-### Theme chooser
 There is a special gimmick `ThemeChooser` that will add a submenu entry to the navigation bar with all available themes. Enable it by adding
 
     [gimmick:themechooser](Choose theme)
