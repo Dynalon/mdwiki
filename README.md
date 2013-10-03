@@ -1,7 +1,11 @@
 MDwiki
 ======
 
-100% static file, client-side CMS/wiki done in Javascript. See http://dynalon.github.io/mdwiki for more info and documentation.
+100% static single file CMS/Wiki done purely with client-side Javascript and HTML5.
+
+See http://www.mdwiki.info for more info and documentation.
+------
+
 
 Download
 --------
