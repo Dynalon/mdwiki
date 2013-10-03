@@ -357,17 +357,18 @@
 
             // wrap each image with a <li> that limits their space
             // the number of images in a paragraphs determines thei width / span
-            // FLOATS disabled for now
-            if (false && $p.hasClass ('md-floatenv')) {
-                // float environments have smaller sizes for images
+            if ($p.hasClass ('md-floatenv')) {
+                // floating images have to be smaller
+                var div;
                 if ($images.length === 1) {
-                    $images.wrap('<div class="col-md-6" />');
+                    div = $images.wrap('<div class="col-sm-8" />');
                 } else if ($images.length === 2) {
-                    $images.wrap('<div class="col-md-3" />');
+                    div = $images.wrap('<div class="col-sm-4" />');
                 } else {
-                    $images.wrap('<div class="col-md-2" />') ;
+                    div = $images.wrap('<div class="col-sm-2" />');
                 }
             } else {
+
                 // non-float => images are on their own single paragraph, make em larger
                 // but remember, our image resizing will make them only as large as they are
                 // but do no upscaling
@@ -385,11 +386,10 @@
                     $images.wrap('<div class="col-sm-2" />');
                 }
             }
+            $p.addClass('row');
             // finally, every img gets its own wrapping thumbnail div
             //$images.wrap('<div class="thumbnail" />');
         });
-        // image groups are always a row
-        $('p.md-image-group').addClass('row');
 
         // apply float to the ul thumbnails
         //$('.md-floatenv.md-float-left ul').addClass ('pull-left');

@@ -11,7 +11,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="fragment" content="!">
     <style type="text/css">
+    /* hide the main content while we assemble everything */
     .md-hidden-load { display: none; }
+
     /* for pageContentMenu */
     #md-page-menu {
             position: static;
@@ -28,11 +30,45 @@
         }
     }
     @media (min-width: 768px) {
+        .md-float-left .col-sm-8, .md-float-right .col-sm-8 {
+            max-width: 66.67%;
+        }
+        .md-float-left .col-sm-4, .md-float-right .col-sm-4  {
+            max-width: 33.33%;
+        }
+        .md-float-left .col-sm-2, .md-float-right .col-sm-2 {
+            max-width: 16.67%;
+        }
+
     }
     @media (max-width: 992px) {
         a.forkmeongithub {
             display: none;
         }
+    }
+    @media (max-width: 768px) {
+        /* don't use floating for smaller screens */
+        .md-float-left .col-sm-8, .md-float-left .col-sm-4, .md-float-left .col-sm-2 {
+            width: 100%;
+            max-width: !important;
+            min-width: 100%;
+        }
+        .md-float-right .col-sm-8, .md-float-right .col-sm-4, .md-float-right .col-sm-2 {
+            width: 100%;
+            max-width: !important;
+            min-width: 100%;
+        }
+    }
+
+    /* float images */
+    .md-float-left .col-sm-8, .md-float-left .col-sm-4, .md-float-left .col-sm-2 {
+        padding-left: 0px;
+        width: auto;
+    }
+    .md-float-right .col-sm-8, .md-float-right .col-sm-4, .md-float-right .col-sm-2 {
+        padding-right: 0px;
+        float: right !important;
+        width: auto;
     }
     </style>
 
