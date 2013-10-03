@@ -183,7 +183,7 @@
     $.md.ConfigDfd = $.Deferred();
     $.getJSON('config.json').done(function(data) {
         try {
-            $.md.config = data;
+            $.md.config = $.extend($.md.config, data);
             log.info('Found a valid config.json file, using configuration');
         } catch(err) {
             log.error('config.json was not JSON parsable: ' + err);

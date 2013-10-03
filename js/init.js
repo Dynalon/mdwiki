@@ -15,7 +15,13 @@
             $.error('Method ' + method + ' does not exist on jquery.md');
         }
     };
-    $.md.config = {};
+    // default config
+    $.md.config = {
+        Title:  null,
+        UseSideNav: true
+    };
+
+
     $.md.gimmicks = [];
     $.md.stages = [];
     $.md.debug = true;
