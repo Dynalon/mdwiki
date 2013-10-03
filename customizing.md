@@ -13,7 +13,7 @@ to the `navigation.md` (or into each page individually).
 
 ### Selecting a theme
 
-In addition of the theme chooser, you can manually set a specific theme:
+You can manually set a specific theme that will be used if the ThemeChooser gimmick is not used or set to the default theme:
 
     [gimmick:theme](flatly)
 
@@ -36,5 +36,9 @@ A sample `config.json` might thus look like this:
 {
     "UseSideNav": true
 }
+```
 
 Note: More configuration options will be available in future versions of MDwiki
+
+Hint: It is adviced that you create an empty config.json in each cases, to avoid 404 errors which will not get cached by your browser. Having a `config.json` file present thus will speed up page loading (even if its empty).
+
