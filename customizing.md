@@ -16,11 +16,13 @@ You can manually set a specific theme that will be used if the ThemeChooser gimm
 
     [gimmick:theme](flatly)
 
+This will set the default theme to `flatly`. You can see a list of the theme names in the `ThemeChooser` gimmick or on this page (select `Change theme` in the navbar).
+
 To apply the theme globally for all files, put the entry into `navigation.md`. You can also switch the "inverse" mode, which will change colors for some themes (see <http://www.bootswatch.com/> for details)
 
     [gimmick:theme (inverse: true)](flatly)
 
-Note: Only the default `bootstrap` theme is bundled with MDwiki. All other themes require internet connection, as the styles are dynamically loaded on demand.
+Note: Only the default `bootstrap` theme is bundled with MDwiki and available offline. All other themes require internet connection, as the styles are dynamically loaded on demand.
 
 Configuration
 -------------
