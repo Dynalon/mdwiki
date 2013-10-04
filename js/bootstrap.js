@@ -429,15 +429,15 @@
     // and may not be removed or hidden to comply with licensing conditions.
     function addFooter() {
         var navbar = '';
-        navbar += '<div id="#md-copyright-footer" class="navbar navbar-default navbar-fixed-bottom">';
+        navbar += '<hr><div class="md-copyright-footer" class="navbar navbar-default navbar-fixed-bottom">';
         navbar +=     '<ul class="nav navbar-nav navbar-left">';
         navbar +=       '<p class="navbar-text">';
         navbar +=       '</p>';
         navbar +=     '</ul>';
         navbar +=     '<ul class="nav navbar-nav navbar-right">';
         navbar +=       '<p class="navbar-text">';
-        navbar +=          'Website created with <a href="http://dynalon.github.io/mdwiki">MDwiki</a> ';
-        navbar +=         '(&copy; 2013 Timo D&ouml;rr and contributors.) ';
+        navbar +=         'Website created with <a href="http://www.mdwiki.info">MDwiki</a>. ';
+        navbar +=         '&copy; Timo D&ouml;rr and contributors. ';
         navbar +=         '<a href="http://dynalon.github.io/mdwiki">MDwiki</a> is free software licensed under ';
         navbar +=         '<a href="https://github.com/Dynalon/mdwiki/blob/master/LICENSE.txt">GNU GPLv3 (additional terms apply).</a>';
         navbar +=       '</p>';
