@@ -1,7 +1,7 @@
 FAQ
 ====
 
-  * __Q: What is the fastest/easiest way to setup a local HTTP server to get started with MDwiki?__
+  * __Q: I don't want to install nginx or apache locally. What is the fastest/easiest way to setup a local HTTP server to get started with MDwiki ?__
   * A: If you are on OS X or Linux, just use the `SimpleHTTPServer` that comes with python. To start a server on port 8080, run this command from within the folder where your `mdwiki.html` is located:
 
   ```bash
