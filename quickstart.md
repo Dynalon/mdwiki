@@ -96,6 +96,21 @@ If a bulleted list of links is supplied as in the above example, the list will b
 
 - - - -
 
+Creating links
+-------
+
+Links to anywhere in the web are done via regular Markdown links:
+
+    [Google](http://www.google.com)
+
+Links within the wiki are just plain relative links:
+
+    [Go to download](download.md)
+
+Internal links will be prefix automatically with the `#!` hashbang:
+
+[Go to download](download.md)
+
 Images
 -------
 

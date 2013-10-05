@@ -24,8 +24,17 @@ To download and build from source, `node.js` >= 0.8 is required with installed n
 
 
 ```bash
-git clone http://github.com/Dynalon/mdwiki/???
+git clone https://github.com/Dynalon/mdwiki.git
 cd mdwiki
+
+# will install all dependencies
 npm install
+
+# create a release:
 ./node_modules/.bin/grunt release
+
+# or a debugging friendly mdwiki-devel.html in dist/ with
+# automatic filesystem watcher
+./node_modules/.bin/grunt devel
+
 ```
