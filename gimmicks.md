@@ -163,12 +163,11 @@ Preview:
 Math
 -----
 [gimmick: math]()
-Math formulas are enabled through the [MathJax](http://www.mathjax.org) library.
-To enable math formulas, first the `math` gimmick must be loaded by adding this link anywhere in the file:
+Math formulas are realized through the [MathJax](http://www.mathjax.org) library. To enable math formulas on a page, the `math` gimmick must be loaded by adding this link anywhere in the file:
 
     [gimmick: math]()
 
-To enable math for all sites, put the above link into the `navigation.md` file.
+To enable math for all sites, put the above link into the `navigation.md` file. Putting this link onto the site will load MathJax dynamically from a CDN provider.
 
 Note: The MathJax script is very large and loads some more dependencies like fonts. Using the math gimmick might result in slow page loads.
 
