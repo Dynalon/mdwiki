@@ -1,3 +1,4 @@
+[gimmick: math]()
 ## One phaze solver
 
 ### Laplace operator boundary conditions

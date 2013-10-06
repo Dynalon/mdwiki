@@ -160,6 +160,33 @@ Preview:
 [gimmick:googlemaps({maptype: 'satellite', zoom: 17})](Colloseum, Rome, Italy)
 * * *
 
+Math
+-----
+[gimmick: math]()
+Math formulas are enabled through the [MathJax](http://www.mathjax.org) library.
+To enable math formulas, first the `math` gimmick must be loaded by adding this link anywhere in the file:
+
+    [gimmick: math]()
+
+To enable math for all sites, put the above link into the `navigation.md` file.
+
+Note: The MathJax script is very large and loads some more dependencies like fonts. Using the math gimmick might result in slow page loads.
+
+You can then add math formulas by putting them between to `$$` signs and use LateX syntax:
+
+    $$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
+
+$$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
+
+More examples:
+
+$$ \frac{\partial \phi}{\partial x} \vert_b = \frac{1}{\Delta x/2}(\phi_0-\phi_b) $$
+
+$$ \int u \frac{dv}{dx}\,dx=uv-\int
+\frac{du}{dx}v\,dx\lim_{n\rightarrow \infty }
+\left (  1 +\frac{1}{n} \right )^n
+$$
+
 Twitter
 -------
 
