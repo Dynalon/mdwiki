@@ -32,6 +32,11 @@
             return this.slice(0, str.length) === str;
         };
     }
+    if (typeof String.prototype.endsWith !== 'function') {
+        String.prototype.endsWith = function(str) {
+            return this.slice(this.length - str.length, this.length) === str;
+        };
+    }
 
     // adds a :icontains selector to jQuery that is case insensitive
     $.expr[':'].icontains = $.expr.createPseudo(function(arg) {

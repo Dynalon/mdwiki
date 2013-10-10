@@ -106,7 +106,7 @@
                 $chooser.eq(1).append($li);
                 var $a = $('<a/>')
                     .text(theme.name)
-                    .attr('href', 'fpp')
+                    .attr('href', '')
                     .click(function(ev) {
                         ev.preventDefault();
                         window.localStorage.theme = theme.name;

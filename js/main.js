@@ -103,6 +103,18 @@
 
     // modify internal links so we load them through our engine
     function processPageLinks(domElement, baseUrl) {
+
+        function hasMarkdownFileExtension (str) {
+            var markdownExtensions = [ '.md', '.markdown', '.mdown' ];
+            var result = false;
+            $(markdownExtensions).each(function (i,ext) {
+                if (str.toLowerCase().endsWith (ext)) {
+                    result = true;
+                }
+            });
+            return result;
+        }
+
         var html = $(domElement);
         if (baseUrl === undefined) {
             baseUrl = '';
@@ -119,17 +131,17 @@
             }
             var href = link.attr(hrefAttribute);
 
-            if (!isImage && $.md.util.isGimmickLink(link)) {
+            if (!isImage && $.md.util.isGimmickLink(link))
                 return;
-            }
+
             if ($.md.util.isRelativeUrl(href)) {
                 var newHref = baseUrl + href;
-                if (!isImage) {
-
+                if (!hasMarkdownFileExtension(newHref))
+                    return;
+                if (!isImage)
                     link.attr(hrefAttribute, '#!' + newHref);
-                } else {
+                else
                     link.attr(hrefAttribute, newHref);
-                }
             }
         });
     }
