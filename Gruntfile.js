@@ -115,11 +115,12 @@ module.exports = function(grunt) {
                 template: 'index.tmpl',
                 dest: 'dist/mdwiki-slim.html'
             },
-            devel: {
+            debug: {
                 template: 'index.tmpl',
-                dest: 'dist/mdwiki-devel.html'
+                dest: 'dist/mdwiki-debug.html'
             }
         },
+        /* make it use .jshintrc */
         jshint: {
             options: {
                 curly: false,
@@ -167,14 +168,20 @@ module.exports = function(grunt) {
                 src: [ 'dist/mdwiki-slim.html' ],
                 dest: 'release/mdwiki-<%= grunt.config("pkg").version %>/mdwiki-slim.html'
             },
-            release_legal: {
+            release_debug: {
+                expand: false,
+                flatten: true,
+                src: [ 'dist/mdwiki-debug.html' ],
+                dest: 'release/mdwiki-<%= grunt.config("pkg").version %>/mdwiki-debug.html'
+            },
+            release_templates: {
                 expand: true,
                 flatten: true,
                 src: [ 'release_templates/*' ],
                 dest: 'release/mdwiki-<%= grunt.config("pkg").version %>/'
             }
         },
-        shell: {                                // Task
+        shell: {
             zip_release: {
                 options: {
                     stdout: true
@@ -206,29 +213,32 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-shell');
     grunt.loadNpmTasks('grunt-reload');
 
-    grunt.registerTask('index_slim', 'Generate slim index.html, most scripts on CDN', function() {
+    grunt.registerTask('index_slim', 'Generate slim mdwiki.html, most scripts on CDN', function() {
         createIndex(grunt, 'slim');
     });
 
-    grunt.registerTask('index_fat', 'Generate fat index.html, inline all scripts', function() {
+    grunt.registerTask('index_fat', 'Generate mdwiki-fat.html, inline all scripts', function() {
         createIndex(grunt, 'fat');
     });
-
-    grunt.registerTask('index_devel', 'Generate devel index.html', function() {
-        createIndex(grunt, 'devel');
+    grunt.registerTask('index_debug', 'Generate mdwiki-fat.html, inline all scripts', function() {
+        createIndex(grunt, 'debug');
     });
-
     grunt.registerTask('release-slim',[  'jshint', 'concat:dev', 'uglify:dist', 'index_slim' ]);
     grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat' ]);
-    grunt.registerTask('devel', [ 'jshint', 'concat:dev', 'index_devel', 'reload', 'watch' ]);
+
+    /* Debug is basically the fat version but without any minifing */
+    grunt.registerTask('release-debug', [ 'jshint', 'concat:dev', 'index_debug' ]);
+
+    grunt.registerTask('devel', [ 'release-debug', 'reload', 'watch' ]);
 
     grunt.registerTask('release',[
-        'release-slim', 'release-fat', 'copy:release_slim', 'copy:release_fat', 'copy:release_legal',
+        'release-slim', 'release-fat', 'release-debug',
+        'copy:release_slim', 'copy:release_fat', 'copy:release_debug', 'copy:release_templates',
         'shell:zip_release'
     ]);
     // Default task.
     grunt.registerTask('default',
-        [ 'release-slim', 'release-fat' ]
+        [ 'release-slim', 'release-fat', 'release-debug' ]
     );
 
 };

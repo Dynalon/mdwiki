@@ -129,7 +129,7 @@
             print_script_ref(externalJsRefs[i]);
         }
     }
-    else if (task === 'fat' || task ==='devel') {
+    else if (task === 'fat' || task ==='debug') {
         // INLINE SCRIPTS AND CSS
 
         for(var i = 0, len = externalCssFiles.length; i < len; i++) {
@@ -154,7 +154,7 @@
 
     // OUR OWN CODE
     var fileContent = '';
-    if (task === 'devel') {
+    if (task === 'debug') {
         fileContent = grunt.file.read(ownJsFileFull);
         print_script_inline(ownJsFileFull, fileContent);
     } else if (task === 'fat' || task === 'slim') {
