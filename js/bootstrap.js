@@ -40,8 +40,8 @@
             $.md.stage('pregimmick').subscribe(function(done) {
                 if ($.md.config.useSideMenu !== false) {
                     createPageContentMenu();
-                    addFooter();
                 }
+                addFooter();
                 done();
             });
             $.md.stage('postgimmick').subscribe(function(done) {
