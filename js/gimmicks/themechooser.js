@@ -63,11 +63,11 @@
         }
 
         if (theme.inverse === true) {
-            $('#md-menu').removeClass ('navbar-default');
-            $('#md-menu').addClass ('navbar-inverse');
+            $('#md-main-navbar').removeClass ('navbar-default');
+            $('#md-main-navbar').addClass ('navbar-inverse');
         } else {
-            $('#md-menu').addClass ('navbar-default');
-            $('#md-menu').removeClass ('navbar-inverse');
+            $('#md-main-navbar').addClass ('navbar-default');
+            $('#md-main-navbar').removeClass ('navbar-inverse');
         }
     };
 

@@ -72,7 +72,7 @@
         // menusrc += '</ul></div>';
 
         var navbar = '';
-        navbar += '<div class="navbar navbar-default navbar-fixed-top" role="navigation">';
+        navbar += '<div id="md-main-navbar" class="navbar navbar-default navbar-fixed-top" role="navigation">';
         navbar +=   '<div class="navbar-header">';
         navbar +=     '<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">';
         navbar +=       '<span class="sr-only">Toggle navigation</span>';
