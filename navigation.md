@@ -7,6 +7,7 @@
 [Customizing](customizing.md)
 [Download](download.md)
 [FAQ](faq.md)
+[Forum](forum.md)
 
 
 [gimmick:theme (inverse: false)](flatly)
