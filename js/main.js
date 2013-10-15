@@ -74,7 +74,11 @@
         var md = '';
 
         $.md.stage('init').subscribe(function(done) {
-            $.ajax($.md.mainHref).done(function(data) {
+            var ajaxReq = {
+                url: $.md.mainHref,
+                dataType: 'text'
+            };
+            $.ajax(ajaxReq).done(function(data) {
                 // TODO do this elsewhere
                 md = data;
                 done();
@@ -148,7 +152,11 @@
 
     var navMD = '';
     $.md.NavgiationDfd = $.Deferred();
-    $.ajax('navigation.md').done(function(data) {
+    var ajaxReq = {
+        url: 'navigation.md',
+        dataType: 'text'
+    };
+    $.ajax(ajaxReq).done(function(data) {
         navMD = data;
         $.md.NavgiationDfd.resolve();
     }).fail(function() {
