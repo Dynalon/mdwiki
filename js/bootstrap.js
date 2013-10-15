@@ -200,7 +200,7 @@
         // assemble the menu
         var $headings = $('#md-content').find('h2');
 
-        if ($headings.length === 0) {
+        if ($headings.length <= 1) {
             return;
         }
 
