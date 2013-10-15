@@ -2,7 +2,11 @@ FAQ
 ====
 
   * __Q: Can I open `mdwiki.html` in my browser from the menu or by specifying via a `file://` URL?__
-  * A: **No!** MDwiki will not work when opened through `file://` URLs. You always need a webserver, even for local editing (see next question).
+  * A: This varies by browser:
+    * Firefox: Works perfectly when using `file://` urls. Due to some bugs, some exernal resources might however fail to load.
+    * Google Chrome: Works only when started with the commandline parameter `--allow-file-access-from-files`
+
+    Note: It is usally best to use a webserver when running locally and not to use `file://` URLs as those are not yet 100% supported.
 
 - - - - - - - - -
 
