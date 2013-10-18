@@ -17,8 +17,10 @@
     };
     // default config
     $.md.config = {
-        Title:  null,
-        UseSideNav: true
+        title:  null,
+        useSideNav: true,
+        /* can be: gfm, original */
+        lineBreaks: 'gfm',
     };
 
 

@@ -65,6 +65,11 @@
                 tables: true,
                 breaks: true
             };
+            if ($.md.config.lineBreaks === 'original')
+                options.breaks = false;
+            else if ($.md.config.lineBreaks === 'gfm')
+                options.breaks = true;
+
             marked.setOptions(options);
 
             // get sample markdown
@@ -201,7 +206,7 @@
     }
 
     $.md.ConfigDfd = $.Deferred();
-    $.getJSON('config.json').done(function(data) {
+    $.get('config.json', { dataType: 'text/plain'}).done(function(data) {
         try {
             $.md.config = $.extend($.md.config, data);
             log.info('Found a valid config.json file, using configuration');
@@ -209,7 +214,8 @@
             log.error('config.json was not JSON parsable: ' + err);
         }
         $.md.ConfigDfd.resolve();
-    }).fail(function() {
+    }).fail(function(err, textStatus) {
+        log.error('unable to retrieve config.json: ' + textStatus);
         $.md.ConfigDfd.reject();
     });
     function registerFetchConfig() {
