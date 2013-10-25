@@ -79,7 +79,7 @@ function googlemapsReady() {
 
             // load the googlemaps js from the google server
             $.md.registerScript(this, scripturl, {
-                license: 'OTHER',
+                license: 'EXCEPTION',
                 loadstage: 'skel_ready',
                 finishstage: 'bootstrap'
             });

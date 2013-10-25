@@ -1,7 +1,8 @@
 (function($) {
     //'use strict';
     // no license information given in the widget.js -> OTHER
-    var twitterscript = '!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");';
+    var widgetHref = $.md.prepareLink('platform.twitter.com/widgets.js');
+    var twitterscript = '!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="' + widgetHref + '";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");';
     var twitterGimmick = {
         name: 'TwitterGimmick',
         version: $.md.version,
@@ -25,7 +26,7 @@
 			var href = $link.attr('href');
 			if (href.indexOf ('twitter.com') <= 0) {
 				user = $link.attr('href');
-				href = '//twitter.com/' + user;
+				href = $.md.prepareLink('twitter.com/' + user);
 			}
 			else {
 				return;

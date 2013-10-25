@@ -40,6 +40,25 @@
         });
     };
 
+    // turns hostname/path links into http://hostname/path links
+    // we need to do this because if accessed by file:///, we need a different
+    // transport scheme for external resources (like http://)
+    $.md.prepareLink = function(link, options) {
+        options = options || {};
+        var ownProtocol = window.location.protocol;
+
+        if (options.forceSSL)
+            return 'https://' + link;
+        if (options.forceHTTP)
+            return 'http://' + link;
+
+        if (ownProtocol === 'file:') {
+            return 'http://' + link;
+        }
+        // default: use the same as origin resource
+        return '//' + link;
+    };
+
     // associate a link trigger for a gimmick. i.e. [gimmick:foo]() then
     // foo is the trigger and will invoke the corresponding gimmick
     $.md.linkGimmick = function(module, trigger, callback, stage) {
