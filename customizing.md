@@ -29,17 +29,23 @@ Configuration
 
 You can create a `config.json` file in the same folder as the `mdwiki.html` file which is then used for configuration. The file has to be valid JSON. Currently these options are available:
 
-  * `UseSideNav: false` - disable the side navigation
+  * `useSideNav: false` - disable the side navigation
+  * `lineBreaks: "original"` - Instead of using the [GFM] line breaks, use the original line breaking as [introduced by John Gruber][DaringFireball]:
+    * line breaks in the markdown files are ignored, except if a line ends with two spaces
+    * Default is `lineBreaks: "gfm"` (line breaks in markdown will create a new paragraph)
 
 A sample `config.json` might thus look like this:
 
 ```javascript
 {
-    "UseSideNav": true
+    useSideNav: true,
+    lineBreaks: "gfm"
 }
 ```
 
-Note: More configuration options will be available in future versions of MDwiki
+Note: More configuration options will be available in future versions of MDwiki.
 
-Hint: It is adviced that you create an empty config.json in each cases, to avoid 404 errors which will not get cached by your browser. Having a `config.json` file present thus will speed up page loading (even if its empty).
+Hint: It is adviced that you create an empty config.json in each cases, to avoid 404 errors which will not get cached by your browser. Having an `config.json` file present thus will speed up page loading (even if its empty).
 
+  [GFM]: https://help.github.com/articles/github-flavored-markdown
+  [DaringFireball]: http://daringfireball.net/projects/markdown/

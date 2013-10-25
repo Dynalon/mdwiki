@@ -1,3 +1,4 @@
 {
-    "unused": "It is good practice to have an empty config.json to speed up page loads (404 are not cached by browsers!)"
+    "useSideNav": true,
+    "lineBreaks": "gfm"
 }

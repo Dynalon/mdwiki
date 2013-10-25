@@ -2,11 +2,19 @@ FAQ
 ====
 
   * __Q: Can I open `mdwiki.html` in my browser from the menu or by specifying via a `file://` URL?__
-  * A: This varies by browser:
-    * Firefox: Works perfectly when using `file://` urls. Due to some bugs, some exernal resources might however fail to load.
-    * Google Chrome: Works only when started with the commandline parameter `--allow-file-access-from-files`
+  * A: Yes, at least for most browsers. There are some gimmicks that won't work on some browsers. List of browser that support opening MDwiki via `file://` urls:
 
-    Note: It is usally best to use a webserver when running locally and not to use `file://` URLs as those are not yet 100% supported.
+    * Firefox (v23): Works good, no issues known.
+    * Internet Explorer (v10): Works good, no issues known.
+    * Google Chrome: Works only when started with the commandline parameter `--allow-file-access-from-files`. Even then, Chrome has minor issues. I.e. the math gimmick will not render correctly.
+    * Safari: Does not work. Maybe cmdline flag needed as in Chrome?
+
+Note: It is usally best to use a webserver when running locally and not to use `file://` URLs as those are not yet 100% supported by every gimmick or third-party script.
+
+Gimmicks that won't work when using `file://` urls:
+
+  * Facebok Likebutton (problem with their Cross-Origin setting?)
+  * Disqus (hardcoded `//`-prefixed urls in their scripts)
 
 - - - - - - - - -
 
