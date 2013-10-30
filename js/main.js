@@ -118,30 +118,25 @@
 
     // load [include](/foo/bar.md) external links
     function loadExternalIncludes(parent_dfd) {
-        var external_links = $('a').filter (function () {
-            return $(this).text() === 'include';
-        });
-        var num_await = external_links.length;
-        if (num_await <= 0) {
-            parent_dfd.resolve();
-            return;
+        function findExternalIncludes () {
+            return $('a').filter (function () {
+                var href = $(this).attr('href');
+                var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
+                var isInclude = $(this).text() === 'include';
+                return isInclude && isMarkdown;
+            });
         }
+
+        var external_links = findExternalIncludes ();
+        // continue execution when all external resources are fully loaded
+        var latch = $.md.util.countDownLatch (external_links.length);
+        latch.always (function () {
+            parent_dfd.resolve();
+        });
 
         external_links.each(function (i,e) {
             var $el = $(e);
             var href = $el.attr('href');
-
-            if (! $.md.util.hasMarkdownFileExtension(href)) {
-                num_await--;
-                return;
-            }
-
-            var dfd = $.Deferred();
-            dfd.always(function () {
-                num_await--;
-                if (num_await <= 0)
-                    parent_dfd.resolve();
-            });
 
             $.ajax({
                 url: href,
@@ -151,9 +146,8 @@
                 var html = transformMarkdown(data);
                 $(html).insertAfter($el.parents('p'));
                 $el.remove();
-                dfd.resolve();
-            }).fail(function () {
-                dfd.reject();
+            }).always(function () {
+                latch.countDown();
             });
         });
     }
