@@ -58,24 +58,26 @@
     var publicMethods = {};
     $.md.publicMethods = $.extend ({}, $.md.publicMethods, publicMethods);
 
-    function registerFetchMarkdown() {
-        var transformMarkdown = function(markdown) {
-            var options = {
-                gfm: true,
-                tables: true,
-                breaks: true
-            };
-            if ($.md.config.lineBreaks === 'original')
-                options.breaks = false;
-            else if ($.md.config.lineBreaks === 'gfm')
-                options.breaks = true;
-
-            marked.setOptions(options);
-
-            // get sample markdown
-            var uglyHtml = marked(markdown);
-            return uglyHtml;
+    function transformMarkdown (markdown) {
+        var options = {
+            gfm: true,
+            tables: true,
+            breaks: true
         };
+        if ($.md.config.lineBreaks === 'original')
+            options.breaks = false;
+        else if ($.md.config.lineBreaks === 'gfm')
+            options.breaks = true;
+
+        marked.setOptions(options);
+
+        // get sample markdown
+        var uglyHtml = marked(markdown);
+        return uglyHtml;
+    }
+
+    function registerFetchMarkdown() {
+
         var md = '';
 
         $.md.stage('init').subscribe(function(done) {
@@ -94,6 +96,7 @@
             });
         });
 
+        // TODO shouldn't markdown transformation be done in this stage?
         $.md.stage('transform').subscribe(function(done) {
             var len = $.md.mainHref.lastIndexOf('/');
             var baseUrl = $.md.mainHref.substring(0, len+1);
@@ -105,25 +108,70 @@
             var uglyHtml = transformMarkdown(md);
             $('#md-content').html(uglyHtml);
             md = '';
-            done();
+            var dfd = $.Deferred();
+            loadExternalIncludes(dfd);
+            dfd.always(function () {
+                done();
+            });
         });
     }
 
+    // load [include](/foo/bar.md) external links
+    function loadExternalIncludes(parent_dfd) {
+        var external_links = $('a').filter (function () {
+            return $(this).text() === 'include';
+        });
+        var num_await = external_links.length;
+        if (num_await <= 0) {
+            parent_dfd.resolve();
+            return;
+        }
+
+        external_links.each(function (i,e) {
+            var $el = $(e);
+            var href = $el.attr('href');
+
+            if (!hasMarkdownFileExtension(href)) {
+                num_await--;
+                return;
+            }
+
+            var dfd = $.Deferred();
+            dfd.always(function () {
+                num_await--;
+                if (num_await <= 0)
+                    parent_dfd.resolve();
+            });
+
+            $.ajax({
+                url: href,
+                dataType: 'text'
+            })
+            .done(function (data) {
+                var html = transformMarkdown(data);
+                $(html).insertAfter($el.parents('p'));
+                $el.remove();
+                dfd.resolve();
+            }).fail(function () {
+                dfd.reject();
+            });
+        });
+    }
+
+    // TODO move to $.md.util
+    function hasMarkdownFileExtension (str) {
+        var markdownExtensions = [ '.md', '.markdown', '.mdown' ];
+        var result = false;
+        $(markdownExtensions).each(function (i,ext) {
+            if (str.toLowerCase().endsWith (ext)) {
+                result = true;
+            }
+        });
+        return result;
+    }
 
     // modify internal links so we load them through our engine
     function processPageLinks(domElement, baseUrl) {
-
-        function hasMarkdownFileExtension (str) {
-            var markdownExtensions = [ '.md', '.markdown', '.mdown' ];
-            var result = false;
-            $(markdownExtensions).each(function (i,ext) {
-                if (str.toLowerCase().endsWith (ext)) {
-                    result = true;
-                }
-            });
-            return result;
-        }
-
         var html = $(domElement);
         if (baseUrl === undefined) {
             baseUrl = '';
