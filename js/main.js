@@ -131,7 +131,7 @@
             var $el = $(e);
             var href = $el.attr('href');
 
-            if (!hasMarkdownFileExtension(href)) {
+            if (! $.md.util.hasMarkdownFileExtension(href)) {
                 num_await--;
                 return;
             }
@@ -158,18 +158,6 @@
         });
     }
 
-    // TODO move to $.md.util
-    function hasMarkdownFileExtension (str) {
-        var markdownExtensions = [ '.md', '.markdown', '.mdown' ];
-        var result = false;
-        $(markdownExtensions).each(function (i,ext) {
-            if (str.toLowerCase().endsWith (ext)) {
-                result = true;
-            }
-        });
-        return result;
-    }
-
     // modify internal links so we load them through our engine
     function processPageLinks(domElement, baseUrl) {
         var html = $(domElement);
@@ -193,7 +181,7 @@
 
             if ($.md.util.isRelativeUrl(href)) {
                 var newHref = baseUrl + href;
-                if (!hasMarkdownFileExtension(newHref))
+                if (! $.md.util.hasMarkdownFileExtension(newHref))
                     return;
                 if (!isImage)
                     link.attr(hrefAttribute, '#!' + newHref);

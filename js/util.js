@@ -19,6 +19,16 @@
                 return false;
             }
         },
+        hasMarkdownFileExtension: function (str) {
+            var markdownExtensions = [ '.md', '.markdown', '.mdown' ];
+            var result = false;
+            $(markdownExtensions).each(function (i,ext) {
+                if (str.toLowerCase().endsWith (ext)) {
+                    result = true;
+                }
+            });
+            return result;
+        },
         wait: function(time) {
             return $.Deferred(function(dfd) {
                 setTimeout(dfd.resolve, time);
