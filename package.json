@@ -4,7 +4,7 @@
   "devDependencies": {
     "grunt": ">=0.4.1",
     "grunt-cli": ">=0.1.6",
-    "grunt-contrib-concat": ">=0.1.2rc6",
+    "grunt-contrib-concat": "~0.1.3",
     "grunt-contrib-copy": "~0.4.1",
     "grunt-contrib-watch": ">=0.2.0rc7",
     "grunt-reload": "git://github.com/webxl/grunt-reload.git",
