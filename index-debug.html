@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <!--
-   This is MDwiki v0.5.3
+   This is MDwiki v0.5.5
    (C) 2013 by Timo Dörr and contributors. This software is licensed
    under the terms of the GNU GPLv3 with additional terms applied.
    See https://github.com/Dynalon/mdwiki/blob/master/LICENSE.txt for more detail.
@@ -1328,8 +1328,10 @@ if (typeof exports === 'object') {
     };
     // default config
     $.md.config = {
-        Title:  null,
-        UseSideNav: true
+        title:  null,
+        useSideNav: true,
+        /* can be: gfm, original */
+        lineBreaks: 'gfm',
     };
 
 
@@ -1517,19 +1519,26 @@ if (typeof exports === 'object') {
     var publicMethods = {};
     $.md.publicMethods = $.extend ({}, $.md.publicMethods, publicMethods);
 
-    function registerFetchMarkdown() {
-        var transformMarkdown = function(markdown) {
-            var options = {
-                gfm: true,
-                tables: true,
-                breaks: true
-            };
-            marked.setOptions(options);
-
-            // get sample markdown
-            var uglyHtml = marked(markdown);
-            return uglyHtml;
+    function transformMarkdown (markdown) {
+        var options = {
+            gfm: true,
+            tables: true,
+            breaks: true
         };
+        if ($.md.config.lineBreaks === 'original')
+            options.breaks = false;
+        else if ($.md.config.lineBreaks === 'gfm')
+            options.breaks = true;
+
+        marked.setOptions(options);
+
+        // get sample markdown
+        var uglyHtml = marked(markdown);
+        return uglyHtml;
+    }
+
+    function registerFetchMarkdown() {
+
         var md = '';
 
         $.md.stage('init').subscribe(function(done) {
@@ -1548,6 +1557,7 @@ if (typeof exports === 'object') {
             });
         });
 
+        // TODO shouldn't markdown transformation be done in this stage?
         $.md.stage('transform').subscribe(function(done) {
             var len = $.md.mainHref.lastIndexOf('/');
             var baseUrl = $.md.mainHref.substring(0, len+1);
@@ -1559,25 +1569,52 @@ if (typeof exports === 'object') {
             var uglyHtml = transformMarkdown(md);
             $('#md-content').html(uglyHtml);
             md = '';
-            done();
+            var dfd = $.Deferred();
+            loadExternalIncludes(dfd);
+            dfd.always(function () {
+                done();
+            });
         });
     }
 
+    // load [include](/foo/bar.md) external links
+    function loadExternalIncludes(parent_dfd) {
+        function findExternalIncludes () {
+            return $('a').filter (function () {
+                var href = $(this).attr('href');
+                var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
+                var isInclude = $(this).text() === 'include';
+                return isInclude && isMarkdown;
+            });
+        }
+
+        var external_links = findExternalIncludes ();
+        // continue execution when all external resources are fully loaded
+        var latch = $.md.util.countDownLatch (external_links.length);
+        latch.always (function () {
+            parent_dfd.resolve();
+        });
+
+        external_links.each(function (i,e) {
+            var $el = $(e);
+            var href = $el.attr('href');
+
+            $.ajax({
+                url: href,
+                dataType: 'text'
+            })
+            .done(function (data) {
+                var html = transformMarkdown(data);
+                $(html).insertAfter($el.parents('p'));
+                $el.remove();
+            }).always(function () {
+                latch.countDown();
+            });
+        });
+    }
 
     // modify internal links so we load them through our engine
     function processPageLinks(domElement, baseUrl) {
-
-        function hasMarkdownFileExtension (str) {
-            var markdownExtensions = [ '.md', '.markdown', '.mdown' ];
-            var result = false;
-            $(markdownExtensions).each(function (i,ext) {
-                if (str.toLowerCase().endsWith (ext)) {
-                    result = true;
-                }
-            });
-            return result;
-        }
-
         var html = $(domElement);
         if (baseUrl === undefined) {
             baseUrl = '';
@@ -1599,7 +1636,7 @@ if (typeof exports === 'object') {
 
             if ($.md.util.isRelativeUrl(href)) {
                 var newHref = baseUrl + href;
-                if (!hasMarkdownFileExtension(newHref))
+                if (! $.md.util.hasMarkdownFileExtension(newHref))
                     return;
                 if (!isImage)
                     link.attr(hrefAttribute, '#!' + newHref);
@@ -1611,7 +1648,11 @@ if (typeof exports === 'object') {
 
     var navMD = '';
     $.md.NavgiationDfd = $.Deferred();
-    $.ajax('navigation.md').done(function(data) {
+    var ajaxReq = {
+        url: 'navigation.md',
+        dataType: 'text'
+    };
+    $.ajax(ajaxReq).done(function(data) {
         navMD = data;
         $.md.NavgiationDfd.resolve();
     }).fail(function() {
@@ -1656,7 +1697,7 @@ if (typeof exports === 'object') {
     }
 
     $.md.ConfigDfd = $.Deferred();
-    $.getJSON('config.json').done(function(data) {
+    $.get('config.json', { dataType: 'text/plain'}).done(function(data) {
         try {
             $.md.config = $.extend($.md.config, data);
             log.info('Found a valid config.json file, using configuration');
@@ -1664,7 +1705,8 @@ if (typeof exports === 'object') {
             log.error('config.json was not JSON parsable: ' + err);
         }
         $.md.ConfigDfd.resolve();
-    }).fail(function() {
+    }).fail(function(err, textStatus) {
+        log.error('unable to retrieve config.json: ' + textStatus);
         $.md.ConfigDfd.reject();
     });
     function registerFetchConfig() {
@@ -1845,6 +1887,16 @@ if (typeof exports === 'object') {
                 return false;
             }
         },
+        hasMarkdownFileExtension: function (str) {
+            var markdownExtensions = [ '.md', '.markdown', '.mdown' ];
+            var result = false;
+            $(markdownExtensions).each(function (i,ext) {
+                if (str.toLowerCase().endsWith (ext)) {
+                    result = true;
+                }
+            });
+            return result;
+        },
         wait: function(time) {
             return $.Deferred(function(dfd) {
                 setTimeout(dfd.resolve, time);
@@ -1870,6 +1922,21 @@ if (typeof exports === 'object') {
             return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
         };
     });
+
+    // a count-down latch as in Java7.
+    $.md.util.countDownLatch = function (capacity, min) {
+        min = min || 0;
+        var dfd = $.Deferred();
+        if (capacity <= min) dfd.resolve();
+        dfd.capacity = capacity;
+        dfd.countDown = function () {
+            dfd.capacity--;
+            if (dfd.capacity <= min)
+                dfd.resolve();
+        };
+        return dfd;
+    };
+
 }(jQuery));
 
 (function($) {
@@ -1912,6 +1979,25 @@ if (typeof exports === 'object') {
                 done();
             }
         });
+    };
+
+    // turns hostname/path links into http://hostname/path links
+    // we need to do this because if accessed by file:///, we need a different
+    // transport scheme for external resources (like http://)
+    $.md.prepareLink = function(link, options) {
+        options = options || {};
+        var ownProtocol = window.location.protocol;
+
+        if (options.forceSSL)
+            return 'https://' + link;
+        if (options.forceHTTP)
+            return 'http://' + link;
+
+        if (ownProtocol === 'file:') {
+            return 'http://' + link;
+        }
+        // default: use the same as origin resource
+        return '//' + link;
     };
 
     // associate a link trigger for a gimmick. i.e. [gimmick:foo]() then
@@ -3109,7 +3195,8 @@ if (typeof exports === 'object') {
     var language = window.navigator.userLanguage || window.navigator.language;
     var code = language + "_" + language.toUpperCase();
     var fbRootDiv = $('<div id="fb-root" />');
-    var fbscript ='(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = "//connect.facebook.net/' + code + '/all.js#xfbml=1"; fjs.parentNode.insertBefore(js, fjs);}(document, "script", "facebook-jssdk"));';
+    var fbScriptHref = $.md.prepareLink ('connect.facebook.net/' + code + '/all.js#xfbml=1', { forceHTTP: true });
+    var fbscript ='(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = "' + fbScriptHref + '"; fjs.parentNode.insertBefore(js, fjs);}(document, "script", "facebook-jssdk"));';
 
     var facebookLikeGimmick = {
         name: 'FacebookLike',
@@ -3508,7 +3595,7 @@ function googlemapsReady() {
 
             // load the googlemaps js from the google server
             $.md.registerScript(this, scripturl, {
-                license: 'OTHER',
+                license: 'EXCEPTION',
                 loadstage: 'skel_ready',
                 finishstage: 'bootstrap'
             });
@@ -3602,7 +3689,7 @@ function googlemapsReady() {
         $links.remove();
         var script = document.createElement('script');
         script.type = 'text/javascript';
-        script.src  = '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+        script.src  = $.md.prepareLink('cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML', { forceHTTP: true });
         document.getElementsByTagName('head')[0].appendChild(script);
     }
 
@@ -3612,18 +3699,18 @@ function googlemapsReady() {
     'use strict';
 
     var themes = [
-        { name: 'bootstrap', url: '//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css' },
-        { name: 'amelia', url: '//netdna.bootstrapcdn.com/bootswatch/3.0.0/amelia/bootstrap.min.css' },
-        { name: 'cerulean', url: '//netdna.bootstrapcdn.com/bootswatch/3.0.0/cerulean/bootstrap.min.css' },
-        { name: 'cosmo', url: '//netdna.bootstrapcdn.com/bootswatch/3.0.0/cosmo/bootstrap.min.css' },
-        { name: 'cyborg', url: '//netdna.bootstrapcdn.com/bootswatch/3.0.0/cyborg/bootstrap.min.css' },
-        { name: 'flatly', url: '//netdna.bootstrapcdn.com/bootswatch/3.0.0/flatly/bootstrap.min.css' },
-        { name: 'journal', url: '//netdna.bootstrapcdn.com/bootswatch/3.0.0/journal/bootstrap.min.css' },
-        { name: 'readable', url: '//netdna.bootstrapcdn.com/bootswatch/3.0.0/readable/bootstrap.min.css' },
-        { name: 'simplex', url: '//netdna.bootstrapcdn.com/bootswatch/3.0.0/simplex/bootstrap.min.css' },
-        { name: 'slate', url: '//netdna.bootstrapcdn.com/bootswatch/3.0.0/slate/bootstrap.min.css' },
-        { name: 'spacelab', url: '//netdna.bootstrapcdn.com/bootswatch/3.0.0/spacelab/bootstrap.min.css' },
-        { name: 'united', url: '//netdna.bootstrapcdn.com/bootswatch/3.0.0/united/bootstrap.min.css' }
+        { name: 'bootstrap', url: 'netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css' },
+        { name: 'amelia', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/amelia/bootstrap.min.css' },
+        { name: 'cerulean', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/cerulean/bootstrap.min.css' },
+        { name: 'cosmo', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/cosmo/bootstrap.min.css' },
+        { name: 'cyborg', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/cyborg/bootstrap.min.css' },
+        { name: 'flatly', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/flatly/bootstrap.min.css' },
+        { name: 'journal', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/journal/bootstrap.min.css' },
+        { name: 'readable', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/readable/bootstrap.min.css' },
+        { name: 'simplex', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/simplex/bootstrap.min.css' },
+        { name: 'slate', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/slate/bootstrap.min.css' },
+        { name: 'spacelab', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/spacelab/bootstrap.min.css' },
+        { name: 'united', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/united/bootstrap.min.css' }
     ];
     var themeChooserGimmick = {
         name: 'Themes',
@@ -3668,7 +3755,7 @@ function googlemapsReady() {
             $('style[id*=bootstrap]').remove();
 
             $('<link rel="stylesheet" type="text/css">')
-                .attr('href', theme.url)
+                .attr('href', $.md.prepareLink(theme.url))
                 .appendTo('head');
         }
 
@@ -3753,7 +3840,8 @@ function googlemapsReady() {
 (function($) {
     //'use strict';
     // no license information given in the widget.js -> OTHER
-    var twitterscript = '!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");';
+    var widgetHref = $.md.prepareLink('platform.twitter.com/widgets.js');
+    var twitterscript = '!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="' + widgetHref + '";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");';
     var twitterGimmick = {
         name: 'TwitterGimmick',
         version: $.md.version,
@@ -3777,7 +3865,7 @@ function googlemapsReady() {
 			var href = $link.attr('href');
 			if (href.indexOf ('twitter.com') <= 0) {
 				user = $link.attr('href');
-				href = '//twitter.com/' + user;
+				href = $.md.prepareLink('twitter.com/' + user);
 			}
 			else {
 				return;
