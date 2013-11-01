@@ -1,4 +1,5 @@
 {
     "useSideNav": true,
-    "lineBreaks": "gfm"
+    "lineBreaks": "gfm",
+    "additionalFooterText": ""
 }

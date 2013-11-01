@@ -33,13 +33,18 @@ You can create a `config.json` file in the same folder as the `mdwiki.html` file
   * `lineBreaks: "original"` - Instead of using the [GFM] line breaks, use the original line breaking as [introduced by John Gruber][DaringFireball]:
     * line breaks in the markdown files are ignored, except if a line ends with two spaces
     * Default is `lineBreaks: "gfm"` (line breaks in markdown will create a new paragraph)
+  * `additionalFooterText: ""`
+    * Can be used to add text to the copyright footer at the bottom, like custom copyright notices.
+    * Example: `additionalFooterText: "All content and images &copy; by John Doe"`
+    * Default: `""` (empty string)
 
 A sample `config.json` might thus look like this:
 
 ```javascript
 {
     useSideNav: true,
-    lineBreaks: "gfm"
+    lineBreaks: "gfm",
+    additionalFooterText: "All content and images &copy; by John Doe"
 }
 ```
 
