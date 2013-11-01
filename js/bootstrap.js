@@ -42,6 +42,7 @@
                     createPageContentMenu();
                 }
                 addFooter();
+                addAdditionalFooterText();
                 done();
             });
             $.md.stage('postgimmick').subscribe(function(done) {
@@ -436,10 +437,13 @@
         navbar +=     '</ul>';
         navbar +=     '<ul class="nav navbar-nav navbar-right">';
         navbar +=       '<p class="navbar-text">';
-        navbar +=         'Website created with <a href="http://www.mdwiki.info">MDwiki</a>. ';
+        navbar +=       '<span id="md-footer-additional"></span>';
+        navbar +=       '<span>';
+        navbar +=         ' Website generated with <a href="http://www.mdwiki.info">MDwiki</a> ';
         navbar +=         '&copy; Timo D&ouml;rr and contributors. ';
-        navbar +=         '<a href="http://www.mdwiki.info">MDwiki</a> is free software licensed under ';
-        navbar +=         '<a href="https://github.com/Dynalon/mdwiki/blob/master/LICENSE.txt">GNU GPLv3 (additional terms apply).</a>';
+        // navbar +=         '<a href="http://www.mdwiki.info">MDwiki</a> is free software licensed under ';
+        // navbar +=         '<a href="https://github.com/Dynalon/mdwiki/blob/master/LICENSE.txt">GNU GPLv3 (additional terms apply).</a>';
+        navbar +=       '</span>';
         navbar +=       '</p>';
         navbar +=     '</ul>';
         navbar +=   '</div>';
@@ -448,5 +452,12 @@
         $navbar.css('position', 'relative');
         $navbar.css('margin-top', '1em');
         $('#md-all').append ($navbar);
+    }
+
+    function addAdditionalFooterText () {
+        var text = $.md.config.additionalFooterText;
+        if (text) {
+            $('.md-copyright-footer #md-footer-additional').html(text);
+        }
     }
 }(jQuery));
