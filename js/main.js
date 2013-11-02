@@ -142,7 +142,7 @@
                     if (!isTextNode(e)) count++;
                 }
             });
-            return elements;
+            return $(elements);
         }
 
         var external_links = findExternalIncludes ();
@@ -164,10 +164,12 @@
             .done(function (data) {
                 var $html = $(transformMarkdown(data));
                 if (text.startsWith('preview:')) {
-                    // only insert the selected number of paragraphs
-                    var num_preview_elements = text.substring(8);
-                    var preview = selectPreviewElements ($html, num_preview_elements);
-                    $el.replaceWith(preview);
+                    // only insert the selected number of paragraphs; default 3
+                    var num_preview_elements = parseInt(text.substring(8), 10) ||3;
+                    var $preview = selectPreviewElements ($html, num_preview_elements);
+                    $preview.last().append('<a href="' + href +'"> ...read more &#10140;</a>');
+                    $preview.insertBefore($el.parent('p').eq(0));
+                    $el.remove();
                 } else {
                     $html.insertAfter($el.parents('p'));
                     $el.remove();
