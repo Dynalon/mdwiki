@@ -118,13 +118,31 @@
 
     // load [include](/foo/bar.md) external links
     function loadExternalIncludes(parent_dfd) {
+
         function findExternalIncludes () {
             return $('a').filter (function () {
                 var href = $(this).attr('href');
+                var text = $(this).text();
                 var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
-                var isInclude = $(this).text() === 'include';
-                return isInclude && isMarkdown;
+                var isInclude = text === 'include';
+                var isPreview = text.startsWith('preview:');
+                return (isInclude || isPreview) && isMarkdown;
             });
+        }
+
+        function selectPreviewElements ($jqcol, num_elements) {
+            function isTextNode(node) {
+                return node.nodeType === 3;
+            }
+            var count = 0;
+            var elements = [];
+            $jqcol.each(function (i,e) {
+                if (count < num_elements) {
+                    elements.push(e);
+                    if (!isTextNode(e)) count++;
+                }
+            });
+            return elements;
         }
 
         var external_links = findExternalIncludes ();
@@ -137,15 +155,23 @@
         external_links.each(function (i,e) {
             var $el = $(e);
             var href = $el.attr('href');
+            var text = $el.text();
 
             $.ajax({
                 url: href,
                 dataType: 'text'
             })
             .done(function (data) {
-                var html = transformMarkdown(data);
-                $(html).insertAfter($el.parents('p'));
-                $el.remove();
+                var $html = $(transformMarkdown(data));
+                if (text.startsWith('preview:')) {
+                    // only insert the selected number of paragraphs
+                    var num_preview_elements = text.substring(8);
+                    var preview = selectPreviewElements ($html, num_preview_elements);
+                    $el.replaceWith(preview);
+                } else {
+                    $html.insertAfter($el.parents('p'));
+                    $el.remove();
+                }
             }).always(function () {
                 latch.countDown();
             });
