@@ -96,7 +96,7 @@
             });
         });
 
-        // TODO shouldn't markdown transformation be done in this stage?
+        // find baseUrl
         $.md.stage('transform').subscribe(function(done) {
             var len = $.md.mainHref.lastIndexOf('/');
             var baseUrl = $.md.mainHref.substring(0, len+1);
@@ -104,7 +104,7 @@
             done();
         });
 
-        $.md.stage('ready').subscribe(function(done) {
+        $.md.stage('transform').subscribe(function(done) {
             var uglyHtml = transformMarkdown(md);
             $('#md-content').html(uglyHtml);
             md = '';
