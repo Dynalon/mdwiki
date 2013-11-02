@@ -73,7 +73,7 @@
 
     var apply_theme = function($links, opt, text) {
         opt.name = opt.name || text;
-        return $links.each(function(i, link) {
+        $links.each(function(i, link) {
             $.md.stage('postgimmick').subscribe(function(done) {
                 var $link = $(link);
 
@@ -82,10 +82,10 @@
                     set_theme(opt);
                 }
 
-                $link.remove();
                 done();
             });
         });
+        $links.remove();
     };
 
     var themechooser = function($links, opt, text) {

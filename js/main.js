@@ -258,6 +258,15 @@
             processPageLinks($('#md-menu'));
             done();
         });
+
+        $.md.stage('postgimmick').subscribe(function(done) {
+            var num_links = $('#md-menu a').length;
+            var has_header = $('#md-menu .navbar-brand').eq(0).text().trim().length > 0;
+            if (!has_header && num_links <= 1)
+                $('#md-menu').hide();
+
+            done();
+        });
     }
 
     $.md.ConfigDfd = $.Deferred();
