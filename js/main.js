@@ -258,13 +258,13 @@
             processPageLinks($('#md-menu'));
             done();
         });
-
     }
 
     $.md.ConfigDfd = $.Deferred();
-    $.get('config.json', { dataType: 'text/plain'}).done(function(data) {
+    $.ajax({url: 'config.json', dataType: 'text'}).done(function(data) {
         try {
-            $.md.config = $.extend($.md.config, data);
+            var data_json = JSON.parse(data);
+            $.md.config = $.extend($.md.config, data_json);
             log.info('Found a valid config.json file, using configuration');
         } catch(err) {
             log.error('config.json was not JSON parsable: ' + err);

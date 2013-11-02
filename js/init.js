@@ -19,8 +19,8 @@
     $.md.config = {
         title:  null,
         useSideNav: true,
-        /* can be: gfm, original */
         lineBreaks: 'gfm',
+        additionalFooterText: '',
     };
 
 
