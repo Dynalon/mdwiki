@@ -11,7 +11,9 @@
 
             $.md.stage('all_ready').subscribe(function(done) {
                 if ($.md.inPageAnchor !== '') {
-                    $.md.scrollToInPageAnchor($.md.inPageAnchor);
+                    $.md.util.wait(500).then(function () {
+                        $.md.scrollToInPageAnchor($.md.inPageAnchor);
+                    });
                 }
                 done();
             });
@@ -155,6 +157,10 @@
         $('h1,h2,h3,h4,h5,h6').each (function () {
             var $heading = $(this);
             $heading.addClass('md-inpage-anchor');
+            $heading.click (function (){
+                var subhash = $heading.text().replace(' ', '_');
+                window.location.hash = '#!' + $.md.mainHref + '#' + subhash;
+            });
 
             //var name = $.trim ($heading.text ());
             //var $anchor1 = $('<a />').attr ('name', name).addClass('md-inpage-anchor md-inpage-anchor-space');
@@ -206,9 +212,8 @@
             var match = $this.text().toLowerCase().replace(/ /g, '_');
             if (spaceAnchor === match || underscoreAnchor === match) {
                 this.scrollIntoView (true);
-                // TODO actually figure the real height of the navbar, because
-                // custom themes may have different height
-                window.scrollBy(0, -50);
+                var navbar_offset = $('.navbar-collapse').height() + 5;
+                window.scrollBy(0, -navbar_offset + 5);
                 doBreak = true;
             }
         });

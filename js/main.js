@@ -411,7 +411,7 @@
         }
 
         // extract possible in-page anchor
-        var ex_pos = href.indexOf('!');
+        var ex_pos = href.indexOf('#');
         if (ex_pos !== -1) {
             $.md.inPageAnchor = href.substring(ex_pos + 1);
             $.md.mainHref = href.substring(0, ex_pos);

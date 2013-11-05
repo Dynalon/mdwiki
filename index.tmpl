@@ -15,6 +15,10 @@
     /* hide the main content while we assemble everything */
     .md-hidden-load { display: none; }
 
+    #md-content h1:hover::after, #md-content h2:hover::after,
+    #md-content h3:hover::after, #md-content h4:hover::after {
+        content: ' \B6';
+    }
     /* for pageContentMenu */
     #md-page-menu {
             position: static;
