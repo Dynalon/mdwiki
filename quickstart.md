@@ -82,9 +82,14 @@ For more complex menus, nesting submenu items as a list and using horizontal lin
 
 [Menu Item 1]()
 
+  * # SubMenu Heading 1
   * [SubMenu Item 1](subitem1.md)
   * [SubMenu Item 2](subitem2.md)
   - - - -
+  * # SubMenu Heading 2
+  * [SubMenu Item 3](subitem3.md)
+  - - - -
+  * # SubMenu Heading 3
   * [SubMenu Item 3](subitem3.md)
 
 [Menu Item 2](item2.md)
@@ -92,7 +97,7 @@ For more complex menus, nesting submenu items as a list and using horizontal lin
 [Menu Item 3](item3.md)
 ```
 
-If a bulleted list of links is supplied as in the above example, the list will become a dropdown in the navigation bar displaying a submenu. In order for this to work, the toplevel link has to have an empty target (see Menu Item 1 in the above example).
+If a bulleted list of links is supplied as in the above example, the list will become a dropdown in the navigation bar displaying a submenu. In order for this to work, the toplevel link has to have an empty target (see Menu Item 1 in the above example). Dropdown headings are also possible by prepending a single `#` in front.
 
 - - - -
 

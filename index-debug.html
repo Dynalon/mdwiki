@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <!--
-   This is MDwiki v0.5.5
+   This is MDwiki v0.5.6
    (C) 2013 by Timo Dörr and contributors. This software is licensed
    under the terms of the GNU GPLv3 with additional terms applied.
    See https://github.com/Dynalon/mdwiki/blob/master/LICENSE.txt for more detail.
@@ -15,6 +15,10 @@
     /* hide the main content while we assemble everything */
     .md-hidden-load { display: none; }
 
+    #md-content h1:hover::after, #md-content h2:hover::after,
+    #md-content h3:hover::after, #md-content h4:hover::after {
+        content: ' \B6';
+    }
     /* for pageContentMenu */
     #md-page-menu {
             position: static;
@@ -1330,8 +1334,8 @@ if (typeof exports === 'object') {
     $.md.config = {
         title:  null,
         useSideNav: true,
-        /* can be: gfm, original */
         lineBreaks: 'gfm',
+        additionalFooterText: '',
     };
 
 
@@ -1557,7 +1561,7 @@ if (typeof exports === 'object') {
             });
         });
 
-        // TODO shouldn't markdown transformation be done in this stage?
+        // find baseUrl
         $.md.stage('transform').subscribe(function(done) {
             var len = $.md.mainHref.lastIndexOf('/');
             var baseUrl = $.md.mainHref.substring(0, len+1);
@@ -1565,7 +1569,7 @@ if (typeof exports === 'object') {
             done();
         });
 
-        $.md.stage('ready').subscribe(function(done) {
+        $.md.stage('transform').subscribe(function(done) {
             var uglyHtml = transformMarkdown(md);
             $('#md-content').html(uglyHtml);
             md = '';
@@ -1579,13 +1583,31 @@ if (typeof exports === 'object') {
 
     // load [include](/foo/bar.md) external links
     function loadExternalIncludes(parent_dfd) {
+
         function findExternalIncludes () {
             return $('a').filter (function () {
                 var href = $(this).attr('href');
+                var text = $(this).text();
                 var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
-                var isInclude = $(this).text() === 'include';
-                return isInclude && isMarkdown;
+                var isInclude = text === 'include';
+                var isPreview = text.startsWith('preview:');
+                return (isInclude || isPreview) && isMarkdown;
             });
+        }
+
+        function selectPreviewElements ($jqcol, num_elements) {
+            function isTextNode(node) {
+                return node.nodeType === 3;
+            }
+            var count = 0;
+            var elements = [];
+            $jqcol.each(function (i,e) {
+                if (count < num_elements) {
+                    elements.push(e);
+                    if (!isTextNode(e)) count++;
+                }
+            });
+            return $(elements);
         }
 
         var external_links = findExternalIncludes ();
@@ -1598,15 +1620,25 @@ if (typeof exports === 'object') {
         external_links.each(function (i,e) {
             var $el = $(e);
             var href = $el.attr('href');
+            var text = $el.text();
 
             $.ajax({
                 url: href,
                 dataType: 'text'
             })
             .done(function (data) {
-                var html = transformMarkdown(data);
-                $(html).insertAfter($el.parents('p'));
-                $el.remove();
+                var $html = $(transformMarkdown(data));
+                if (text.startsWith('preview:')) {
+                    // only insert the selected number of paragraphs; default 3
+                    var num_preview_elements = parseInt(text.substring(8), 10) ||3;
+                    var $preview = selectPreviewElements ($html, num_preview_elements);
+                    $preview.last().append('<a href="' + href +'"> ...read more &#10140;</a>');
+                    $preview.insertBefore($el.parent('p').eq(0));
+                    $el.remove();
+                } else {
+                    $html.insertAfter($el.parents('p'));
+                    $el.remove();
+                }
             }).always(function () {
                 latch.countDown();
             });
@@ -1694,12 +1726,21 @@ if (typeof exports === 'object') {
             done();
         });
 
+        $.md.stage('postgimmick').subscribe(function(done) {
+            var num_links = $('#md-menu a').length;
+            var has_header = $('#md-menu .navbar-brand').eq(0).text().trim().length > 0;
+            if (!has_header && num_links <= 1)
+                $('#md-menu').hide();
+
+            done();
+        });
     }
 
     $.md.ConfigDfd = $.Deferred();
-    $.get('config.json', { dataType: 'text/plain'}).done(function(data) {
+    $.ajax({url: 'config.json', dataType: 'text'}).done(function(data) {
         try {
-            $.md.config = $.extend($.md.config, data);
+            var data_json = JSON.parse(data);
+            $.md.config = $.extend($.md.config, data_json);
             log.info('Found a valid config.json file, using configuration');
         } catch(err) {
             log.error('config.json was not JSON parsable: ' + err);
@@ -1835,7 +1876,7 @@ if (typeof exports === 'object') {
         }
 
         // extract possible in-page anchor
-        var ex_pos = href.indexOf('!');
+        var ex_pos = href.indexOf('#');
         if (ex_pos !== -1) {
             $.md.inPageAnchor = href.substring(ex_pos + 1);
             $.md.mainHref = href.substring(0, ex_pos);
@@ -2277,7 +2318,9 @@ if (typeof exports === 'object') {
 
             $.md.stage('all_ready').subscribe(function(done) {
                 if ($.md.inPageAnchor !== '') {
-                    $.md.scrollToInPageAnchor($.md.inPageAnchor);
+                    $.md.util.wait(500).then(function () {
+                        $.md.scrollToInPageAnchor($.md.inPageAnchor);
+                    });
                 }
                 done();
             });
@@ -2421,6 +2464,10 @@ if (typeof exports === 'object') {
         $('h1,h2,h3,h4,h5,h6').each (function () {
             var $heading = $(this);
             $heading.addClass('md-inpage-anchor');
+            $heading.click (function (){
+                var subhash = $heading.text().replace(' ', '_');
+                window.location.hash = '#!' + $.md.mainHref + '#' + subhash;
+            });
 
             //var name = $.trim ($heading.text ());
             //var $anchor1 = $('<a />').attr ('name', name).addClass('md-inpage-anchor md-inpage-anchor-space');
@@ -2472,9 +2519,8 @@ if (typeof exports === 'object') {
             var match = $this.text().toLowerCase().replace(/ /g, '_');
             if (spaceAnchor === match || underscoreAnchor === match) {
                 this.scrollIntoView (true);
-                // TODO actually figure the real height of the navbar, because
-                // custom themes may have different height
-                window.scrollBy(0, -50);
+                var navbar_offset = $('.navbar-collapse').height() + 5;
+                window.scrollBy(0, -navbar_offset + 5);
                 doBreak = true;
             }
         });
@@ -2526,6 +2572,7 @@ if (typeof exports === 'object') {
                     createPageContentMenu();
                 }
                 addFooter();
+                addAdditionalFooterText();
                 done();
             });
             $.md.stage('postgimmick').subscribe(function(done) {
@@ -2663,6 +2710,15 @@ if (typeof exports === 'object') {
             var ul = $(e);
             ul.appendTo(ul.prev());
             ul.parent('li').addClass('dropdown');
+        });
+
+        // submenu headers
+        $('#md-menu li.dropdown').find('h1, h2, h3').each(function(i,e) {
+            var $e = $(e);
+            var text = $e.text();
+            var header = $('<li class="dropdown-header" />');
+            header.text(text);
+            $e.replaceWith(header);
         });
 
         // call the user specifed menu function
@@ -2920,10 +2976,13 @@ if (typeof exports === 'object') {
         navbar +=     '</ul>';
         navbar +=     '<ul class="nav navbar-nav navbar-right">';
         navbar +=       '<p class="navbar-text">';
-        navbar +=         'Website created with <a href="http://www.mdwiki.info">MDwiki</a>. ';
+        navbar +=       '<span id="md-footer-additional"></span>';
+        navbar +=       '<span>';
+        navbar +=         ' Website generated with <a href="http://www.mdwiki.info">MDwiki</a> ';
         navbar +=         '&copy; Timo D&ouml;rr and contributors. ';
-        navbar +=         '<a href="http://www.mdwiki.info">MDwiki</a> is free software licensed under ';
-        navbar +=         '<a href="https://github.com/Dynalon/mdwiki/blob/master/LICENSE.txt">GNU GPLv3 (additional terms apply).</a>';
+        // navbar +=         '<a href="http://www.mdwiki.info">MDwiki</a> is free software licensed under ';
+        // navbar +=         '<a href="https://github.com/Dynalon/mdwiki/blob/master/LICENSE.txt">GNU GPLv3 (additional terms apply).</a>';
+        navbar +=       '</span>';
         navbar +=       '</p>';
         navbar +=     '</ul>';
         navbar +=   '</div>';
@@ -2932,6 +2991,13 @@ if (typeof exports === 'object') {
         $navbar.css('position', 'relative');
         $navbar.css('margin-top', '1em');
         $('#md-all').append ($navbar);
+    }
+
+    function addAdditionalFooterText () {
+        var text = $.md.config.additionalFooterText;
+        if (text) {
+            $('.md-copyright-footer #md-footer-additional').html(text);
+        }
     }
 }(jQuery));
 
@@ -3770,7 +3836,7 @@ function googlemapsReady() {
 
     var apply_theme = function($links, opt, text) {
         opt.name = opt.name || text;
-        return $links.each(function(i, link) {
+        $links.each(function(i, link) {
             $.md.stage('postgimmick').subscribe(function(done) {
                 var $link = $(link);
 
@@ -3779,10 +3845,10 @@ function googlemapsReady() {
                     set_theme(opt);
                 }
 
-                $link.remove();
                 done();
             });
         });
+        $links.remove();
     };
 
     var themechooser = function($links, opt, text) {
