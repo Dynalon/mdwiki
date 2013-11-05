@@ -182,6 +182,15 @@
             ul.parent('li').addClass('dropdown');
         });
 
+        // submenu headers
+        $('#md-menu li.dropdown').find('h1, h2, h3').each(function(i,e) {
+            var $e = $(e);
+            var text = $e.text();
+            var header = $('<li class="dropdown-header" />');
+            header.text(text);
+            $e.replaceWith(header);
+        });
+
         // call the user specifed menu function
         buildTopNav();
     }
