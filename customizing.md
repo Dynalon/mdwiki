@@ -42,9 +42,9 @@ A sample `config.json` might thus look like this:
 
 ```javascript
 {
-    useSideNav: true,
-    lineBreaks: "gfm",
-    additionalFooterText: "All content and images &copy; by John Doe"
+    "useSideNav": true,
+    "lineBreaks": "gfm",
+    "additionalFooterText": "All content and images &copy; by John Doe"
 }
 ```
 
