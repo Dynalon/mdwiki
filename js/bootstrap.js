@@ -268,7 +268,7 @@
             var $heading = $(e);
             var $li = $('<li class="list-group-item" />');
             var $a = $('<a />');
-            var subhash = $heading.text().replace(' ', '_');
+            var subhash = $heading.text().replace(/ /g, '_');
             $a.attr('href', '#!' + $.md.mainHref + '#' + subhash);
             $a.click(function(ev) {
                 ev.preventDefault();
