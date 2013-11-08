@@ -12,6 +12,7 @@
   * [Gimmicks](gimmicks.md)
   * [Customizing](customizing.md)
 
+[Examples](examples.md)
 [Download](download.md)
 [Forum](forum.md)
 
