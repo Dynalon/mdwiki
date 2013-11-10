@@ -19,14 +19,6 @@
             });
             return;
 
-            //processPreviews();
-            //markFirstHeading ();
-            // activate syntax highlighting on <pre><code> blocks
-            // via highlight.js
-            /*$('pre code').each(function(i, e) {
-                hljs.highlightBlock(e)
-            }); */
-
         }
     };
     $.md.publicMethods = $.extend ({}, $.md.publicMethods, publicMethods);
@@ -151,62 +143,45 @@
 
     function addInpageAnchors()
     {
+        // adds a pilcrow (paragraph) character to heading with a link for the
+        // inpage anchor
+        function addPilcrow ($heading, href) {
+            var $pilcrow = $('<span class="anchor-highlight"><a>&#x2693;</a></span>');
+            $pilcrow.find('a').attr('href', href);
+            $pilcrow.hide();
+
+            $heading.mouseenter(function () {
+                $pilcrow.show();
+            });
+            $heading.mouseleave(function () {
+                $pilcrow.hide();
+            });
+            $pilcrow.appendTo($heading);
+        }
+
         // adds a page inline anchor to each h1,h2,h3,h4,h5,h6 element
-        // which can be accessed by the headings text (with spaces)
-        // and heading text where spaces are replaced by underscores
+        // which can be accessed by the headings text
         $('h1,h2,h3,h4,h5,h6').each (function () {
             var $heading = $(this);
             $heading.addClass('md-inpage-anchor');
+            var href = $.md.util.getInpageAnchorHref($heading.text());
             $heading.click (function (){
-                window.location.hash = $.md.util.getInpageAnchorHref($heading.text());
+                window.location.hash = href;
             });
-
-            //var name = $.trim ($heading.text ());
-            //var $anchor1 = $('<a />').attr ('name', name).addClass('md-inpage-anchor md-inpage-anchor-space');
-            //$heading.wrap ($anchor1);
-            // replace spaces with underscores and add that anchor, too
-            //name = name.replace (/ /g, '_');
-            //var $anchor2 = $('<a />').attr ('name', name).addClass ('md-inpage-anchor md-inpage-anchor-underscore');
-            //$heading.wrap ($anchor2);
+            addPilcrow($heading, href);
         });
     }
-    /*
-    function processPreviews () {
-        // if we had a preview, we need to process it
-        $('.md-preview-begin').each (function () {
-            var $this = $(this);
-            var $href = $this.attr ('data-href');
-            var $elems = $this.nextUntil('.md-preview-end');
-            $elems.find('.md-text').last().append($('<a>...Read more</a>').attr ('href', $href));
-            //var lastText = $elems.find('.md-text').last();
-            var $previewDiv = $('<div />').addClass('md-preview').append($elems);
-            // TODO localized versions
-            $this.replaceWith ($previewDiv);
-        });
-    } */
-    /*function markFirstHeading() {
-        // TODO replace, maybe css selector magic?
-        // if the page starts with a heading first or second degree,
-        // mark this heading to be the first one
-        var firstElem = $('#md-content').find('p, h1, h2').eq(0);
-        if (firstElem.length === 0) {
-            return;
-        }
 
-        if (firstElem[0].tagName === 'H1' || firstElem[0].tagName === 'H2') {
-            $(firstElem).addClass('md-first-heading');
-        }
-    }*/
     $.md.scrollToInPageAnchor = function(anchortext) {
 
         // we match case insensitive
         var doBreak = false;
-
-        $('*.md-inpage-anchor').each (function () {
+        $('.md-inpage-anchor').each (function () {
             if (doBreak) { return; }
-
             var $this = $(this);
-            var match = $.md.util.getInpageAnchorText ($this.text());
+            // don't use the text of any subnode
+            var text = $this.clone().children().remove().end().text();
+            var match = $.md.util.getInpageAnchorText (text);
             if (anchortext === match) {
                 this.scrollIntoView (true);
                 var navbar_offset = $('.navbar-collapse').height() + 5;
