@@ -33,9 +33,9 @@
         } else {
             $pageTitle = $('#md-content h1').eq(0);
         }
-        if ($.trim($pageTitle.text()).length > 0) {
+        if ($.trim($pageTitle.toptext()).length > 0) {
             $('#md-title').prepend($pageTitle);
-            var title = $pageTitle.text();
+            var title = $pageTitle.toptext();
             document.title = title;
         } else {
             $('#md-title').remove();
@@ -164,7 +164,7 @@
         $('h1,h2,h3,h4,h5,h6').each (function () {
             var $heading = $(this);
             $heading.addClass('md-inpage-anchor');
-            var href = $.md.util.getInpageAnchorHref($heading.text());
+            var href = $.md.util.getInpageAnchorHref($heading.toptext());
             $heading.click (function (){
                 window.location.hash = href;
             });
@@ -180,7 +180,7 @@
             if (doBreak) { return; }
             var $this = $(this);
             // don't use the text of any subnode
-            var text = $this.clone().children().remove().end().text();
+            var text = $this.toptext();
             var match = $.md.util.getInpageAnchorText (text);
             if (anchortext === match) {
                 this.scrollIntoView (true);

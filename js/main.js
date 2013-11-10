@@ -122,7 +122,7 @@
         function findExternalIncludes () {
             return $('a').filter (function () {
                 var href = $(this).attr('href');
-                var text = $(this).text();
+                var text = $(this).toptext();
                 var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
                 var isInclude = text === 'include';
                 var isPreview = text.startsWith('preview:');
@@ -155,7 +155,7 @@
         external_links.each(function (i,e) {
             var $el = $(e);
             var href = $el.attr('href');
-            var text = $el.text();
+            var text = $el.toptext();
 
             $.ajax({
                 url: href,
@@ -263,7 +263,7 @@
 
         $.md.stage('postgimmick').subscribe(function(done) {
             var num_links = $('#md-menu a').length;
-            var has_header = $('#md-menu .navbar-brand').eq(0).text().trim().length > 0;
+            var has_header = $('#md-menu .navbar-brand').eq(0).toptext().trim().length > 0;
             if (!has_header && num_links <= 1)
                 $('#md-menu').hide();
 

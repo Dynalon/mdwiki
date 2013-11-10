@@ -98,7 +98,7 @@
         // the menu should be the first element in the body
         $('#md-menu').prependTo ('#md-all');
 
-        var brand_text = $('#md-menu h1').text();
+        var brand_text = $('#md-menu h1').toptext();
         $('#md-menu h1').remove();
         $('a.navbar-brand').text(brand_text);
 
@@ -185,7 +185,7 @@
         // submenu headers
         $('#md-menu li.dropdown').find('h1, h2, h3').each(function(i,e) {
             var $e = $(e);
-            var text = $e.clone().children().remove().end().text();
+            var text = $e.toptext();
             var header = $('<li class="dropdown-header" />');
             header.text(text);
             $e.replaceWith(header);
@@ -242,7 +242,7 @@
             // highlight in the right menu
             $('#md-page-menu a').each(function(i,e) {
                 var $a = $(e);
-                if ($first && $a.text() === $first.text()) {
+                if ($first && $a.toptext() === $first.toptext()) {
                     $('#md-page-menu a.active').removeClass('active');
                     //$a.parent('a').addClass('active');
                     $a.addClass('active');
@@ -270,15 +270,15 @@
             var $heading = $(e);
             var $li = $('<li class="list-group-item" />');
             var $a = $('<a />');
-            $a.attr('href', $.md.util.getInpageAnchorHref($heading.text()));
+            $a.attr('href', $.md.util.getInpageAnchorHref($heading.toptext()));
             $a.click(function(ev) {
                 ev.preventDefault();
 
                 var $this = $(this);
-                var anchortext = $.md.util.getInpageAnchorText($this.text());
+                var anchortext = $.md.util.getInpageAnchorText($this.toptext());
                 $.md.scrollToInPageAnchor(anchortext);
             });
-            $a.text($heading.text());
+            $a.text($heading.toptext());
             $li.append($a);
             $ul.append($li);
         });

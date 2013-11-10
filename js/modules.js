@@ -238,7 +238,7 @@
     }
 
     function getGimmickLinkParts($link) {
-        var link_text = $.trim($link.text());
+        var link_text = $.trim($link.toptext());
         // returns linkTrigger, options, linkText
         if (link_text.match(/gimmick:/i) === null) {
             return null;

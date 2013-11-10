@@ -13,7 +13,7 @@
             }
         },
         isGimmickLink: function(domAnchor) {
-            if (domAnchor.text().indexOf ('gimmick:') !== -1) {
+            if (domAnchor.toptext().indexOf ('gimmick:') !== -1) {
                 return true;
             } else {
                 return false;
@@ -49,10 +49,16 @@
         };
     }
 
+    $.fn.extend ({
+        toptext: function () {
+            return this.clone().children().remove().end().text();
+        }
+    });
+
     // adds a :icontains selector to jQuery that is case insensitive
     $.expr[':'].icontains = $.expr.createPseudo(function(arg) {
         return function(elem) {
-            return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+            return $(elem).toptext().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
         };
     });
 
