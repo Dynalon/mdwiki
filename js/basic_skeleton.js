@@ -158,8 +158,7 @@
             var $heading = $(this);
             $heading.addClass('md-inpage-anchor');
             $heading.click (function (){
-                var subhash = $heading.text().replace(' ', '_');
-                window.location.hash = '#!' + $.md.mainHref + '#' + subhash;
+                window.location.hash = $.md.util.getInpageAnchorHref($heading.text());
             });
 
             //var name = $.trim ($heading.text ());
@@ -198,19 +197,17 @@
             $(firstElem).addClass('md-first-heading');
         }
     }*/
-    $.md.scrollToInPageAnchor = function(anchor) {
+    $.md.scrollToInPageAnchor = function(anchortext) {
 
         // we match case insensitive
-        var spaceAnchor = anchor.toLowerCase();
-        var underscoreAnchor = spaceAnchor.replace(/ /g, '_');
         var doBreak = false;
 
         $('*.md-inpage-anchor').each (function () {
             if (doBreak) { return; }
 
             var $this = $(this);
-            var match = $this.text().toLowerCase().replace(/ /g, '_');
-            if (spaceAnchor === match || underscoreAnchor === match) {
+            var match = $.md.util.getInpageAnchorText ($this.text());
+            if (anchortext === match) {
                 this.scrollIntoView (true);
                 var navbar_offset = $('.navbar-collapse').height() + 5;
                 window.scrollBy(0, -navbar_offset + 5);

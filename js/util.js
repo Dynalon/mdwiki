@@ -55,6 +55,18 @@
         };
     });
 
+    $.md.util.getInpageAnchorText = function (text) {
+        var subhash = text.replace(/ /g, '_');
+        // TODO remove more unwanted characters like ?/,- etc.
+        return subhash;
+
+    };
+    $.md.util.getInpageAnchorHref = function (text, href) {
+        href = href || $.md.mainHref;
+        var subhash = $.md.util.getInpageAnchorText(text);
+        return '#!' + href + '#' + subhash;
+    };
+
     // a count-down latch as in Java7.
     $.md.util.countDownLatch = function (capacity, min) {
         min = min || 0;

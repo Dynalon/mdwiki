@@ -268,12 +268,13 @@
             var $heading = $(e);
             var $li = $('<li class="list-group-item" />');
             var $a = $('<a />');
-            $a.attr('href', $heading.text());
+            $a.attr('href', $.md.util.getInpageAnchorHref($heading.text()));
             $a.click(function(ev) {
                 ev.preventDefault();
 
                 var $this = $(this);
-                $.md.scrollToInPageAnchor($this.text());
+                var anchortext = $.md.util.getInpageAnchorText($this.text());
+                $.md.scrollToInPageAnchor(anchortext);
             });
             $a.text($heading.text());
             $li.append($a);
