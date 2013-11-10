@@ -22,8 +22,9 @@
         hasMarkdownFileExtension: function (str) {
             var markdownExtensions = [ '.md', '.markdown', '.mdown' ];
             var result = false;
+            var value = str.toLowerCase().split('#')[0];
             $(markdownExtensions).each(function (i,ext) {
-                if (str.toLowerCase().endsWith (ext)) {
+                if (value.toLowerCase().endsWith (ext)) {
                     result = true;
                 }
             });
