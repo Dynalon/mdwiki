@@ -38,7 +38,7 @@
 
             // external content should run after gimmicks were run
             $.md.stage('pregimmick').subscribe(function(done) {
-                if ($.md.config.useSideMenu !== false) {
+                if ($.md.config.useSideNav !== false) {
                     createPageContentMenu();
                 }
                 addFooter();
@@ -268,7 +268,8 @@
             var $heading = $(e);
             var $li = $('<li class="list-group-item" />');
             var $a = $('<a />');
-            $a.attr('href', $heading.text());
+            var subhash = $heading.text().replace(/ /g, '_');
+            $a.attr('href', '#!' + $.md.mainHref + '#' + subhash);
             $a.click(function(ev) {
                 ev.preventDefault();
 

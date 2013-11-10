@@ -158,7 +158,7 @@
             var $heading = $(this);
             $heading.addClass('md-inpage-anchor');
             $heading.click (function (){
-                var subhash = $heading.text().replace(' ', '_');
+                var subhash = $heading.text().replace(/ /g, '_');
                 window.location.hash = '#!' + $.md.mainHref + '#' + subhash;
             });
 
