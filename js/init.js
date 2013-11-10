@@ -18,7 +18,7 @@
     // default config
     $.md.config = {
         title:  null,
-        useSideNav: true,
+        useSideMenu: true,
         lineBreaks: 'gfm',
         additionalFooterText: '',
     };
