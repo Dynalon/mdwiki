@@ -37,14 +37,19 @@ You can create a `config.json` file in the same folder as the `mdwiki.html` file
     * Can be used to add text to the copyright footer at the bottom, like custom copyright notices.
     * Example: `additionalFooterText: "All content and images &copy; by John Doe"`
     * Default: `""` (empty string)
+  * `anchorCharacter: "&para;"`
+    * The character/text displayed and used as a hyperlink when hovering over headings.
+    * Unicode characters can be used in HTML notation. Example: `&#x2693;` will render as &#x2693;
+    * Default: The pilcrow (paragraph) sign: &para;
 
 A sample `config.json` might thus look like this:
 
 ```javascript
 {
-    useSideNav: true,
-    lineBreaks: "gfm",
-    additionalFooterText: "All content and images &copy; by John Doe"
+    "useSideMenu": true,
+    "lineBreaks": "gfm",
+    "additionalFooterText": "All content and images &copy; by John Doe",
+    "anchorCharacter": "#"
 }
 ```
 
