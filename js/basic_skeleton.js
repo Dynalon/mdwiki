@@ -1,4 +1,3 @@
-
 (function($) {
     var publicMethods = {
         createBasicSkeleton: function() {
@@ -167,9 +166,6 @@
             $heading.addClass('md-inpage-anchor');
             var text = $heading.clone().children('.anchor-highlight').remove().end().text();
             var href = $.md.util.getInpageAnchorHref(text);
-            $heading.click (function (){
-                window.location.hash = href;
-            });
             addPilcrow($heading, href);
         });
     }
