@@ -12,6 +12,13 @@
                 return false;
             }
         },
+        isRelativePath: function(path) {
+            if (path === undefined)
+                return false;
+            if (path.startsWith('/'))
+                return false;
+            return true;
+        },
         isGimmickLink: function(domAnchor) {
             if (domAnchor.toptext().indexOf ('gimmick:') !== -1) {
                 return true;

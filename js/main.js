@@ -198,18 +198,22 @@
             }
             var href = link.attr(hrefAttribute);
 
+            if (! $.md.util.isRelativeUrl(href))
+                return;
+
+            if (isImage && ! $.md.util.isRelativePath(href))
+                return;
+
             if (!isImage && $.md.util.isGimmickLink(link))
                 return;
 
-            if ($.md.util.isRelativeUrl(href)) {
-                var newHref = baseUrl + href;
-                if (! $.md.util.hasMarkdownFileExtension(newHref))
-                    return;
-                if (!isImage)
-                    link.attr(hrefAttribute, '#!' + newHref);
-                else
-                    link.attr(hrefAttribute, newHref);
-            }
+            var newHref = baseUrl + href;
+            if (isImage)
+                link.attr(hrefAttribute, newHref);
+            else if ($.md.util.isRelativePath (href))
+                link.attr(hrefAttribute, '#!' + newHref);
+            else
+                link.attr(hrefAttribute, '#!' + href);
         });
     }
 
