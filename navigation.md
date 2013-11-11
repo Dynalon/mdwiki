@@ -12,6 +12,13 @@
   * [Gimmicks](gimmicks.md)
   * [Customizing](customizing.md)
 
+[Tutorials]()
+
+  * [About the Tutorials](tutorials.md)
+  - - - -
+  * [Hosting with GitHub](tutorials/github.md)
+  * [Use with Dropbox](tutorials/dropbox.md)
+
 [Examples](examples.md)
 [Download](download.md)
 [Forum](forum.md)
@@ -24,4 +31,4 @@
 [gimmick:forkmeongithub](http://github.com/Dynalon/mdwiki/)
 
 <!-- counter pixel for counting visitors -->
-<img src="http://stats.markdown.io/mdwiki_info.gif" style="display:none;"/>
+<!-- <img src="http://stats.markdown.io/mdwiki_info.gif" style="display:none;"/> -->
