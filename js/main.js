@@ -198,6 +198,9 @@
             }
             var href = link.attr(hrefAttribute);
 
+            if (href && href.lastIndexOf ('#!') >= 0)
+                return;
+
             if (! $.md.util.isRelativeUrl(href))
                 return;
 
