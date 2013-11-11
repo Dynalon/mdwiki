@@ -146,7 +146,8 @@
         // adds a pilcrow (paragraph) character to heading with a link for the
         // inpage anchor
         function addPilcrow ($heading, href) {
-            var $pilcrow = $('<span class="anchor-highlight"><a>&#x2693;</a></span>');
+            var c = $.md.config.anchorCharacter;
+            var $pilcrow = $('<span class="anchor-highlight"><a>' + c + '</a></span>');
             $pilcrow.find('a').attr('href', href);
             $pilcrow.hide();
 
