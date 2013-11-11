@@ -165,7 +165,8 @@
         $('h1,h2,h3,h4,h5,h6').each (function () {
             var $heading = $(this);
             $heading.addClass('md-inpage-anchor');
-            var href = $.md.util.getInpageAnchorHref($heading.toptext());
+            var text = $heading.clone().children('.anchor-highlight').remove().end().text();
+            var href = $.md.util.getInpageAnchorHref(text);
             $heading.click (function (){
                 window.location.hash = href;
             });
