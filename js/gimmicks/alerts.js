@@ -46,7 +46,7 @@
             var $par = $(this);
             // check against each expression
             $(exp).each (function (i,trigger) {
-                var txt = $par.toptext().toLowerCase ();
+                var txt = $par.text().toLowerCase ();
                 // we match only paragrachps in which the 'trigger' expression
                 // is follow by a ! or :
                 var re = new RegExp (trigger + '(:|!)+.*','i');
