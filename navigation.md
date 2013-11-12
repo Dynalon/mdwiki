@@ -12,6 +12,8 @@
   * [Gimmicks](gimmicks.md)
   * [Customizing](customizing.md)
 
+[Gimmicks](gimmicks.md)
+
 [Tutorials]()
 
   * [About the Tutorials](tutorials.md)
