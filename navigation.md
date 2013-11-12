@@ -9,7 +9,6 @@
   * [FAQ](faq.md)
   - - - -
   * # Advanced
-  * [Gimmicks](gimmicks.md)
   * [Customizing](customizing.md)
 
 [Gimmicks](gimmicks.md)
