@@ -4,14 +4,16 @@
         // needed since we scale down images via css and want them to be accessible
         // in original format
         image_linker: function() {
-            var $images;
-            if (!(this instanceof jQuery)) {
+            function selectNonLinkedImages () {
+                // only highliht images that do not have a non-empty parent link
                 $images = $('img').filter(function(index) {
-                    return $(this).parents('a').length === 0;
+                    var $parent_link = $(this).parents('a').eq(0);
+                    var attr = $parent_link.attr('href');
+                    return attr && attr.length > 0;
                 });
-            } else {
-                $images = $(this);
+                return $images;
             }
+            var $images = selectNonLinkedImages ();
             return $images.each(function() {
                 var $this = $(this);
                 var img_src = $this.attr('src');
