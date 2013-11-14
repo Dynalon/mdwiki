@@ -159,7 +159,7 @@
 
         // adds a page inline anchor to each h1,h2,h3,h4,h5,h6 element
         // which can be accessed by the headings text
-        $('h1,h2,h3,h4,h5,h6').each (function () {
+        $('h1,h2,h3,h4,h5,h6').not('#md-title h1').each (function () {
             var $heading = $(this);
             $heading.addClass('md-inpage-anchor');
             var text = $heading.clone().children('.anchor-highlight').remove().end().text();
