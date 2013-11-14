@@ -327,8 +327,6 @@
 
         // HEADING
         var jumbo = $('<div class="page-header" />');
-        var heading = $('<h1/>');
-        jumbo.append(heading);
         $('#md-title').wrapInner(jumbo);
     }
 
