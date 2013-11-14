@@ -26,16 +26,14 @@
     // the first h1 element as title if no title is given
     function setPageTitle() {
         var $pageTitle;
-        if ($.md.config.title instanceof String) {
-            // HACK we use .html so we can embed img tags
-            $pageTitle = $('<h1/>').html($.md.config.title);
-        } else {
-            $pageTitle = $('#md-content h1').eq(0);
-        }
+        if ($.md.config.title)
+            $('title').text($.md.config.title);
+
+        $pageTitle = $('#md-content h1').eq(0);
         if ($.trim($pageTitle.toptext()).length > 0) {
             $('#md-title').prepend($pageTitle);
             var title = $pageTitle.toptext();
-            document.title = title;
+            // document.title = title;
         } else {
             $('#md-title').remove();
         }
