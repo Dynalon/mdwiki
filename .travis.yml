@@ -4,4 +4,4 @@ node_js:
 before_script:
   - npm install -g grunt-cli
 script:
-  - grunt release-fat release-slim release-debug devel
+  - grunt release-fat release-slim release-debug
