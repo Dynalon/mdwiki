@@ -17,6 +17,15 @@ MDwiki ships with two different files:
 
 * * *
 
+Latest CI build from git
+-----------
+We use the great [Travis Continous Integration service](http://www.travis-ci.org) to automatically do builds from our git `master` branch. The builds are automatically uploaded to the MDwiki website (that is the `gh-pages` branch of MDwiki at GitHub) a few minutes after a commit is checked in.
+
+Attention: To **download** the latest build, you need to right click -> "Save link as". Else you will only visit the MDwiki website using the latest build!
+
+* [mdwiki-latest.html](mdwiki-latest.html), Minified version for production use
+* [mdwiki-latest-debug.html](mdwiki-latest-debug.html), Unminified version for debugging and testing
+
 Source code
 -----------
 
