@@ -148,11 +148,17 @@
             $pilcrow.find('a').attr('href', href);
             $pilcrow.hide();
 
+            var mouse_entered = false;
             $heading.mouseenter(function () {
-                $pilcrow.show();
+                mouse_entered = true;
+                $.md.util.wait(300).then(function () {
+                    if (!mouse_entered) return;
+                    $pilcrow.fadeIn(200);
+                });
             });
             $heading.mouseleave(function () {
-                $pilcrow.hide();
+                mouse_entered = false;
+                $pilcrow.fadeOut(200);
             });
             $pilcrow.appendTo($heading);
         }
