@@ -210,13 +210,20 @@
             if (!isImage && $.md.util.isGimmickLink(link))
                 return;
 
+            function build_link (url) {
+                if ($.md.util.hasMarkdownFileExtension (url))
+                    return '#!' + url;
+                else
+                    return url;
+            }
+
             var newHref = baseUrl + href;
             if (isImage)
                 link.attr(hrefAttribute, newHref);
             else if ($.md.util.isRelativePath (href))
-                link.attr(hrefAttribute, '#!' + newHref);
+                link.attr(hrefAttribute, build_link(newHref));
             else
-                link.attr(hrefAttribute, '#!' + href);
+                link.attr(hrefAttribute, build_link(href));
         });
     }
 
