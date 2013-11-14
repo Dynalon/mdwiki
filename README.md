@@ -1,3 +1,6 @@
+![Travis build status](https://api.travis-ci.org/Dynalon/mdwiki.png)
+
+
 MDwiki
 ======
 
