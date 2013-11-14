@@ -18,6 +18,7 @@ function googlemapsReady() {
             var default_options = {
                 zoom: 11,
                 marker: true,
+                scrollwheel: false,
                 maptype: 'roadmap'
             };
             var options = $.extend({}, default_options, opt);
@@ -47,8 +48,7 @@ function googlemapsReady() {
 
         // google uses rather complicated mapnames, we transform our simple ones
         var mt = opt.maptype.toUpperCase ();
-        opt.MapTypeId = google.maps.MapTypeId[mt];
-
+        opt.mapTypeId = google.maps.MapTypeId[mt];
         var geocoder = new google.maps.Geocoder ();
 
         // geocode performs address to coordinate transformation
