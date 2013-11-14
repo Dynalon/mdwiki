@@ -13,7 +13,6 @@ Features
   * Build on top of [jQuery][jQuery] and [Bootstrap3][bootstrap] to work cross-browser, with responsive layout
   * Extends Markdown with special [_Gimmicks_][gimmicks] that add rich client functions, like syntax highligting via [hightlight.js][highlightjs], [GitHub Gists][gists], or [Google Maps][maps] for geo data
   * Themeable through Bootstrap compatibility, supports all themes from [bootswatch](http://www.bootswatch.com)
-  * Easily extendable with own, custom Gimmicks
 
 Requirements
 ------------
