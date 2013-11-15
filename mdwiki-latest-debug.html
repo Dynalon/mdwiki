@@ -1804,7 +1804,6 @@ if (typeof exports === 'object') {
 
     }
     function loadContent(href) {
-
         $.md.mainHref = href;
 
         registerFetchMarkdown();
@@ -1900,6 +1899,7 @@ if (typeof exports === 'object') {
         } else {
             href = window.location.hash.substring(1);
         }
+        href = decodeURIComponent(href);
 
         // extract possible in-page anchor
         var ex_pos = href.indexOf('#');
