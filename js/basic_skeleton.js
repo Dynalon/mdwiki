@@ -4,6 +4,7 @@
 
             setPageTitle();
             wrapParagraphText();
+            linkImagesToSelf();
             groupImages();
             removeBreaks();
             addInpageAnchors ();
@@ -136,6 +137,33 @@
         var par = $('p img').parents('p');
         // add an .md-image-group class to the p
         par.addClass('md-image-group');
+    }
+
+    // takes a standard <img> tag and adds a hyperlink to the image source
+    // needed since we scale down images via css and want them to be accessible
+    // in original format
+    function linkImagesToSelf () {
+        function selectNonLinkedImages () {
+            // only select images that do not have a non-empty parent link
+            $images = $('img').filter(function(index) {
+                var $parent_link = $(this).parents('a').eq(0);
+                if ($parent_link.length === 0) return true;
+                var attr = $parent_link.attr('href');
+                return (attr && attr.length === 0);
+            });
+            return $images;
+        }
+        var $images = selectNonLinkedImages ();
+        return $images.each(function() {
+            var $this = $(this);
+            var img_src = $this.attr('src');
+            var img_title = $this.attr('title');
+            if (img_title === undefined) {
+                img_title = '';
+            }
+            // wrap the <img> tag in an anchor and copy the title of the image
+            $this.wrap('<a class="md-image-selfref" href="' + img_src + '" title="'+ img_title +'"/> ');
+        });
     }
 
     function addInpageAnchors()

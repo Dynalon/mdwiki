@@ -34,14 +34,9 @@
                 var gal_group = 'gallery-group-' + (counter++);
 
                 // create a hyperlink around the image
-                $this.find('img')
+                $this.find('a.md-image-selfref img')
                 // filter out images that already are a hyperlink
                 // (so won't be part of the gallery)
-                .filter(function() {
-                    return $(this).parents('a').length === 0;
-                })
-                // make the hyperlink to themself
-                .gimmicks('image_linker')
 
                 // apply colorbox on their parent anchors
                 .parents('a').colorbox({
