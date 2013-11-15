@@ -336,7 +336,6 @@
 
     }
     function loadContent(href) {
-
         $.md.mainHref = href;
 
         registerFetchMarkdown();
@@ -432,6 +431,7 @@
         } else {
             href = window.location.hash.substring(1);
         }
+        href = decodeURIComponent(href);
 
         // extract possible in-page anchor
         var ex_pos = href.indexOf('#');
