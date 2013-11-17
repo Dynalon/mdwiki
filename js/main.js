@@ -237,22 +237,22 @@
     }
 
     var navMD = '';
-    $.md.NavgiationDfd = $.Deferred();
+    $.md.NavigationDfd = $.Deferred();
     var ajaxReq = {
         url: 'navigation.md',
         dataType: 'text'
     };
     $.ajax(ajaxReq).done(function(data) {
         navMD = data;
-        $.md.NavgiationDfd.resolve();
+        $.md.NavigationDfd.resolve();
     }).fail(function() {
-        $.md.NavgiationDfd.reject();
+        $.md.NavigationDfd.reject();
     });
 
     function registerBuildNavigation() {
 
         $.md.stage('init').subscribe(function(done) {
-            $.md.NavgiationDfd.done(function() {
+            $.md.NavigationDfd.done(function() {
                 done();
             })
             .fail(function() {
