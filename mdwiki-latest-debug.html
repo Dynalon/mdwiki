@@ -1431,6 +1431,7 @@ if (typeof exports === 'object') {
                     if(d.state() !== 'resolved') {
                         log.fatal('Timeout reached for done callback in stage: ' + self.name +
                             '. Did you forget a done() call in a .subscribe() ?');
+                        log.fatal('stage ' + name + ' failed running subscribed function: ' + fn );
                     }
                 });
 
@@ -1704,22 +1705,22 @@ if (typeof exports === 'object') {
     }
 
     var navMD = '';
-    $.md.NavgiationDfd = $.Deferred();
+    $.md.NavigationDfd = $.Deferred();
     var ajaxReq = {
         url: 'navigation.md',
         dataType: 'text'
     };
     $.ajax(ajaxReq).done(function(data) {
         navMD = data;
-        $.md.NavgiationDfd.resolve();
+        $.md.NavigationDfd.resolve();
     }).fail(function() {
-        $.md.NavgiationDfd.reject();
+        $.md.NavigationDfd.reject();
     });
 
     function registerBuildNavigation() {
 
         $.md.stage('init').subscribe(function(done) {
-            $.md.NavgiationDfd.done(function() {
+            $.md.NavigationDfd.done(function() {
                 done();
             })
             .fail(function() {
@@ -4057,11 +4058,6 @@ function googlemapsReady() {
     </noscript>
 
     <div id="md-all">
-        <div id="md-body">
-            <div id="md-title"></div>
-            <div id="md-menu"> </div>
-            <div id="md-content"></div>
-        </div>
     </div>
 </body>
 </html>
