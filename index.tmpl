@@ -169,6 +169,10 @@
         print_script_inline(ownJsFileMin, fileContent);
     }
 
+    if (task === 'debug') {
+        print('<script type="text/javascript">$.md.logThreshold = $.md.loglevel.DEBUG;</script>')
+    }
+
 %>
 </head>
 <body>

@@ -27,7 +27,6 @@
 
     $.md.gimmicks = [];
     $.md.stages = [];
-    $.md.debug = true;
 
     // the location of the main markdown file we display
     $.md.mainHref = '';
