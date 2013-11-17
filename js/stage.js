@@ -36,6 +36,7 @@
                     if(d.state() !== 'resolved') {
                         log.fatal('Timeout reached for done callback in stage: ' + self.name +
                             '. Did you forget a done() call in a .subscribe() ?');
+                        log.fatal('stage ' + name + ' failed running subscribed function: ' + fn );
                     }
                 });
 
