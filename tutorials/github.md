@@ -30,7 +30,7 @@ You can sign up with GitHub at <http://www.github.com/signup>.
 
 ### Step 2: Fork mdwiki-seed
 
-We have set up a minimal example MDwiki installation that you can use as a starting point. Included ist the latest MDwiki release and some example Markdown that is easy to understand.
+We have set up a [minimal example MDwiki installation](https://github.com/Dynalon/mdwiki-seed) that you can use as a starting point. Included ist the latest MDwiki release and some example Markdown that is easy to understand.
 
 ### Step 3: Edit your forked version of MDwiki seed
 
