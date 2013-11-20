@@ -31,7 +31,10 @@
             // postprocess
             $.Stage('postgimmick'),
 
-            $.Stage('all_ready')
+            $.Stage('all_ready'),
+
+            // used for integration tests, not intended to use in MDwiki itself
+            $.Stage('final_tests')
         ];
 
         $.md.stage = function(name) {
@@ -408,14 +411,19 @@
         $.md.stage('all_ready').done(function() {
             $('html').removeClass('md-hidden-load');
 
-            // reset the stages for next iteration
-            resetStages();
-
             // phantomjs hook when we are done
             if (typeof window.callPhantom === 'function') {
                 window.callPhantom({});
             }
 
+            $.md.stage('final_test').run();
+        });
+        $.md.stage('final_tests').done(function() {
+            // reset the stages for next iteration
+            resetStages();
+
+            // required by dalekjs so we can wait the element to appear
+            $('body').append('<span id="start-tests"></span>').hide();
         });
 
         // trigger the whole process by runing the init stage
