@@ -201,7 +201,7 @@
     function findActiveLinkTrigger() {
         var $gimmicks = $('a:icontains(gimmick:)');
         $gimmicks.each(function(i,e) {
-            var parts = getGimmickLinkParts($(e));
+            var parts = $.md.getGimmickLinkParts($(e));
             if (activeLinkTriggers.indexOf(parts.trigger) === -1) {
                 activeLinkTriggers.push(parts.trigger);
             }
@@ -237,12 +237,9 @@
         return ret;
     }
 
-    function getGimmickLinkParts($link) {
-        var link_text = $.trim($link.toptext());
+    $.md.getGimmickLinkParts = function ($link) {
         // returns linkTrigger, options, linkText
-        if (link_text.match(/gimmick:/i) === null) {
-            return null;
-        }
+        var link_text = $.trim($link.toptext());
         var href = $.trim($link.attr('href'));
         var r = new RegExp(/gimmick:\s*([^(\s]*)\s*(\(\s*{?(.*)\s*}?\s*\))*/i);
         var matches = r.exec(link_text);
@@ -291,7 +288,7 @@
         var $gimmick_links = $('a:icontains(gimmick:)');
         $gimmick_links.each(function(i, e) {
             var $link = $(e);
-            var gimmick_arguments = getGimmickLinkParts($link);
+            var gimmick_arguments = $.md.getGimmickLinkParts($link);
 
             $.each(linkTriggers, function(i, linktrigger) {
                 if (gimmick_arguments.trigger === linktrigger.trigger) {

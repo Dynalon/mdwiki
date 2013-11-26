@@ -111,11 +111,50 @@
             var uglyHtml = transformMarkdown(md);
             $('#md-content').html(uglyHtml);
             md = '';
-            var dfd = $.Deferred();
-            loadExternalIncludes(dfd);
-            dfd.always(function () {
+            var dfd1 = $.Deferred();
+            var dfd2 = $.Deferred();
+            loadExternalIncludes(dfd1);
+            processTemplates(dfd2);
+            $.when(dfd1, dfd2).then(function () {
                 done();
             });
+        });
+    }
+
+    function processTemplates(doneDfd) {
+        function processTemplate($link, dfdParent) {
+            var parts = $.md.getGimmickLinkParts($link);
+
+            var viewFile = parts.options.view;
+            var modelFile = parts.options.model;
+            var dfd1 = $.ajax({url: viewFile, dataType: 'text'});
+            var dfd2 = $.ajax({url: modelFile, dataType: 'text'});
+            $.when(dfd1, dfd2).then(function (r1,r2) {
+                var viewData = r1[0];
+                var modelData = r2[0];
+
+                var model = YAML.parse(modelData);
+                // var compiled = _.template(viewData);
+                var compiled = Hogan.compile(viewData);
+                var result = compiled.render(model);
+                console.log (result);
+                var uglyHtml = transformMarkdown (result);
+                console.log(uglyHtml);
+                $link.replaceWith($(uglyHtml));
+                dfdParent.resolve();
+            });
+        }
+
+        var $template_links = $('a:startsWith(gimmick:template)');
+        var latch = $.md.util.countDownLatch ($template_links.length);
+        latch.always(doneDfd.resolve);
+        $template_links.each(function (i,e) {
+            var $link = $(e);
+            var dfd = $.Deferred();
+            dfd.always(function () {
+                latch.countDown();
+            });
+            processTemplate ($link, dfd);
         });
     }
 

@@ -68,6 +68,12 @@
             return $(elem).toptext().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
         };
     });
+    // adds a :startsWith selector to jQuery that is case insensitive
+    $.expr[':'].startsWith = $.expr.createPseudo(function(arg) {
+        return function(elem) {
+            return $(elem).toptext().toUpperCase().indexOf(arg.toUpperCase()) === 0;
+        };
+    });
 
     $.md.util.getInpageAnchorText = function (text) {
         var subhash = text.replace(/ /g, '_');

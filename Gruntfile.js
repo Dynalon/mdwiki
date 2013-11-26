@@ -59,7 +59,10 @@ module.exports = function(grunt) {
         ],
         // ONLY PUT ALREADY MINIFIED FILES IN HERE!
         internalJsFiles: [
-            'extlib/js/jquery.colorbox.min.js'
+            'extlib/js/jquery.colorbox.min.js',
+            'extlib/js/yaml.min.js',
+            'extlib/js/underscore-min.js',
+            'extlib/js/hogan-2.0.0.js'
         ],
 
         // files that we inline in the fat release (basically everything)
