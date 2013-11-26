@@ -17,7 +17,7 @@
 
         self.subscribe = function(fn) {
             if (self.started) {
-                $.error('Can not subscribe to stage which already started!');
+                $.error('Subscribing to stage which already started!');
             }
             self.events.push(fn);
         };
@@ -25,25 +25,29 @@
             self.events.remove(fn);
         };
 
+        self.executeSubscribedFn = function (fn) {
+            var d = $.Deferred();
+            self.outstanding.push(d);
+
+            // display an error if our done() callback is not called
+            $.md.util.wait(2500).done(function() {
+                if(d.state() !== 'resolved') {
+                    log.fatal('Timeout reached for done callback in stage: ' + self.name +
+                        '. Did you forget a done() call in a .subscribe() ?');
+                    log.fatal('stage ' + name + ' failed running subscribed function: ' + fn );
+                }
+            });
+
+            var done = function() {
+                d.resolve();
+            };
+            fn(done);
+        };
+
         self.run = function() {
             self.started = true;
             $(self.events).each(function (i,fn) {
-                var d = $.Deferred();
-                self.outstanding.push(d);
-
-                // display an error if our done() callback is not called
-                $.md.util.wait(2500).done(function() {
-                    if(d.state() !== 'resolved') {
-                        log.fatal('Timeout reached for done callback in stage: ' + self.name +
-                            '. Did you forget a done() call in a .subscribe() ?');
-                        log.fatal('stage ' + name + ' failed running subscribed function: ' + fn );
-                    }
-                });
-
-                var done = function() {
-                    d.resolve();
-                };
-                fn(done);
+                self.executeSubscribedFn(fn);
             });
 
             // if no events are in our queue, we resolve immediately

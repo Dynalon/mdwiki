@@ -367,9 +367,6 @@
             done();
         });
 
-        $.md.stage('skel_ready').subscribe(function(done) {
-            done();
-        });
         $.md.stage('bootstrap').subscribe(function(done){
             $.mdbootstrap('bootstrapify');
             processPageLinks($('#md-content'), $.md.baseUrl);
