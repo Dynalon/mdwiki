@@ -1885,14 +1885,15 @@ if (typeof exports === 'object') {
                 window.callPhantom({});
             }
 
-            $.md.stage('final_test').run();
+            $.md.stage('final_tests').run();
         });
         $.md.stage('final_tests').done(function() {
             // reset the stages for next iteration
             resetStages();
 
             // required by dalekjs so we can wait the element to appear
-            $('body').append('<span id="start-tests"></span>').hide();
+            $('body').append('<span id="start-tests"></span>');
+            $('#start-tests').hide();
         });
 
         // trigger the whole process by runing the init stage
