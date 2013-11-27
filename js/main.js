@@ -213,6 +213,14 @@
             if (href && href.lastIndexOf ('#!') >= 0)
                 return;
 
+            if (!isImage && href.startsWith ('#') && !href.startsWith('#!')) {
+                // in-page link
+                link.click(function(ev) {
+                    ev.preventDefault();
+                    $.md.scrollToInPageAnchor (href);
+                });
+            }
+
             if (! $.md.util.isRelativeUrl(href))
                 return;
 

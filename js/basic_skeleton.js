@@ -203,7 +203,8 @@
     }
 
     $.md.scrollToInPageAnchor = function(anchortext) {
-
+        if (anchortext.startsWith ('#'))
+            anchortext = anchortext.substring (1, anchortext.length);
         // we match case insensitive
         var doBreak = false;
         $('.md-inpage-anchor').each (function () {
