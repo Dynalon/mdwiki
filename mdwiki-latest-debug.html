@@ -1686,6 +1686,14 @@ if (typeof exports === 'object') {
             if (href && href.lastIndexOf ('#!') >= 0)
                 return;
 
+            if (!isImage && href.startsWith ('#') && !href.startsWith('#!')) {
+                // in-page link
+                link.click(function(ev) {
+                    ev.preventDefault();
+                    $.md.scrollToInPageAnchor (href);
+                });
+            }
+
             if (! $.md.util.isRelativeUrl(href))
                 return;
 
@@ -2573,7 +2581,8 @@ if (typeof exports === 'object') {
     }
 
     $.md.scrollToInPageAnchor = function(anchortext) {
-
+        if (anchortext.startsWith ('#'))
+            anchortext = anchortext.substring (1, anchortext.length);
         // we match case insensitive
         var doBreak = false;
         $('.md-inpage-anchor').each (function () {
