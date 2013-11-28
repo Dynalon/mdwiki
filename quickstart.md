@@ -143,6 +143,17 @@ Will be rendered as:
 ![](http://placekitten.com/g/400/350)
 ![](http://placekitten.com/g/400/350)
 
+### Images as Links
+
+To use an image as a link, use the following syntax:
+
+    [![ImageCaption](path/to/image.png)](http://www.linktarget.com)
+
+    Example:
+    [![A kitten](http://placekitten.com/g/400/400)](http://www.placekitten.com)
+
+[![A kitten](http://placekitten.com/g/400/400)](http://www.placekitten.com)
+
 - - - -
 
 Syntax highlighting
