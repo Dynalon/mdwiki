@@ -15,7 +15,7 @@ Obtain MDwiki from http://mdwiki.info, you can either fork and build your own, o
 
 The precompiled release comes with a couple different version of mdwiki.html file, feel free to use whatever one you want, but for this walkthrough we'll be using the ``mdwiki.html``.  
 
- 1. Copy mdwiki.html to a new folder where you want your website.  The standard IIS spot would be ``C:\inetpub\wwww\blog\`` but any path will work.
+ 1. Copy mdwiki.html to a new folder where you want your website.  The standard IIS spot would be ``C:\inetpub\wwwwroot\blog\`` but any path will work.
 
  2. Create two blank files.  The first being ``navigation.md`` and the second being ``config.json``.
 
@@ -33,7 +33,7 @@ My MDwiki Website
 ###Hello World!
 ```
 
-Place these three newely created files into the folder you created in step one. (``C:\inetpub\www\blog`` in our case).
+Place these three newely created files into the folder you created in step one. (``C:\inetpub\wwwroot\blog`` in our case).
 
 Your directory should now look like this
 
@@ -47,7 +47,7 @@ Your directory should now look like this
 
 ###Adding your website to IIS
 
-Within your IIS Manager in the left pane, right click sides and choose ``Add New Website...``
+Within your IIS Manager in the left pane, right click sites and choose ``Add New Website...``
 
 [![Add New Website...](images/add-new-website.png)]
 
