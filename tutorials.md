@@ -11,3 +11,4 @@ Available Tutorials
 
   * [Hosting MDwiki on GitHub](tutorials/github.md)
   * [Using MDwiki with Dropbox](tutorials/dropbox.md)
+  * [Set up MDwiki with IIS Server](tutorials/iis/index.md)
