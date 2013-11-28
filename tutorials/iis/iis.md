@@ -49,25 +49,25 @@ Your directory should now look like this
 
 Within your IIS Manager in the left pane, right click sites and choose ``Add New Website...``
 
-[![Add New Website...](images/add-new-website.png)]
+![Add New Website...](images/add-new-website.png)
 
 In the Add New Website dialog, fill in your settings, if you're following along with the walkthrough they would look something like this (replace myblog.com with whatever your hostname is, or leave it blank to use the default server address)
 
-[![Add New Website Dialog](images/add-new-website-dialog.png)]
+![Add New Website Dialog](images/add-new-website-dialog.png)
 
 ###Setting up the Markdown MIME Type
 
 If your IIS is a on a fresh windows install you will notice your website doesn't work quite yet.  That's because IIS out of the box doesn't know what to do with markdown (.md) files.  To fix this, select your website in the Sites dropdown, and Click on **MIME Types**
 
-[![MIME Types](images/mime-types.png)]
+![MIME Types](images/mime-types.png)
 
 Once your the MIME Types section is opened, click on ``Add..`` in the upper right.
 
-[![MIME Types](images/add-mime-type.png)]
+![MIME Types](images/add-mime-type.png)
 
 In the Add MIME type dialog give the file extension ``.md``, with a MIME type of ``text/x-markdown`` like the picture below.
 
-[[!MIME Type Dialog](images/mime-type-dialog.png)]
+![MIME Type Dialog](images/mime-type-dialog.png)
 
 After clicking the OK button IIS will now know how to serve markdown files to mdWiki. 
 
