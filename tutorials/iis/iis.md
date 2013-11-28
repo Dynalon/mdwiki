@@ -15,11 +15,11 @@ Obtain MDwiki from http://mdwiki.info, you can either fork and build your own, o
 
 The precompiled release comes with a couple different version of mdwiki.html file, feel free to use whatever one you want, but for this walkthrough we'll be using the ``mdwiki.html``.  
 
- 1. Copy mdwiki.html to a new folder where you want your website.  The standard IIS spot would be ``C:\inetpub\wwwwroot\blog\`` but any path will work.
+ 1. Copy ``mdwiki.html`` to a new folder where you want your website.  The standard IIS spot would be ``C:\inetpub\wwwwroot\your-website\`` but any path will work.  For this walkthrough we'll use ``C:\inetpub\wwwroot\blog\``
 
  2. Create two blank files.  The first being ``navigation.md`` and the second being ``config.json``.
 
-  The ``navigation.md`` will be used for for the navbar that appears on the top of your website, and the ``config.json`` file will be used for additional configuration within your site.  For simplicity we will just leave these blank, as they are required for your site to work.  Feel free to customize them in any way you like.
+  The ``navigation.md`` will be used for for the navbar that appears on the top of your website, and the ``config.json`` file will be used for additional configuration within your site.  For simplicity we will just leave these blank, we are creating them because at the time of writing (v0.5.8) they are required for your site to work.  Feel free to customize them in any way you like.
 
  3. Create a file named ``index.md``.  This will be the first markdown file that your site will show.  Customize it however you want.
 
@@ -39,7 +39,7 @@ Your directory should now look like this
 
 ```
     blog\
-        mdWiki.html
+        mdwiki.html
         navigation.md
         config.json
         index.md
@@ -69,7 +69,7 @@ In the Add MIME type dialog give the file extension ``.md``, with a MIME type of
 
 ![MIME Type Dialog](images/mime-type-dialog.png)
 
-After clicking the OK button IIS will now know how to serve markdown files to mdWiki. 
+After clicking the OK button IIS will now know how to serve markdown files to MDwiki. 
 
 Navigate to your site to see it up and running.
 
