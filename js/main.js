@@ -457,6 +457,24 @@
         }
     }
 
+    function appendDefaultFilenameToHash () {
+        var newHashString = '';
+        var currentHashString = window.location.hash || '';
+        if (currentHashString === '' ||
+            currentHashString === '#'||
+            currentHashString === '#!')
+        {
+            newHashString = '#!index.md';
+        }
+        else if (currentHashString.startsWith ('#!') &&
+                 currentHashString.endsWith('/')
+                ) {
+            newHashString = currentHashString + 'index.md';
+        }
+        if (newHashString)
+            window.location.hash = newHashString;
+    }
+
     $(document).ready(function () {
 
         // stage init stuff
@@ -464,12 +482,7 @@
         registerBuildNavigation();
         extractHashData();
 
-        if (window.location.hash === '' ||
-            window.location.hash === '#'||
-            window.location.hash === '#!')
-        {
-            window.location.hash = '#!index.md';
-        }
+        appendDefaultFilenameToHash();
 
         $(window).bind('hashchange', function () {
             window.location.reload(false);
