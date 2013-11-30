@@ -451,22 +451,11 @@
     // and may not be removed or hidden to comply with licensing conditions.
     function addFooter() {
         var navbar = '';
-        navbar += '<hr><div class="container md-copyright-footer" class="navbar navbar-default navbar-fixed-bottom">';
-        navbar +=     '<ul class="nav navbar-nav navbar-left">';
-        navbar +=       '<p class="navbar-text">';
-        navbar +=       '</p>';
-        navbar +=     '</ul>';
-        navbar +=     '<ul class="nav navbar-nav navbar-right">';
-        navbar +=       '<p class="navbar-text">';
-        navbar +=       '<span id="md-footer-additional"></span>';
-        navbar +=       '<span>';
-        navbar +=         ' Website generated with <a href="http://www.mdwiki.info">MDwiki</a> ';
-        navbar +=         '&copy; Timo D&ouml;rr and contributors. ';
-        // navbar +=         '<a href="http://www.mdwiki.info">MDwiki</a> is free software licensed under ';
-        // navbar +=         '<a href="https://github.com/Dynalon/mdwiki/blob/master/LICENSE.txt">GNU GPLv3 (additional terms apply).</a>';
-        navbar +=       '</span>';
-        navbar +=       '</p>';
-        navbar +=     '</ul>';
+        navbar += '<hr><div class="scontainer">';
+        navbar +=   '<div class="pull-right md-copyright-footer"> ';
+        navbar +=     '<span id="md-footer-additional"></span>';
+        navbar +=     'Website generated with <a href="http://www.mdwiki.info">MDwiki</a> ';
+        navbar +=     '&copy; Timo D&ouml;rr and contributors. ';
         navbar +=   '</div>';
         navbar += '</div>';
         var $navbar = $(navbar);
