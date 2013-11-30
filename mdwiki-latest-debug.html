@@ -2952,12 +2952,12 @@ if (typeof exports === 'object') {
         if ($('#md-menu').find ('li').length === 0) {
             return;
         }
-		var filename = $.md.mainHref;
+		var filename = window.location.hash;
 
 		if (filename.length === 0) {
-            filename = 'index.md';
+            filename = '#!index.md';
         }
-		var selector = 'li:has(a[href$="' + filename + '"])';
+		var selector = 'li:has(a[href="' + filename + '"])';
 		$('#md-menu').find (selector).addClass ('active');
     }
 
