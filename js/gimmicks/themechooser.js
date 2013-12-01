@@ -19,6 +19,7 @@
         name: 'Themes',
         version: $.md.version,
         once: function() {
+            if (1) return;
             $.md.linkGimmick(this, 'themechooser', themechooser, 'skel_ready');
             $.md.linkGimmick(this, 'theme', apply_theme);
 

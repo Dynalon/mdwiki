@@ -50,7 +50,8 @@ module.exports = function(grunt) {
             // 'js/gimmicks/leaflet.js',
             'js/gimmicks/themechooser.js',
             'js/gimmicks/twitter.js',
-            'js/gimmicks/youtube_embed.js'
+            'js/gimmicks/youtube_embed.js',
+            'ts_compiled/*.js'
         ],
 
         // files that we always inline (stuff not available on CDN)
@@ -86,6 +87,21 @@ module.exports = function(grunt) {
 //            'www.3solarmasses.com/retriever-bootstrap/css/retriever.css'
 //            '3solarmasses.com/corgi-bootstrap/css/corgi.css'
         ],
+
+        typescript: {
+            base: {
+                src: ['js/ts/**/*.ts'],
+                dest: 'ts_compiled/',
+                options: {
+                    module: 'amd', //or commonjs
+                    target: 'es5', //or es3
+                    base_path: '/js/ts/',
+                    sourcemap: true,
+                    fullSourceMapPath: false,
+                    declaration: true,
+                }
+            }
+        },
 
         concat: {
             options: {
@@ -194,6 +210,7 @@ module.exports = function(grunt) {
                 'Gruntfile.js',
                 'js/*.js',
                 'js/**/*.js',
+                'js/ts/**/*.ts',
                 'index.tmpl'
             ],
             tasks: ['devel']
@@ -210,6 +227,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-shell');
     grunt.loadNpmTasks('grunt-reload');
 
@@ -227,7 +245,7 @@ module.exports = function(grunt) {
     grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat' ]);
 
     /* Debug is basically the fat version but without any minifing */
-    grunt.registerTask('release-debug', [ 'jshint', 'concat:dev', 'index_debug' ]);
+    grunt.registerTask('release-debug', [ 'jshint', 'typescript', 'concat:dev', 'index_debug' ]);
 
     grunt.registerTask('devel', [ 'release-debug', 'reload', 'watch' ]);
 
