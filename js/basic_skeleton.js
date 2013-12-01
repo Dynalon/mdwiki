@@ -193,7 +193,8 @@
 
         // adds a link to the navigation at the top of the page
         function addJumpLinkToTOC($heading) {
-            var $jumpLink = $('<a class="visible-xs visible-sm" href="#md-page-menu">[⬆]</a>');
+            var c = $.md.config.tocAnchor;
+            var $jumpLink = $('<a class="visible-xs visible-sm" href="#md-page-menu">' + c + '</a>');
             $jumpLink.click(function(ev) {
                 ev.preventDefault();
 
