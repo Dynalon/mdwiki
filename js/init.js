@@ -21,7 +21,8 @@
         useSideMenu: true,
         lineBreaks: 'gfm',
         additionalFooterText: '',
-        anchorCharacter: '&para;'
+        anchorCharacter: '&para;',
+        tocAnchor: '[&#11014;]'
     };
 
 

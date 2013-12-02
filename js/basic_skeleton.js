@@ -191,6 +191,19 @@
             $pilcrow.appendTo($heading);
         }
 
+        // adds a link to the navigation at the top of the page
+        function addJumpLinkToTOC($heading) {
+            var c = $.md.config.tocAnchor;
+            var $jumpLink = $('<a class="visible-xs visible-sm" href="#md-page-menu">' + c + '</a>');
+            $jumpLink.click(function(ev) {
+                ev.preventDefault();
+
+                $('body').scrollTop($('#md-page-menu').position().top);
+            });        
+
+            $jumpLink.insertAfter($heading);
+        }
+
         // adds a page inline anchor to each h1,h2,h3,h4,h5,h6 element
         // which can be accessed by the headings text
         $('h1,h2,h3,h4,h5,h6').not('#md-title h1').each (function () {
@@ -199,6 +212,10 @@
             var text = $heading.clone().children('.anchor-highlight').remove().end().text();
             var href = $.md.util.getInpageAnchorHref(text);
             addPilcrow($heading, href);
+
+            //add jumplink to table of contents
+            addJumpLinkToTOC($heading);
+            
         });
     }
 
