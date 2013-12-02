@@ -23,6 +23,7 @@
 
 [Examples](examples.md)
 [Download](download.md)
+[Contribute](contribute/index.md)
 [Forum](forum.md)
 
 
