@@ -194,12 +194,15 @@
         // adds a link to the navigation at the top of the page
         function addJumpLinkToTOC($heading) {
             var c = $.md.config.tocAnchor;
+            if (c === '' || heading_index === 0)
+                return;
+
             var $jumpLink = $('<a class="visible-xs visible-sm" href="#md-page-menu">' + c + '</a>');
             $jumpLink.click(function(ev) {
                 ev.preventDefault();
 
                 $('body').scrollTop($('#md-page-menu').position().top);
-            });        
+            });
 
             $jumpLink.insertAfter($heading);
         }
@@ -215,7 +218,6 @@
 
             //add jumplink to table of contents
             addJumpLinkToTOC($heading);
-            
         });
     }
 
