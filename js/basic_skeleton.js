@@ -194,7 +194,7 @@
         // adds a link to the navigation at the top of the page
         function addJumpLinkToTOC($heading) {
             var c = $.md.config.tocAnchor;
-            if (c === '' || heading_index === 0)
+            if (c === '')
                 return;
 
             var $jumpLink = $('<a class="visible-xs visible-sm" href="#md-page-menu">' + c + '</a>');
