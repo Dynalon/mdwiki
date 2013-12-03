@@ -22,7 +22,7 @@
         lineBreaks: 'gfm',
         additionalFooterText: '',
         anchorCharacter: '&para;',
-        tocAnchor: '[&#11014;]'
+        tocAnchor: '[ &uarr; ]'
     };
 
 

@@ -197,14 +197,16 @@
             if (c === '')
                 return;
 
-            var $jumpLink = $('<a class="visible-xs visible-sm" href="#md-page-menu">' + c + '</a>');
+            var $jumpLink = $('<a class="visible-xs visible-sm jumplink" href="#md-page-menu">' + c + '</a>');
             $jumpLink.click(function(ev) {
                 ev.preventDefault();
 
                 $('body').scrollTop($('#md-page-menu').position().top);
             });
 
-            $jumpLink.insertAfter($heading);
+            if ($heading.parents('#md-menu').length === 0) {
+                $jumpLink.insertAfter($heading);
+            }
         }
 
         // adds a page inline anchor to each h1,h2,h3,h4,h5,h6 element
