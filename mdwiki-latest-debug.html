@@ -1341,7 +1341,7 @@ if (typeof exports === 'object') {
         lineBreaks: 'gfm',
         additionalFooterText: '',
         anchorCharacter: '&para;',
-        tocAnchor: '[&#11014;]'
+        tocAnchor: '[ &uarr; ]'
     };
 
 
@@ -2611,14 +2611,16 @@ if (typeof exports === 'object') {
             if (c === '')
                 return;
 
-            var $jumpLink = $('<a class="visible-xs visible-sm" href="#md-page-menu">' + c + '</a>');
+            var $jumpLink = $('<a class="visible-xs visible-sm jumplink" href="#md-page-menu">' + c + '</a>');
             $jumpLink.click(function(ev) {
                 ev.preventDefault();
 
                 $('body').scrollTop($('#md-page-menu').position().top);
             });
 
-            $jumpLink.insertAfter($heading);
+            if ($heading.parents('#md-menu').length === 0) {
+                $jumpLink.insertAfter($heading);
+            }
         }
 
         // adds a page inline anchor to each h1,h2,h3,h4,h5,h6 element
@@ -2772,7 +2774,6 @@ if (typeof exports === 'object') {
     // and window/device width. Therefore recalculate on start and upon window resize
     function set_offset_to_navbar () {
         var height = $('#md-main-navbar').height();
-        console.log('setting to ' + height);
         $('#md-body').css('margin-top', height + 'px');
     }
     function check_offset_to_navbar () {
