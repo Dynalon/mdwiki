@@ -81,6 +81,27 @@
         return '#!' + href + '#' + subhash;
     };
 
+    $.md.util.repeatUntil = function (interval, predicate, maxRepeats) {
+        maxRepeats = maxRepeats || 10;
+        var dfd = $.Deferred();
+        function recursive_repeat (interval, predicate, maxRepeats) {
+            if (maxRepeats === 0) {
+                dfd.reject();
+                return;
+            }
+            if (predicate()) {
+                dfd.resolve();
+                return;
+            } else {
+                $.md.util.wait(interval).always(function () {
+                    recursive_repeat(interval, predicate, maxRepeats - 1);
+                });
+            }
+        }
+        recursive_repeat(interval, predicate, maxRepeats);
+        return dfd;
+    };
+
     // a count-down latch as in Java7.
     $.md.util.countDownLatch = function (capacity, min) {
         min = min || 0;
