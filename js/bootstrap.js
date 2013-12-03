@@ -113,7 +113,6 @@
     // and window/device width. Therefore recalculate on start and upon window resize
     function set_offset_to_navbar () {
         var height = $('#md-main-navbar').height();
-        console.log('setting to ' + height);
         $('#md-body').css('margin-top', height + 'px');
     }
     function check_offset_to_navbar () {
