@@ -6,6 +6,8 @@ node_js:
   - 0.8
 before_script:
   - npm install -g grunt-cli
+  - npm install -g tsd
+  - tsd install jquery
 script:
   - grunt release-fat release-slim release-debug
 
