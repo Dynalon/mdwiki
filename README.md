@@ -1,4 +1,4 @@
-![Travis build status](https://api.travis-ci.org/Dynalon/mdwiki.png)
+[![Build Status](https://travis-ci.org/Dynalon/mdwiki.png?branch=typescript)](https://travis-ci.org/Dynalon/mdwiki)
 
 
 MDwiki
