@@ -102,12 +102,47 @@
         $('#md-menu h1').remove();
         $('a.navbar-brand').text(brand_text);
 
-
-        // then comes md-title, and afterwards md-content
-        // offset md-title to account for the fixed menu space
-        // 50px is the menu width + 20px spacing until first text
-        // or heading
+        // initial offset
         $('#md-body').css('margin-top', '70px');
+        $.md.stage('pregimmick').subscribe(function (done) {
+            check_offset_to_navbar();
+            done();
+        });
+    }
+    // the navbar has different height depending on theme, number of navbar entries,
+    // and window/device width. Therefore recalculate on start and upon window resize
+    function set_offset_to_navbar () {
+        var height = $('#md-main-navbar').height();
+        console.log('setting to ' + height);
+        $('#md-body').css('margin-top', height + 'px');
+    }
+    function check_offset_to_navbar () {
+        // HACK this is VERY UGLY. When an external theme is used, we don't know when the
+        // css style will be finished loading - and we can only correctly calculate
+        // the height AFTER it has completely loaded.
+        var navbar_height = 0;
+
+        var dfd1 = $.md.util.repeatUntil(40, function() {
+            navbar_height = $('#md-main-navbar').height();
+            return (navbar_height > 35) && (navbar_height < 481);
+        }, 25);
+
+        dfd1.done(function () {
+            navbar_height = $('#md-main-navbar').height();
+            set_offset_to_navbar();
+            // now bootstrap changes this maybe after a while, again watch for changes
+            var dfd2 = $.md.util.repeatUntil(20, function () {
+                return navbar_height !== $('#md-main-navbar').height();
+            }, 25);
+            dfd2.done(function() {
+                // it changed, so we need to change it again
+                set_offset_to_navbar();
+            });
+            // and finally, for real slow computers, make sure it is changed if changin very late
+            $.md.util.wait(2000).done(function () {
+                set_offset_to_navbar();
+            });
+        });
     }
     function buildSubNav() {
         // replace with the navbar skeleton
@@ -285,6 +320,7 @@
 
         $(window).resize(function () {
             recalc_width($('#md-page-menu'));
+            check_offset_to_navbar();
         });
         $.md.stage('postgimmick').subscribe(function (done) {
             // recalc_width();
