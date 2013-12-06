@@ -195,7 +195,7 @@
         function addJumpLinkToTOC($heading) {
             if($.md.config.useSideMenu === false) return;
             if($heading.prop("tagName") !== 'H2') return;
-
+            
             var c = $.md.config.tocAnchor;
             if (c === '')
                 return;
@@ -208,7 +208,7 @@
             });
 
             if ($heading.parents('#md-menu').length === 0) {
-                $jumpLink.insertBefore($heading);
+                $jumpLink.insertAfter($heading);
             }
         }
 
