@@ -194,6 +194,7 @@
         // adds a link to the navigation at the top of the page
         function addJumpLinkToTOC($heading) {
             if($.md.config.useSideMenu === false) return;
+            if($heading.prop("tagName") !== 'H2') return;
             
             var c = $.md.config.tocAnchor;
             if (c === '')
