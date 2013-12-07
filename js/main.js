@@ -280,13 +280,23 @@
             }
 
             var navHtml = marked(navMD);
-            var h = $('<div>' + navHtml + '</div>');
-            // TODO .html() is evil!!!
-            h.find('p').each(function(i,e) {
-                var el = $(e);
-                el.replaceWith(el.html());
+            // TODO why are <script> tags from navHtml APPENDED to the jqcol?
+            var $h = $('<div>' + navHtml + '</div>');
+
+            // insert <scripts> from navigation.md into the DOM
+            $h.each(function (i,e) {
+                if (e.tagName === 'SCRIPT') {
+                    $('script').first().before(e);
+                }
             });
-            $('#md-menu').append(h.html());
+
+            // TODO .html() is evil!!!
+            var $navContent = $h.eq(0);
+            $navContent.find('p').each(function(i,e) {
+                var $el = $(e);
+                $el.replaceWith($el.html());
+            });
+            $('#md-menu').append($navContent.html());
             done();
         });
 
