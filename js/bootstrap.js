@@ -242,7 +242,8 @@
     function createPageContentMenu () {
 
         // assemble the menu
-        var $headings = $('#md-content').find('h2').clone();
+        var $headings = $('#md-content').find('h2,h3').clone();
+
         // we dont want the text of any child nodes
         $headings.children().remove();
 
@@ -299,9 +300,22 @@
         var $pannel = $('<div class="panel panel-default"><ul class="list-group"/></div>');
         var $ul = $pannel.find("ul");
         affixDiv.append($pannel);
+        var $subul;
 
         $headings.each(function(i,e) {
             var $heading = $(e);
+            var isSub = $heading.prop('tagName') === 'H3';
+
+            if((!isSub) && ($subul)) {
+                var $parentli = $('<li />');
+                $parentli.append($subul);
+                $ul.append($parentli);
+                $subul = undefined;
+            }
+
+            if((!$subul) && (isSub)) 
+                $subul = $('<ul class="nav" />');
+
             var $li = $('<li class="list-group-item" />');
             var $a = $('<a />');
             $a.attr('href', $.md.util.getInpageAnchorHref($heading.toptext()));
@@ -314,8 +328,20 @@
             });
             $a.text($heading.toptext());
             $li.append($a);
-            $ul.append($li);
+            
+            if(!isSub) {
+                $ul.append($li);
+            } else {
+                $subul.append($li);
+            }
         });
+
+        if($subul) { 
+            var $parentli = $('<li class="list-group-item" />');
+            $parentli.append($subul);
+            $ul.append($parentli);
+            $subul = undefined;
+        }
 
         $(window).resize(function () {
             recalc_width($('#md-page-menu'));
