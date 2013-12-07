@@ -242,12 +242,17 @@
     function createPageContentMenu () {
 
         // assemble the menu
-        var $headings = $('#md-content').find('h2,h3').clone();
+        var headings = [];
+        $('#md-content').find('h2').each(function(i,e){
+            var $h2 = $(e);
+            var heading = {
+                el: $h2.clone(),
+                subs: $h2.nextUntil('h2','h3').clone()
+            };
+            headings.push(heading);
+        });
 
-        // we dont want the text of any child nodes
-        $headings.children().remove();
-
-        if ($headings.length <= 1) {
+        if (headings.length <= 1) {
             return;
         }
 
@@ -297,26 +302,13 @@
         affixDiv.css('top', top_spacing);
         //affix.css('top','-250px');
 
-        var $pannel = $('<div class="panel panel-default"><ul class="list-group"/></div>');
+        var $pannel = $('<div class="panel panel-default"><ul class="nav"/></div>');
         var $ul = $pannel.find("ul");
         affixDiv.append($pannel);
-        var $subul;
 
-        $headings.each(function(i,e) {
-            var $heading = $(e);
-            var isSub = $heading.prop('tagName') === 'H3';
-
-            if((!isSub) && ($subul)) {
-                var $parentli = $('<li />');
-                $parentli.append($subul);
-                $ul.append($parentli);
-                $subul = undefined;
-            }
-
-            if((!$subul) && (isSub)) 
-                $subul = $('<ul class="nav" />');
-
-            var $li = $('<li class="list-group-item" />');
+        function createli(heading) {
+            var $heading = $(heading);
+            var $li = $('<li />');
             var $a = $('<a />');
             $a.attr('href', $.md.util.getInpageAnchorHref($heading.toptext()));
             $a.click(function(ev) {
@@ -328,20 +320,23 @@
             });
             $a.text($heading.toptext());
             $li.append($a);
-            
-            if(!isSub) {
-                $ul.append($li);
-            } else {
-                $subul.append($li);
-            }
-        });
-
-        if($subul) { 
-            var $parentli = $('<li class="list-group-item" />');
-            $parentli.append($subul);
-            $ul.append($parentli);
-            $subul = undefined;
+            return $li;
         }
+
+        $(headings).each(function(i,e) {
+
+            var $h2 = createli(e.el);
+
+            if(e.subs.length > 0) {
+                var $sub = $('<ul class="nav" />');
+                e.subs.each(function(i,e){
+                    $sub.append(createli(e));
+                });
+                $h2.append($sub);
+            }
+
+            $ul.append($h2);
+        });
 
         $(window).resize(function () {
             recalc_width($('#md-page-menu'));
