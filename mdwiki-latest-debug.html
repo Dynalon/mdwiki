@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <!--
-   This is MDwiki v0.7.0
+   This is MDwiki v0.6.0
    (C) 2013 by Timo Dörr and contributors. This software is licensed
    under the terms of the GNU GPLv3 with additional terms applied.
    See https://github.com/Dynalon/mdwiki/blob/master/LICENSE.txt for more detail.
@@ -2776,7 +2776,7 @@ if (typeof exports === 'object') {
     // the navbar has different height depending on theme, number of navbar entries,
     // and window/device width. Therefore recalculate on start and upon window resize
     function set_offset_to_navbar () {
-        var height = $('#md-main-navbar').height();
+        var height = $('#md-main-navbar').height() + 10;
         $('#md-body').css('margin-top', height + 'px');
     }
     function check_offset_to_navbar () {
