@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <!--
-   This is MDwiki v0.7.0
+   This is MDwiki v0.5.8
    (C) 2013 by Timo Dörr and contributors. This software is licensed
    under the terms of the GNU GPLv3 with additional terms applied.
    See https://github.com/Dynalon/mdwiki/blob/master/LICENSE.txt for more detail.
@@ -1340,8 +1340,7 @@ if (typeof exports === 'object') {
         useSideMenu: true,
         lineBreaks: 'gfm',
         additionalFooterText: '',
-        anchorCharacter: '&para;',
-        tocAnchor: '[ &uarr; ]'
+        anchorCharacter: '&para;'
     };
 
 
@@ -1394,697 +1393,6 @@ if (typeof exports === 'object') {
 
         return logger;
     };
-}(jQuery));
-
-(function($) {
-    'use strict';
-    var log = $.md.getLogger();
-
-    $.Stage = function(name) {
-        var self = $.extend($.Deferred(), {});
-        self.name = name;
-        self.events = [];
-        self.started = false;
-
-        self.reset = function() {
-            self.complete = $.Deferred();
-            self.outstanding = [];
-        };
-
-        self.reset();
-
-        self.subscribe = function(fn) {
-            if (self.started) {
-                $.error('Subscribing to stage which already started!');
-            }
-            self.events.push(fn);
-        };
-        self.unsubscribe = function(fn) {
-            self.events.remove(fn);
-        };
-
-        self.executeSubscribedFn = function (fn) {
-            var d = $.Deferred();
-            self.outstanding.push(d);
-
-            // display an error if our done() callback is not called
-            $.md.util.wait(2500).done(function() {
-                if(d.state() !== 'resolved') {
-                    log.fatal('Timeout reached for done callback in stage: ' + self.name +
-                        '. Did you forget a done() call in a .subscribe() ?');
-                    log.fatal('stage ' + name + ' failed running subscribed function: ' + fn );
-                }
-            });
-
-            var done = function() {
-                d.resolve();
-            };
-            fn(done);
-        };
-
-        self.run = function() {
-            self.started = true;
-            $(self.events).each(function (i,fn) {
-                self.executeSubscribedFn(fn);
-            });
-
-            // if no events are in our queue, we resolve immediately
-            if (self.outstanding.length === 0) {
-                self.resolve();
-            }
-
-            // we resolve when all our registered events have completed
-            $.when.apply($, self.outstanding)
-            .done(function() {
-                self.resolve();
-            })
-            .fail(function() {
-                self.resolve();
-            });
-        };
-
-        self.done(function() {
-            log.debug('stage ' + self.name + ' completed successfully.');
-        });
-        self.fail(function() {
-            log.debug('stage ' + self.name + ' completed with errors!');
-        });
-        return self;
-    };
-}(jQuery));
-
-(function($) {
-    'use strict';
-
-    var log = $.md.getLogger();
-
-    function init() {
-        $.md.stages = [
-            $.Stage('init'),
-
-            // loads config, initial markdown and navigation
-            $.Stage('load'),
-
-            // will transform the markdown to html
-            $.Stage('transform'),
-
-            // HTML transformation finished
-            $.Stage('ready'),
-
-            // after we have a polished html skeleton
-            $.Stage('skel_ready'),
-
-            // will bootstrapify the skeleton
-            $.Stage('bootstrap'),
-
-            // before we run any gimmicks
-            $.Stage('pregimmick'),
-
-            // after we have bootstrapified the skeleton
-            $.Stage('gimmick'),
-
-            // postprocess
-            $.Stage('postgimmick'),
-
-            $.Stage('all_ready'),
-
-            // used for integration tests, not intended to use in MDwiki itself
-            $.Stage('final_tests')
-        ];
-
-        $.md.stage = function(name) {
-            var m = $.grep($.md.stages, function(e,i) {
-                return e.name === name;
-            });
-            if (m.length === 0) {
-                $.error('A stage by name ' + name + '  does not exist');
-            } else {
-                return m[0];
-            }
-        };
-    }
-    init();
-
-    function resetStages() {
-        var old_stages = $.md.stages;
-        $.md.stages = [];
-        $(old_stages).each(function(i,e) {
-            $.md.stages.push($.Stage(e.name));
-        });
-    }
-
-    var publicMethods = {};
-    $.md.publicMethods = $.extend ({}, $.md.publicMethods, publicMethods);
-
-    function transformMarkdown (markdown) {
-        var options = {
-            gfm: true,
-            tables: true,
-            breaks: true
-        };
-        if ($.md.config.lineBreaks === 'original')
-            options.breaks = false;
-        else if ($.md.config.lineBreaks === 'gfm')
-            options.breaks = true;
-
-        marked.setOptions(options);
-
-        // get sample markdown
-        var uglyHtml = marked(markdown);
-        return uglyHtml;
-    }
-
-    function registerFetchMarkdown() {
-
-        var md = '';
-
-        $.md.stage('init').subscribe(function(done) {
-            var ajaxReq = {
-                url: $.md.mainHref,
-                dataType: 'text'
-            };
-            $.ajax(ajaxReq).done(function(data) {
-                // TODO do this elsewhere
-                md = data;
-                done();
-            }).fail(function() {
-                var log = $.md.getLogger();
-                log.fatal('Could not get ' + $.md.mainHref);
-                done();
-            });
-        });
-
-        // find baseUrl
-        $.md.stage('transform').subscribe(function(done) {
-            var len = $.md.mainHref.lastIndexOf('/');
-            var baseUrl = $.md.mainHref.substring(0, len+1);
-            $.md.baseUrl = baseUrl;
-            done();
-        });
-
-        $.md.stage('transform').subscribe(function(done) {
-            var uglyHtml = transformMarkdown(md);
-            $('#md-content').html(uglyHtml);
-            md = '';
-            var dfd = $.Deferred();
-            loadExternalIncludes(dfd);
-            dfd.always(function () {
-                done();
-            });
-        });
-    }
-
-    // load [include](/foo/bar.md) external links
-    function loadExternalIncludes(parent_dfd) {
-
-        function findExternalIncludes () {
-            return $('a').filter (function () {
-                var href = $(this).attr('href');
-                var text = $(this).toptext();
-                var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
-                var isInclude = text === 'include';
-                var isPreview = text.startsWith('preview:');
-                return (isInclude || isPreview) && isMarkdown;
-            });
-        }
-
-        function selectPreviewElements ($jqcol, num_elements) {
-            function isTextNode(node) {
-                return node.nodeType === 3;
-            }
-            var count = 0;
-            var elements = [];
-            $jqcol.each(function (i,e) {
-                if (count < num_elements) {
-                    elements.push(e);
-                    if (!isTextNode(e)) count++;
-                }
-            });
-            return $(elements);
-        }
-
-        var external_links = findExternalIncludes ();
-        // continue execution when all external resources are fully loaded
-        var latch = $.md.util.countDownLatch (external_links.length);
-        latch.always (function () {
-            parent_dfd.resolve();
-        });
-
-        external_links.each(function (i,e) {
-            var $el = $(e);
-            var href = $el.attr('href');
-            var text = $el.toptext();
-
-            $.ajax({
-                url: href,
-                dataType: 'text'
-            })
-            .done(function (data) {
-                var $html = $(transformMarkdown(data));
-                if (text.startsWith('preview:')) {
-                    // only insert the selected number of paragraphs; default 3
-                    var num_preview_elements = parseInt(text.substring(8), 10) ||3;
-                    var $preview = selectPreviewElements ($html, num_preview_elements);
-                    $preview.last().append('<a href="' + href +'"> ...read more &#10140;</a>');
-                    $preview.insertBefore($el.parent('p').eq(0));
-                    $el.remove();
-                } else {
-                    $html.insertAfter($el.parents('p'));
-                    $el.remove();
-                }
-            }).always(function () {
-                latch.countDown();
-            });
-        });
-    }
-
-    // modify internal links so we load them through our engine
-    function processPageLinks(domElement, baseUrl) {
-        var html = $(domElement);
-        if (baseUrl === undefined) {
-            baseUrl = '';
-        }
-        // HACK against marked: empty links will have empy href attribute
-        // we remove the href attribute from the a tag
-        html.find('a').not('#md-menu a').filter(function () {
-            var $this = $(this);
-            var attr = $this.attr('href');
-            if (!attr || attr.length === 0)
-                $this.removeAttr('href');
-        });
-
-        html.find('a, img').each(function(i,e) {
-            var link = $(e);
-            // link must be jquery collection
-            var isImage = false;
-            var hrefAttribute = 'href';
-
-            if (!link.attr(hrefAttribute)) {
-                isImage = true;
-                hrefAttribute = 'src';
-            }
-            var href = link.attr(hrefAttribute);
-
-            if (href && href.lastIndexOf ('#!') >= 0)
-                return;
-
-            if (!isImage && href.startsWith ('#') && !href.startsWith('#!')) {
-                // in-page link
-                link.click(function(ev) {
-                    ev.preventDefault();
-                    $.md.scrollToInPageAnchor (href);
-                });
-            }
-
-            if (! $.md.util.isRelativeUrl(href))
-                return;
-
-            if (isImage && ! $.md.util.isRelativePath(href))
-                return;
-
-            if (!isImage && $.md.util.isGimmickLink(link))
-                return;
-
-            function build_link (url) {
-                if ($.md.util.hasMarkdownFileExtension (url))
-                    return '#!' + url;
-                else
-                    return url;
-            }
-
-            var newHref = baseUrl + href;
-            if (isImage)
-                link.attr(hrefAttribute, newHref);
-            else if ($.md.util.isRelativePath (href))
-                link.attr(hrefAttribute, build_link(newHref));
-            else
-                link.attr(hrefAttribute, build_link(href));
-        });
-    }
-
-    var navMD = '';
-    $.md.NavigationDfd = $.Deferred();
-    var ajaxReq = {
-        url: 'navigation.md',
-        dataType: 'text'
-    };
-    $.ajax(ajaxReq).done(function(data) {
-        navMD = data;
-        $.md.NavigationDfd.resolve();
-    }).fail(function() {
-        $.md.NavigationDfd.reject();
-    });
-
-    function registerBuildNavigation() {
-
-        $.md.stage('init').subscribe(function(done) {
-            $.md.NavigationDfd.done(function() {
-                done();
-            })
-            .fail(function() {
-                done();
-            });
-        });
-
-        $.md.stage('transform').subscribe(function(done) {
-            if (navMD === '') {
-                var log = $.md.getLogger();
-                log.info('no navgiation.md found, not using a navbar');
-                done();
-                return;
-            }
-
-            var navHtml = marked(navMD);
-            var h = $('<div>' + navHtml + '</div>');
-            // TODO .html() is evil!!!
-            h.find('p').each(function(i,e) {
-                var el = $(e);
-                el.replaceWith(el.html());
-            });
-            $('#md-menu').append(h.html());
-            done();
-        });
-
-        $.md.stage('bootstrap').subscribe(function(done) {
-            processPageLinks($('#md-menu'));
-            done();
-        });
-
-        $.md.stage('postgimmick').subscribe(function(done) {
-            var num_links = $('#md-menu a').length;
-            var has_header = $('#md-menu .navbar-brand').eq(0).toptext().trim().length > 0;
-            if (!has_header && num_links <= 1)
-                $('#md-menu').hide();
-
-            done();
-        });
-    }
-
-    $.md.ConfigDfd = $.Deferred();
-    $.ajax({url: 'config.json', dataType: 'text'}).done(function(data) {
-        try {
-            var data_json = JSON.parse(data);
-            $.md.config = $.extend($.md.config, data_json);
-            log.info('Found a valid config.json file, using configuration');
-        } catch(err) {
-            log.error('config.json was not JSON parsable: ' + err);
-        }
-        $.md.ConfigDfd.resolve();
-    }).fail(function(err, textStatus) {
-        log.error('unable to retrieve config.json: ' + textStatus);
-        $.md.ConfigDfd.reject();
-    });
-    function registerFetchConfig() {
-
-        $.md.stage('init').subscribe(function(done) {
-            // TODO 404 won't get cached, requesting it every reload is not good
-            // maybe use cookies? or disable re-loading of the page
-            //$.ajax('config.json').done(function(data){
-            $.md.ConfigDfd.done(function(){
-                done();
-            }).fail(function() {
-                var log = $.md.getLogger();
-                log.info('No config.json found, using default settings');
-                done();
-            });
-        });
-    }
-
-    function registerClearContent() {
-
-        $.md.stage('init').subscribe(function(done) {
-            $('#md-all').empty();
-            var skel ='<div id="md-body"><div id="md-title"></div><div id="md-menu">'+
-                '</div><div id="md-content"></div></div>';
-            $('#md-all').prepend($(skel));
-            done();
-        });
-
-    }
-    function loadContent(href) {
-        $.md.mainHref = href;
-
-        registerFetchMarkdown();
-        registerClearContent();
-
-        // find out which link gimmicks we need
-        $.md.stage('ready').subscribe(function(done) {
-            $.md.initializeGimmicks();
-            $.md.registerLinkGimmicks();
-            done();
-        });
-
-        // wire up the load method of the modules
-        $.each($.md.gimmicks, function(i, module) {
-            if (module.load === undefined) {
-                return;
-            }
-            $.md.stage('load').subscribe(function(done) {
-                module.load();
-                done();
-            });
-        });
-
-        $.md.stage('ready').subscribe(function(done) {
-            $.md('createBasicSkeleton');
-            done();
-        });
-
-        $.md.stage('bootstrap').subscribe(function(done){
-            $.mdbootstrap('bootstrapify');
-            processPageLinks($('#md-content'), $.md.baseUrl);
-            done();
-        });
-        runStages();
-    }
-
-    function runStages() {
-
-        // wire the stages up
-        $.md.stage('init').done(function() {
-            $.md.stage('load').run();
-        });
-        $.md.stage('load').done(function() {
-            $.md.stage('transform').run();
-        });
-        $.md.stage('transform').done(function() {
-            $.md.stage('ready').run();
-        });
-        $.md.stage('ready').done(function() {
-            $.md.stage('skel_ready').run();
-        });
-        $.md.stage('skel_ready').done(function() {
-            $.md.stage('bootstrap').run();
-        });
-        $.md.stage('bootstrap').done(function() {
-            $.md.stage('pregimmick').run();
-        });
-        $.md.stage('pregimmick').done(function() {
-            $.md.stage('gimmick').run();
-        });
-        $.md.stage('gimmick').done(function() {
-            $.md.stage('postgimmick').run();
-        });
-        $.md.stage('postgimmick').done(function() {
-            $.md.stage('all_ready').run();
-        });
-        $.md.stage('all_ready').done(function() {
-            $('html').removeClass('md-hidden-load');
-
-            // phantomjs hook when we are done
-            if (typeof window.callPhantom === 'function') {
-                window.callPhantom({});
-            }
-
-            $.md.stage('final_tests').run();
-        });
-        $.md.stage('final_tests').done(function() {
-            // reset the stages for next iteration
-            resetStages();
-
-            // required by dalekjs so we can wait the element to appear
-            $('body').append('<span id="start-tests"></span>');
-            $('#start-tests').hide();
-        });
-
-        // trigger the whole process by runing the init stage
-        $.md.stage('init').run();
-        return;
-    }
-
-    function extractHashData() {
-        // first char is the # or #!
-        var href;
-        if (window.location.hash.startsWith('#!')) {
-            href = window.location.hash.substring(2);
-        } else {
-            href = window.location.hash.substring(1);
-        }
-        href = decodeURIComponent(href);
-
-        // extract possible in-page anchor
-        var ex_pos = href.indexOf('#');
-        if (ex_pos !== -1) {
-            $.md.inPageAnchor = href.substring(ex_pos + 1);
-            $.md.mainHref = href.substring(0, ex_pos);
-        } else {
-            $.md.mainHref = href;
-        }
-    }
-
-    function appendDefaultFilenameToHash () {
-        var newHashString = '';
-        var currentHashString = window.location.hash || '';
-        if (currentHashString === '' ||
-            currentHashString === '#'||
-            currentHashString === '#!')
-        {
-            newHashString = '#!index.md';
-        }
-        else if (currentHashString.startsWith ('#!') &&
-                 currentHashString.endsWith('/')
-                ) {
-            newHashString = currentHashString + 'index.md';
-        }
-        if (newHashString)
-            window.location.hash = newHashString;
-    }
-
-    $(document).ready(function () {
-
-        // stage init stuff
-        registerFetchConfig();
-        registerBuildNavigation();
-        extractHashData();
-
-        appendDefaultFilenameToHash();
-
-        $(window).bind('hashchange', function () {
-            window.location.reload(false);
-        });
-
-        loadContent($.md.mainHref);
-    });
-}(jQuery));
-
-(function($) {
-    var publicMethods = {
-        isRelativeUrl: function(url) {
-            if (url === undefined) {
-                return false;
-            }
-            // if there is :// in it, its considered absolute
-            // else its relative
-            if (url.indexOf('://') === -1) {
-                return true;
-            } else {
-                return false;
-            }
-        },
-        isRelativePath: function(path) {
-            if (path === undefined)
-                return false;
-            if (path.startsWith('/'))
-                return false;
-            return true;
-        },
-        isGimmickLink: function(domAnchor) {
-            if (domAnchor.toptext().indexOf ('gimmick:') !== -1) {
-                return true;
-            } else {
-                return false;
-            }
-        },
-        hasMarkdownFileExtension: function (str) {
-            var markdownExtensions = [ '.md', '.markdown', '.mdown' ];
-            var result = false;
-            var value = str.toLowerCase().split('#')[0];
-            $(markdownExtensions).each(function (i,ext) {
-                if (value.toLowerCase().endsWith (ext)) {
-                    result = true;
-                }
-            });
-            return result;
-        },
-        wait: function(time) {
-            return $.Deferred(function(dfd) {
-                setTimeout(dfd.resolve, time);
-            });
-        }
-    };
-    $.md.util = $.extend ({}, $.md.util, publicMethods);
-
-    if (typeof String.prototype.startsWith !== 'function') {
-        String.prototype.startsWith = function(str) {
-            return this.slice(0, str.length) === str;
-        };
-    }
-    if (typeof String.prototype.endsWith !== 'function') {
-        String.prototype.endsWith = function(str) {
-            return this.slice(this.length - str.length, this.length) === str;
-        };
-    }
-
-    $.fn.extend ({
-        toptext: function () {
-            return this.clone().children().remove().end().text();
-        }
-    });
-
-    // adds a :icontains selector to jQuery that is case insensitive
-    $.expr[':'].icontains = $.expr.createPseudo(function(arg) {
-        return function(elem) {
-            return $(elem).toptext().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
-        };
-    });
-
-    $.md.util.getInpageAnchorText = function (text) {
-        var subhash = text.replace(/ /g, '_');
-        // TODO remove more unwanted characters like ?/,- etc.
-        return subhash;
-
-    };
-    $.md.util.getInpageAnchorHref = function (text, href) {
-        href = href || $.md.mainHref;
-        var subhash = $.md.util.getInpageAnchorText(text);
-        return '#!' + href + '#' + subhash;
-    };
-
-    $.md.util.repeatUntil = function (interval, predicate, maxRepeats) {
-        maxRepeats = maxRepeats || 10;
-        var dfd = $.Deferred();
-        function recursive_repeat (interval, predicate, maxRepeats) {
-            if (maxRepeats === 0) {
-                dfd.reject();
-                return;
-            }
-            if (predicate()) {
-                dfd.resolve();
-                return;
-            } else {
-                $.md.util.wait(interval).always(function () {
-                    recursive_repeat(interval, predicate, maxRepeats - 1);
-                });
-            }
-        }
-        recursive_repeat(interval, predicate, maxRepeats);
-        return dfd;
-    };
-
-    // a count-down latch as in Java7.
-    $.md.util.countDownLatch = function (capacity, min) {
-        min = min || 0;
-        var dfd = $.Deferred();
-        if (capacity <= min) dfd.resolve();
-        dfd.capacity = capacity;
-        dfd.countDown = function () {
-            dfd.capacity--;
-            if (dfd.capacity <= min)
-                dfd.resolve();
-        };
-        return dfd;
-    };
-
 }(jQuery));
 
 (function($) {
@@ -2412,6 +1720,899 @@ if (typeof exports === 'object') {
     }
 }(jQuery));
 
+var Resource = (function () {
+    function Resource(url, dataType) {
+        if (typeof dataType === "undefined") { dataType = 'text'; }
+        this.url = url;
+        this.dataType = dataType;
+    }
+    Resource.fetch = function (url, dataType) {
+        if (typeof dataType === "undefined") { dataType = 'text'; }
+        var jqxhr = $.ajax({
+            url: url,
+            dataType: dataType
+        });
+        return jqxhr;
+    };
+    return Resource;
+})();
+
+var StageChain = (function () {
+    function StageChain() {
+        this.stages = [];
+    }
+    StageChain.prototype.reset = function () {
+        var new_stages = [];
+        for (var i = 0; i < this.stages.length; i++) {
+            var name = this.stages[i].name;
+            new_stages.push(new Stage(name));
+        }
+    };
+    StageChain.prototype.appendArray = function (st) {
+        var _this = this;
+        st.map(function (s) {
+            return _this.append(s);
+        });
+    };
+    StageChain.prototype.append = function (s) {
+        var len = this.stages.length;
+        if (len == 0) {
+            this.stages.push(s);
+            return;
+        }
+        var last = this.stages[len - 1];
+        last.finished().done(function () {
+            return s.start();
+        });
+        this.stages.push(s);
+    };
+    StageChain.prototype.run = function () {
+        this.stages[0].start();
+    };
+
+    StageChain.prototype.getStage = function (name) {
+        return this.stages.filter(function (s) {
+            return s.name == name;
+        })[0];
+    };
+    return StageChain;
+})();
+
+var Stage = (function () {
+    function Stage(name) {
+        this.started = false;
+        this.subscribedFuncs = [];
+        this.allFinishedDfd = $.Deferred();
+        this.name = name;
+    }
+    Stage.prototype.finished = function () {
+        return this.allFinishedDfd;
+    };
+
+    Stage.prototype.subscribe = function (fn) {
+        if (this.started)
+            throw 'Stage already started';
+
+        this.subscribedFuncs.push(fn);
+    };
+
+    Stage.prototype.start = function () {
+        var _this = this;
+        console.dir("running stage " + this.name);
+        this.started = true;
+        var num_outstanding = this.subscribedFuncs.length;
+
+        if (num_outstanding == 0) {
+            this.allFinishedDfd.resolve();
+            return;
+        }
+
+        this.subscribedFuncs.map(function (subbedFn) {
+            var doneCallback = function () {
+                --num_outstanding || _this.allFinishedDfd.resolve();
+            };
+            subbedFn(doneCallback);
+        });
+    };
+    return Stage;
+})();
+
+var Wiki = (function () {
+    function Wiki() {
+        var _this = this;
+        this.stages = new StageChain();
+        var stage_names = ([
+            'init', 'load', 'transform', 'ready', 'skel_ready',
+            'bootstrap', 'pregimmick', 'gimmick', 'postgimmick', 'all_ready',
+            'final_tests'
+        ]);
+        stage_names.map(function (n) {
+            return _this.stages.append(new Stage(n));
+        });
+    }
+    Wiki.prototype.run = function () {
+        this.registerCoreFunctionality();
+        this.registerFinalTasks();
+
+        this.stages.run();
+    };
+    Wiki.prototype.registerCoreFunctionality = function () {
+        var _this = this;
+        $.md.stage('init').subscribe(function (done) {
+            $.when(Resource.fetch('config.json'), Resource.fetch('navigation.md')).then(function (config, nav) {
+                var data_json = JSON.parse(config[0]);
+
+                $.md.config = $.extend($.md.config, data_json);
+
+                _this.registerBuildNavigation(nav[0]);
+                done();
+            });
+        });
+    };
+    Wiki.prototype.registerBuildNavigation = function (navMD) {
+        $.md.stage('transform').subscribe(function (done) {
+            if (navMD === '') {
+                var log = $.md.getLogger();
+                log.info('no navgiation.md found, not using a navbar');
+                done();
+                return;
+            }
+            var navHtml = marked(navMD);
+            var h = $('<div>' + navHtml + '</div>');
+
+            h.find('br').remove();
+            h.find('p').each(function (i, e) {
+                var el = $(e);
+                el.replaceWith(el.html());
+            });
+            $('#md-menu').append(h.html());
+            done();
+        });
+
+        $.md.stage('bootstrap').subscribe(function (done) {
+            $.md.processPageLinks($('#md-menu'));
+            done();
+        });
+
+        $.md.stage('postgimmick').subscribe(function (done) {
+            done();
+        });
+    };
+
+    Wiki.prototype.registerFinalTasks = function () {
+        $.md.stage('all_ready').finished().done(function () {
+            $('html').removeClass('md-hidden-load');
+
+            if (typeof window['callPhantom'] === 'function') {
+                window['callPhantom']({});
+            }
+        });
+        $.md.stage('final_tests').finished().done(function () {
+            $('body').append('<span id="start-tests"></span>');
+            $('#start-tests').hide();
+        });
+    };
+    return Wiki;
+})();
+
+(function ($) {
+    $.initMDwiki = function (name) {
+        $.md.wiki = new Wiki();
+
+        $.md.stage = function (name) {
+            return $.md.wiki.stages.getStage(name);
+        };
+    };
+}(jQuery));
+var Markdown = (function () {
+    function Markdown(markdownSource, options) {
+        if (typeof options === "undefined") { options = {}; }
+        this.defaultOptions = {
+            gfm: true,
+            tables: true,
+            breaks: true
+        };
+        this.markdownSource = markdownSource;
+        this.options = options;
+    }
+    Markdown.prototype.transform = function () {
+        marked.setOptions(this.options);
+        var uglyHtml = marked(this.markdownSource);
+        return uglyHtml;
+    };
+    return Markdown;
+})();
+
+var Navbar = (function () {
+    function Navbar(navbarMarkdown) {
+        this.navbarMarkdown = navbarMarkdown;
+        var md = new Markdown(navbarMarkdown);
+        this.uglyHtml = md.transform();
+    }
+    Navbar.prototype.render = function () {
+        var h = $('<div>' + this.uglyHtml + '</div>');
+
+        h.find('p').each(function (i, e) {
+            var el = $(e);
+            el.replaceWith(el.html());
+        });
+        $('#md-menu').append(h.html());
+    };
+    Navbar.prototype.hideIfHasNoLinks = function () {
+        var num_links = $('#md-menu a').length;
+        var has_header = $('#md-menu .navbar-brand').eq(0).toptext().trim().length > 0;
+        if (!has_header && num_links <= 1)
+            $('#md-menu').hide();
+    };
+    return Navbar;
+})();
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var StringUtil = (function () {
+    function StringUtil() {
+    }
+    StringUtil.startsWith = function (search, suffix) {
+        return search.slice(0, suffix.length) == suffix;
+    };
+    StringUtil.endsWith = function (search, prefix) {
+        return search.slice(search.length - prefix.length, search.length) == prefix;
+    };
+    return StringUtil;
+})();
+
+var Theme = (function () {
+    function Theme(name, styles, scripts) {
+        if (typeof scripts === "undefined") { scripts = []; }
+        this.name = name;
+        this.styles = styles;
+        this.scripts = scripts;
+    }
+    Theme.prototype.onLoad = function () {
+    };
+    return Theme;
+})();
+
+var BootswatchTheme = (function (_super) {
+    __extends(BootswatchTheme, _super);
+    function BootswatchTheme(name) {
+        _super.call(this, name, [], []);
+        this.baseUrl = '//netdna.bootstrapcdn.com/bootswatch/3.0.0/';
+        this.baseFilename = '/bootstrap.min.css';
+        this.styles = [this.url];
+    }
+    Object.defineProperty(BootswatchTheme.prototype, "url", {
+        get: function () {
+            return this.baseUrl + this.name + this.baseFilename;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return BootswatchTheme;
+})(Theme);
+
+var ThemeChooser = (function () {
+    function ThemeChooser() {
+        this.themes = [];
+    }
+    Object.defineProperty(ThemeChooser.prototype, "themeNames", {
+        get: function () {
+            return this.themes.map(function (t) {
+                return t.name;
+            });
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    Object.defineProperty(ThemeChooser.prototype, "currentTheme", {
+        get: function () {
+            var theme = window.localStorage.getItem("theme");
+            return theme;
+        },
+        set: function (val) {
+            if (val == '')
+                window.localStorage.removeItem("theme");
+            else
+                window.localStorage.setItem("theme", val);
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    ThemeChooser.prototype.register = function (theme) {
+        this.themes.push(theme);
+    };
+    ThemeChooser.prototype.loadDefaultTheme = function () {
+        this.load(this.currentTheme);
+    };
+
+    ThemeChooser.prototype.load = function (name) {
+        var target = this.themes.filter(function (t) {
+            return t.name == name;
+        });
+        if (target.length <= 0)
+            return;
+        else
+            this.applyTheme(target[0]);
+    };
+
+    ThemeChooser.prototype.applyTheme = function (theme) {
+        $('link[rel=stylesheet][href*="netdna.bootstrapcdn.com"]').remove();
+        var link_tag = this.createLinkTag(theme.styles[0]);
+        $('head').append(link_tag);
+    };
+
+    ThemeChooser.prototype.createLinkTag = function (url) {
+        return $('<link rel="stylesheet" type="text/css">').attr('href', url);
+    };
+    return ThemeChooser;
+})();
+
+(function ($) {
+    var themeChooserGimmick = {
+        name: 'Themes',
+        version: $.md.version,
+        once: function () {
+            var tc = new ThemeChooser();
+            registerDefaultThemes(tc);
+
+            $.md.stage('bootstrap').subscribe(function (done) {
+                tc.loadDefaultTheme();
+                done();
+            });
+
+            var build_chooser = function ($links, opt, text) {
+                themechooser($links, opt, text, tc);
+            };
+            var apply_theme = function ($links, opt, text) {
+                set_theme($links, opt, text, tc);
+            };
+
+            $.md.linkGimmick(this, 'themechooser', build_chooser, 'skel_ready');
+            $.md.linkGimmick(this, 'theme', apply_theme);
+        }
+    };
+    $.md.registerGimmick(themeChooserGimmick);
+
+    var set_theme = function ($links, opt, text, tc) {
+        opt.name = opt.name || text;
+        $links.each(function (i, link) {
+            $.md.stage('postgimmick').subscribe(function (done) {
+                if (!tc.currentTheme || tc.currentTheme == '')
+                    tc.load(opt.name);
+                done();
+            });
+        });
+        $links.remove();
+    };
+
+    function registerDefaultThemes(tc) {
+        var bootstrap = new Theme('bootstrap', ['netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css']);
+        tc.register(bootstrap);
+
+        var bootswatch_theme_names = [
+            'amelia', 'cerulean', 'cosmo', 'cyborg', 'flatly', 'journal',
+            'readable', 'simplex', 'slate', 'spacelab', 'united'
+        ];
+        bootswatch_theme_names.map(function (name) {
+            return tc.register(new BootswatchTheme(name));
+        });
+    }
+
+    var themechooser = function ($links, opt, text, tc) {
+        return $links.each(function (i, e) {
+            var $this = $(e);
+            var $chooser = $('<a href=""></a><ul></ul>');
+            $chooser.eq(0).text(text);
+
+            $.each(tc.themeNames, function (i, themeName) {
+                var $li = $('<li></li>');
+                $chooser.eq(1).append($li);
+                var $a = $('<a/>').text(themeName).attr('href', '').click(function (ev) {
+                    ev.preventDefault();
+                    tc.currentTheme = themeName;
+                    window.location.reload();
+                }).appendTo($li);
+            });
+
+            $chooser.eq(1).append('<li class="divider" />');
+            var $li = $('<li/>');
+            var $a_use_default = $('<a>Use default</a>');
+            $a_use_default.click(function (ev) {
+                ev.preventDefault();
+                tc.currentTheme = '';
+                window.location.reload();
+            });
+            $li.append($a_use_default);
+            $chooser.eq(1).append($li);
+
+            $chooser.eq(1).append('<li class="divider" />');
+            $chooser.eq(1).append('<li><a href="http://www.bootswatch.com">Powered by Bootswatch</a></li>');
+            $this.replaceWith($chooser);
+        });
+    };
+}(jQuery));
+//# sourceMappingURL=mdwiki_ts.js.map
+
+(function($) {
+    'use strict';
+
+    function resetStages() {
+        var old_stages = $.md.stages;
+        $.md.stages = [];
+        $(old_stages).each(function(i,e) {
+            $.md.stages.push($.Stage(e.name));
+        });
+    }
+
+
+    function transformMarkdown (markdown) {
+        var options = {
+            gfm: true,
+            tables: true,
+            breaks: true
+        };
+        if ($.md.config.lineBreaks === 'original')
+            options.breaks = false;
+        else if ($.md.config.lineBreaks === 'gfm')
+            options.breaks = true;
+
+        marked.setOptions(options);
+
+        // get sample markdown
+        var uglyHtml = marked(markdown);
+        return uglyHtml;
+    }
+
+    function registerFetchMarkdown() {
+
+        var md = '';
+
+        $.md.stage('init').subscribe(function(done) {
+            var ajaxReq = {
+                url: $.md.mainHref,
+                dataType: 'text'
+            };
+            $.ajax(ajaxReq).done(function(data) {
+                // TODO do this elsewhere
+                md = data;
+                done();
+            }).fail(function() {
+                var log = $.md.getLogger();
+                log.fatal('Could not get ' + $.md.mainHref);
+                done();
+            });
+        });
+
+        // find baseUrl
+        $.md.stage('transform').subscribe(function(done) {
+            var len = $.md.mainHref.lastIndexOf('/');
+            var baseUrl = $.md.mainHref.substring(0, len+1);
+            $.md.baseUrl = baseUrl;
+            done();
+        });
+
+        $.md.stage('transform').subscribe(function(done) {
+            var uglyHtml = transformMarkdown(md);
+            $('#md-content').html(uglyHtml);
+            md = '';
+            var dfd = $.Deferred();
+            loadExternalIncludes(dfd);
+            dfd.always(function () {
+                done();
+            });
+        });
+    }
+
+    // load [include](/foo/bar.md) external links
+    function loadExternalIncludes(parent_dfd) {
+
+        function findExternalIncludes () {
+            return $('a').filter (function () {
+                var href = $(this).attr('href');
+                var text = $(this).toptext();
+                var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
+                var isInclude = text === 'include';
+                var isPreview = text.startsWith('preview:');
+                return (isInclude || isPreview) && isMarkdown;
+            });
+        }
+
+        function selectPreviewElements ($jqcol, num_elements) {
+            function isTextNode(node) {
+                return node.nodeType === 3;
+            }
+            var count = 0;
+            var elements = [];
+            $jqcol.each(function (i,e) {
+                if (count < num_elements) {
+                    elements.push(e);
+                    if (!isTextNode(e)) count++;
+                }
+            });
+            return $(elements);
+        }
+
+        var external_links = findExternalIncludes ();
+        // continue execution when all external resources are fully loaded
+        var latch = $.md.util.countDownLatch (external_links.length);
+        latch.always (function () {
+            parent_dfd.resolve();
+        });
+
+        external_links.each(function (i,e) {
+            var $el = $(e);
+            var href = $el.attr('href');
+            var text = $el.toptext();
+
+            $.ajax({
+                url: href,
+                dataType: 'text'
+            })
+            .done(function (data) {
+                var $html = $(transformMarkdown(data));
+                if (text.startsWith('preview:')) {
+                    // only insert the selected number of paragraphs; default 3
+                    var num_preview_elements = parseInt(text.substring(8), 10) ||3;
+                    var $preview = selectPreviewElements ($html, num_preview_elements);
+                    $preview.last().append('<a href="' + href +'"> ...read more &#10140;</a>');
+                    $preview.insertBefore($el.parent('p').eq(0));
+                    $el.remove();
+                } else {
+                    $html.insertAfter($el.parents('p'));
+                    $el.remove();
+                }
+            }).always(function () {
+                latch.countDown();
+            });
+        });
+    }
+
+    // modify internal links so we load them through our engine
+    $.md.processPageLinks = function (domElement, baseUrl) {
+        var html = $(domElement);
+        if (baseUrl === undefined) {
+            baseUrl = '';
+        }
+        // HACK against marked: empty links will have empy href attribute
+        // we remove the href attribute from the a tag
+        html.find('a').not('#md-menu a').filter(function () {
+            var $this = $(this);
+            var attr = $this.attr('href');
+            if (!attr || attr.length === 0)
+                $this.removeAttr('href');
+        });
+
+        html.find('a, img').each(function(i,e) {
+            var link = $(e);
+            // link must be jquery collection
+            var isImage = false;
+            var hrefAttribute = 'href';
+
+            if (!link.attr(hrefAttribute)) {
+                isImage = true;
+                hrefAttribute = 'src';
+            }
+            var href = link.attr(hrefAttribute);
+
+            if (href && href.lastIndexOf ('#!') >= 0)
+                return;
+
+            if (!isImage && href.startsWith ('#') && !href.startsWith('#!')) {
+                // in-page link
+                link.click(function(ev) {
+                    ev.preventDefault();
+                    $.md.scrollToInPageAnchor (href);
+                });
+            }
+
+            if (! $.md.util.isRelativeUrl(href))
+                return;
+
+            if (isImage && ! $.md.util.isRelativePath(href))
+                return;
+
+            if (!isImage && $.md.util.isGimmickLink(link))
+                return;
+
+            function build_link (url) {
+                if ($.md.util.hasMarkdownFileExtension (url))
+                    return '#!' + url;
+                else
+                    return url;
+            }
+
+            var newHref = baseUrl + href;
+            if (isImage)
+                link.attr(hrefAttribute, newHref);
+            else if ($.md.util.isRelativePath (href))
+                link.attr(hrefAttribute, build_link(newHref));
+            else
+                link.attr(hrefAttribute, build_link(href));
+        });
+    };
+
+    function registerClearContent() {
+
+        $.md.stage('init').subscribe(function(done) {
+            $('#md-all').empty();
+            var skel ='<div id="md-body"><div id="md-title"></div><div id="md-menu">'+
+                '</div><div id="md-content"></div></div>';
+            $('#md-all').prepend($(skel));
+            done();
+        });
+
+    }
+    function loadContent(href) {
+        $.md.mainHref = href;
+
+        registerFetchMarkdown();
+        registerClearContent();
+
+        // find out which link gimmicks we need
+        $.md.stage('ready').subscribe(function(done) {
+            $.md.initializeGimmicks();
+            $.md.registerLinkGimmicks();
+            done();
+        });
+
+        // wire up the load method of the modules
+        $.each($.md.gimmicks, function(i, module) {
+            if (module.load === undefined) {
+                return;
+            }
+            $.md.stage('load').subscribe(function(done) {
+                module.load();
+                done();
+            });
+        });
+
+        $.md.stage('ready').subscribe(function(done) {
+            $.md('createBasicSkeleton');
+            done();
+        });
+
+        $.md.stage('bootstrap').subscribe(function(done){
+            $.mdbootstrap('bootstrapify');
+            $.md.processPageLinks($('#md-content'), $.md.baseUrl);
+            done();
+        });
+    }
+
+    function extractHashData() {
+        // first char is the # or #!
+        var href;
+        if (window.location.hash.startsWith('#!')) {
+            href = window.location.hash.substring(2);
+        } else {
+            href = window.location.hash.substring(1);
+        }
+        href = decodeURIComponent(href);
+
+        // extract possible in-page anchor
+        var ex_pos = href.indexOf('#');
+        if (ex_pos !== -1) {
+            $.md.inPageAnchor = href.substring(ex_pos + 1);
+            $.md.mainHref = href.substring(0, ex_pos);
+        } else {
+            $.md.mainHref = href;
+        }
+    }
+
+    function appendDefaultFilenameToHash () {
+        var newHashString = '';
+        var currentHashString = window.location.hash || '';
+        if (currentHashString === '' ||
+            currentHashString === '#'||
+            currentHashString === '#!')
+        {
+            newHashString = '#!index.md';
+        }
+        else if (currentHashString.startsWith ('#!') &&
+                 currentHashString.endsWith('/')
+                ) {
+            newHashString = currentHashString + 'index.md';
+        }
+        if (newHashString)
+            window.location.hash = newHashString;
+    }
+
+    $(document).ready(function () {
+
+        // stage init stuff
+        $.initMDwiki();
+        var log = $.md.getLogger();
+
+        extractHashData();
+
+        appendDefaultFilenameToHash();
+
+        $(window).bind('hashchange', function () {
+            window.location.reload(false);
+        });
+
+        loadContent($.md.mainHref);
+        $.md.wiki.run();
+    });
+}(jQuery));
+
+(function($) {
+    'use strict';
+    var log = $.md.getLogger();
+
+    $.Stage = function(name) {
+        var self = $.extend($.Deferred(), {});
+        self.name = name;
+        self.events = [];
+        self.started = false;
+
+        self.reset = function() {
+            self.complete = $.Deferred();
+            self.outstanding = [];
+        };
+
+        self.reset();
+
+        self.subscribe = function(fn) {
+            if (self.started) {
+                $.error('Subscribing to stage which already started!');
+            }
+            self.events.push(fn);
+        };
+
+        self.executeSubscribedFn = function (fn) {
+            var d = $.Deferred();
+            self.outstanding.push(d);
+
+            // display an error if our done() callback is not called
+            $.md.util.wait(2500).done(function() {
+                if(d.state() !== 'resolved') {
+                    log.fatal('Timeout reached for done callback in stage: ' + self.name +
+                        '. Did you forget a done() call in a .subscribe() ?');
+                    log.fatal('stage ' + name + ' failed running subscribed function: ' + fn );
+                }
+            });
+
+            var done = function() {
+                d.resolve();
+            };
+            fn(done);
+        };
+
+        self.run = function() {
+            self.started = true;
+            $(self.events).each(function (i,fn) {
+                self.executeSubscribedFn(fn);
+            });
+
+            // if no events are in our queue, we resolve immediately
+            if (self.outstanding.length === 0) {
+                self.resolve();
+            }
+
+            // we resolve when all our registered events have completed
+            $.when.apply($, self.outstanding)
+            .done(function() {
+                self.resolve();
+            })
+            .fail(function() {
+                self.resolve();
+            });
+        };
+
+        self.done(function() {
+            log.debug('stage ' + self.name + ' completed successfully.');
+        });
+        self.fail(function() {
+            log.debug('stage ' + self.name + ' completed with errors!');
+        });
+        return self;
+    };
+}(jQuery));
+
+(function($) {
+    var publicMethods = {
+        isRelativeUrl: function(url) {
+            if (url === undefined) {
+                return false;
+            }
+            // if there is :// in it, its considered absolute
+            // else its relative
+            if (url.indexOf('://') === -1) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        isRelativePath: function(path) {
+            if (path === undefined)
+                return false;
+            if (path.startsWith('/'))
+                return false;
+            return true;
+        },
+        isGimmickLink: function(domAnchor) {
+            if (domAnchor.toptext().indexOf ('gimmick:') !== -1) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        hasMarkdownFileExtension: function (str) {
+            var markdownExtensions = [ '.md', '.markdown', '.mdown' ];
+            var result = false;
+            var value = str.toLowerCase().split('#')[0];
+            $(markdownExtensions).each(function (i,ext) {
+                if (value.toLowerCase().endsWith (ext)) {
+                    result = true;
+                }
+            });
+            return result;
+        },
+        wait: function(time) {
+            return $.Deferred(function(dfd) {
+                setTimeout(dfd.resolve, time);
+            });
+        }
+    };
+    $.md.util = $.extend ({}, $.md.util, publicMethods);
+
+    if (typeof String.prototype.startsWith !== 'function') {
+        String.prototype.startsWith = function(str) {
+            return this.slice(0, str.length) === str;
+        };
+    }
+    if (typeof String.prototype.endsWith !== 'function') {
+        String.prototype.endsWith = function(str) {
+            return this.slice(this.length - str.length, this.length) === str;
+        };
+    }
+
+    $.fn.extend ({
+        toptext: function () {
+            return this.clone().children().remove().end().text();
+        }
+    });
+
+    // adds a :icontains selector to jQuery that is case insensitive
+    $.expr[':'].icontains = $.expr.createPseudo(function(arg) {
+        return function(elem) {
+            return $(elem).toptext().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+        };
+    });
+
+    $.md.util.getInpageAnchorText = function (text) {
+        var subhash = text.replace(/ /g, '_');
+        // TODO remove more unwanted characters like ?/,- etc.
+        return subhash;
+
+    };
+    $.md.util.getInpageAnchorHref = function (text, href) {
+        href = href || $.md.mainHref;
+        var subhash = $.md.util.getInpageAnchorText(text);
+        return '#!' + href + '#' + subhash;
+    };
+
+    // a count-down latch as in Java7.
+    $.md.util.countDownLatch = function (capacity, min) {
+        min = min || 0;
+        var dfd = $.Deferred();
+        if (capacity <= min) dfd.resolve();
+        dfd.capacity = capacity;
+        dfd.countDown = function () {
+            dfd.capacity--;
+            if (dfd.capacity <= min)
+                dfd.resolve();
+        };
+        return dfd;
+    };
+
+}(jQuery));
+
 (function($) {
     var publicMethods = {
         createBasicSkeleton: function() {
@@ -2605,27 +2806,6 @@ if (typeof exports === 'object') {
             $pilcrow.appendTo($heading);
         }
 
-        // adds a link to the navigation at the top of the page
-        function addJumpLinkToTOC($heading) {
-            if($.md.config.useSideMenu === false) return;
-            if($heading.prop("tagName") !== 'H2') return;
-
-            var c = $.md.config.tocAnchor;
-            if (c === '')
-                return;
-
-            var $jumpLink = $('<a class="visible-xs visible-sm jumplink" href="#md-page-menu">' + c + '</a>');
-            $jumpLink.click(function(ev) {
-                ev.preventDefault();
-
-                $('body').scrollTop($('#md-page-menu').position().top);
-            });
-
-            if ($heading.parents('#md-menu').length === 0) {
-                $jumpLink.insertAfter($heading);
-            }
-        }
-
         // adds a page inline anchor to each h1,h2,h3,h4,h5,h6 element
         // which can be accessed by the headings text
         $('h1,h2,h3,h4,h5,h6').not('#md-title h1').each (function () {
@@ -2634,9 +2814,6 @@ if (typeof exports === 'object') {
             var text = $heading.clone().children('.anchor-highlight').remove().end().text();
             var href = $.md.util.getInpageAnchorHref(text);
             addPilcrow($heading, href);
-
-            //add jumplink to table of contents
-            addJumpLinkToTOC($heading);
         });
     }
 
@@ -2766,46 +2943,12 @@ if (typeof exports === 'object') {
         $('#md-menu h1').remove();
         $('a.navbar-brand').text(brand_text);
 
-        // initial offset
+
+        // then comes md-title, and afterwards md-content
+        // offset md-title to account for the fixed menu space
+        // 50px is the menu width + 20px spacing until first text
+        // or heading
         $('#md-body').css('margin-top', '70px');
-        $.md.stage('pregimmick').subscribe(function (done) {
-            check_offset_to_navbar();
-            done();
-        });
-    }
-    // the navbar has different height depending on theme, number of navbar entries,
-    // and window/device width. Therefore recalculate on start and upon window resize
-    function set_offset_to_navbar () {
-        var height = $('#md-main-navbar').height() + 10;
-        $('#md-body').css('margin-top', height + 'px');
-    }
-    function check_offset_to_navbar () {
-        // HACK this is VERY UGLY. When an external theme is used, we don't know when the
-        // css style will be finished loading - and we can only correctly calculate
-        // the height AFTER it has completely loaded.
-        var navbar_height = 0;
-
-        var dfd1 = $.md.util.repeatUntil(40, function() {
-            navbar_height = $('#md-main-navbar').height();
-            return (navbar_height > 35) && (navbar_height < 481);
-        }, 25);
-
-        dfd1.done(function () {
-            navbar_height = $('#md-main-navbar').height();
-            set_offset_to_navbar();
-            // now bootstrap changes this maybe after a while, again watch for changes
-            var dfd2 = $.md.util.repeatUntil(20, function () {
-                return navbar_height !== $('#md-main-navbar').height();
-            }, 25);
-            dfd2.done(function() {
-                // it changed, so we need to change it again
-                set_offset_to_navbar();
-            });
-            // and finally, for real slow computers, make sure it is changed if changin very late
-            $.md.util.wait(2000).done(function () {
-                set_offset_to_navbar();
-            });
-        });
     }
     function buildSubNav() {
         // replace with the navbar skeleton
@@ -2983,7 +3126,6 @@ if (typeof exports === 'object') {
 
         $(window).resize(function () {
             recalc_width($('#md-page-menu'));
-            check_offset_to_navbar();
         });
         $.md.stage('postgimmick').subscribe(function (done) {
             // recalc_width();
@@ -3938,148 +4080,6 @@ function googlemapsReady() {
         document.getElementsByTagName('head')[0].appendChild(script);
     }
 
-}(jQuery));
-
-(function($) {
-    'use strict';
-
-    var themes = [
-        { name: 'bootstrap', url: 'netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css' },
-        { name: 'amelia', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/amelia/bootstrap.min.css' },
-        { name: 'cerulean', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/cerulean/bootstrap.min.css' },
-        { name: 'cosmo', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/cosmo/bootstrap.min.css' },
-        { name: 'cyborg', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/cyborg/bootstrap.min.css' },
-        { name: 'flatly', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/flatly/bootstrap.min.css' },
-        { name: 'journal', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/journal/bootstrap.min.css' },
-        { name: 'readable', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/readable/bootstrap.min.css' },
-        { name: 'simplex', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/simplex/bootstrap.min.css' },
-        { name: 'slate', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/slate/bootstrap.min.css' },
-        { name: 'spacelab', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/spacelab/bootstrap.min.css' },
-        { name: 'united', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/united/bootstrap.min.css' }
-    ];
-    var themeChooserGimmick = {
-        name: 'Themes',
-        version: $.md.version,
-        once: function() {
-            $.md.linkGimmick(this, 'themechooser', themechooser, 'skel_ready');
-            $.md.linkGimmick(this, 'theme', apply_theme);
-
-        }
-    };
-    $.md.registerGimmick(themeChooserGimmick);
-
-    var log = $.md.getLogger();
-
-    var set_theme = function(theme) {
-        theme.inverse = theme.inverse || false;
-
-        if (theme.url === undefined) {
-            if (!theme.name) {
-                log.error('Theme name must be given!');
-                return;
-            }
-            var saved_theme = themes.filter(function(t) {
-                return t.name === theme.name;
-            })[0];
-            if (!saved_theme) {
-                log.error('Theme ' + name + ' not found, removing link')    ;
-                return;
-            }
-            theme = $.extend(theme, saved_theme);
-        }
-
-
-        $('link[rel=stylesheet][href*="netdna.bootstrapcdn.com"]')
-            .remove();
-
-        // slim instance has no bootstrap hardcoded in
-        var has_default_bootstrap_css = $('style[id*=bootstrap]').length > 0;
-
-        if (theme.name !== 'bootstrap' || !has_default_bootstrap_css) {
-            // in devel & fat version the style is inlined, remove it
-            $('style[id*=bootstrap]').remove();
-
-            $('<link rel="stylesheet" type="text/css">')
-                .attr('href', $.md.prepareLink(theme.url))
-                .appendTo('head');
-        }
-
-        if (theme.inverse === true) {
-            $('#md-main-navbar').removeClass ('navbar-default');
-            $('#md-main-navbar').addClass ('navbar-inverse');
-        } else {
-            $('#md-main-navbar').addClass ('navbar-default');
-            $('#md-main-navbar').removeClass ('navbar-inverse');
-        }
-    };
-
-    var apply_theme = function($links, opt, text) {
-        opt.name = opt.name || text;
-        $links.each(function(i, link) {
-            $.md.stage('postgimmick').subscribe(function(done) {
-                var $link = $(link);
-
-                // only set a theme if no theme from the choser is selected
-                if (window.localStorage.theme === undefined) {
-                    set_theme(opt);
-                }
-
-                done();
-            });
-        });
-        $links.remove();
-    };
-
-    var themechooser = function($links, opt, text) {
-
-        $.md.stage('bootstrap').subscribe(function(done) {
-            restore_theme(opt);
-            done();
-        });
-
-        return $links.each(function(i, e) {
-            var $this = $(e);
-            var $chooser = $('<a href=""></a><ul></ul>'
-            );
-            $chooser.eq(0).text(text);
-
-            $.each(themes, function(i, theme) {
-                var $li = $('<li></li>');
-                $chooser.eq(1).append($li);
-                var $a = $('<a/>')
-                    .text(theme.name)
-                    .attr('href', '')
-                    .click(function(ev) {
-                        ev.preventDefault();
-                        window.localStorage.theme = theme.name;
-                        window.location.reload();
-                    })
-                    .appendTo($li);
-            });
-
-            $chooser.eq(1).append('<li class="divider" />');
-            var $li = $('<li/>');
-            var $a_use_default = $('<a>Use default</a>');
-            $a_use_default.click(function(ev) {
-                ev.preventDefault();
-                window.localStorage.removeItem('theme');
-                window.location.reload();
-            });
-            $li.append($a_use_default);
-            $chooser.eq(1).append($li);
-
-            $chooser.eq(1).append('<li class="divider" />');
-            $chooser.eq(1).append('<li><a href="http://www.bootswatch.com">Powered by Bootswatch</a></li>');
-            $this.replaceWith($chooser);
-        });
-    };
-
-    var restore_theme = function(opt) {
-        if (window.localStorage.theme) {
-            opt = $.extend({ name: window.localStorage.theme }, opt);
-            set_theme(opt);
-        }
-    };
 }(jQuery));
 
 (function($) {
