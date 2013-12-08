@@ -92,12 +92,12 @@ module.exports = function(grunt) {
                 src: ['js/ts/**/*.ts'],
                 dest: 'ts_compiled/mdwiki_ts.js',
                 options: {
-                    module: 'amd', //or commonjs
+                    //module: 'amd', //or commonjs
                     target: 'es5', //or es3
                     base_path: '/js/ts/',
-                    sourcemap: true,
+                    sourcemap: false,
                     fullSourceMapPath: false,
-                    declaration: true,
+                    declaration: false,
                 }
             }
         },
