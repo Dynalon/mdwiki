@@ -23,16 +23,20 @@ module.exports = function(grunt) {
         },
 
         ownJsFiles: [
+            'ts_compiled/stage.js',
+            'ts_compiled/wiki.js',
             'js/marked.js',
             'js/init.js',
             'js/logging.js',
-            'js/stage.js',
+            'ts_compiled/main.js',
             'js/main.js',
+            'js/stage.js',
             'js/util.js',
             'js/modules.js',
             'js/basic_skeleton.js',
             'js/bootstrap.js',
             'js/gimmicker.js',
+            'ts_compiled/theme.js',
 
             // gimmicks
             'js/gimmicks/alerts.js',
@@ -49,8 +53,7 @@ module.exports = function(grunt) {
             'js/gimmicks/math.js',
             // 'js/gimmicks/leaflet.js',
             'js/gimmicks/twitter.js',
-            'js/gimmicks/youtube_embed.js',
-            'ts_compiled/*.js'
+            'js/gimmicks/youtube_embed.js'
         ],
 
         // files that we always inline (stuff not available on CDN)

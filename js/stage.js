@@ -21,9 +21,6 @@
             }
             self.events.push(fn);
         };
-        self.unsubscribe = function(fn) {
-            self.events.remove(fn);
-        };
 
         self.executeSubscribedFn = function (fn) {
             var d = $.Deferred();

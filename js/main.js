@@ -1,55 +1,6 @@
 (function($) {
     'use strict';
 
-    var log = $.md.getLogger();
-
-    function init() {
-        $.md.stages = [
-            $.Stage('init'),
-
-            // loads config, initial markdown and navigation
-            $.Stage('load'),
-
-            // will transform the markdown to html
-            $.Stage('transform'),
-
-            // HTML transformation finished
-            $.Stage('ready'),
-
-            // after we have a polished html skeleton
-            $.Stage('skel_ready'),
-
-            // will bootstrapify the skeleton
-            $.Stage('bootstrap'),
-
-            // before we run any gimmicks
-            $.Stage('pregimmick'),
-
-            // after we have bootstrapified the skeleton
-            $.Stage('gimmick'),
-
-            // postprocess
-            $.Stage('postgimmick'),
-
-            $.Stage('all_ready'),
-
-            // used for integration tests, not intended to use in MDwiki itself
-            $.Stage('final_tests')
-        ];
-
-        $.md.stage = function(name) {
-            var m = $.grep($.md.stages, function(e,i) {
-                return e.name === name;
-            });
-            if (m.length === 0) {
-                $.error('A stage by name ' + name + '  does not exist');
-            } else {
-                return m[0];
-            }
-        };
-    }
-    init();
-
     function resetStages() {
         var old_stages = $.md.stages;
         $.md.stages = [];
@@ -58,8 +9,6 @@
         });
     }
 
-    var publicMethods = {};
-    $.md.publicMethods = $.extend ({}, $.md.publicMethods, publicMethods);
 
     function transformMarkdown (markdown) {
         var options = {
@@ -184,7 +133,7 @@
     }
 
     // modify internal links so we load them through our engine
-    function processPageLinks(domElement, baseUrl) {
+    $.md.processPageLinks = function (domElement, baseUrl) {
         var html = $(domElement);
         if (baseUrl === undefined) {
             baseUrl = '';
@@ -245,95 +194,7 @@
             else
                 link.attr(hrefAttribute, build_link(href));
         });
-    }
-
-    var navMD = '';
-    $.md.NavigationDfd = $.Deferred();
-    var ajaxReq = {
-        url: 'navigation.md',
-        dataType: 'text'
     };
-    $.ajax(ajaxReq).done(function(data) {
-        navMD = data;
-        $.md.NavigationDfd.resolve();
-    }).fail(function() {
-        $.md.NavigationDfd.reject();
-    });
-
-    function registerBuildNavigation() {
-
-        $.md.stage('init').subscribe(function(done) {
-            $.md.NavigationDfd.done(function() {
-                done();
-            })
-            .fail(function() {
-                done();
-            });
-        });
-
-        $.md.stage('transform').subscribe(function(done) {
-            if (navMD === '') {
-                var log = $.md.getLogger();
-                log.info('no navgiation.md found, not using a navbar');
-                done();
-                return;
-            }
-
-            var navHtml = marked(navMD);
-            var h = $('<div>' + navHtml + '</div>');
-            // TODO .html() is evil!!!
-            h.find('p').each(function(i,e) {
-                var el = $(e);
-                el.replaceWith(el.html());
-            });
-            $('#md-menu').append(h.html());
-            done();
-        });
-
-        $.md.stage('bootstrap').subscribe(function(done) {
-            processPageLinks($('#md-menu'));
-            done();
-        });
-
-        $.md.stage('postgimmick').subscribe(function(done) {
-            var num_links = $('#md-menu a').length;
-            var has_header = $('#md-menu .navbar-brand').eq(0).toptext().trim().length > 0;
-            if (!has_header && num_links <= 1)
-                $('#md-menu').hide();
-
-            done();
-        });
-    }
-
-    $.md.ConfigDfd = $.Deferred();
-    $.ajax({url: 'config.json', dataType: 'text'}).done(function(data) {
-        try {
-            var data_json = JSON.parse(data);
-            $.md.config = $.extend($.md.config, data_json);
-            log.info('Found a valid config.json file, using configuration');
-        } catch(err) {
-            log.error('config.json was not JSON parsable: ' + err);
-        }
-        $.md.ConfigDfd.resolve();
-    }).fail(function(err, textStatus) {
-        log.error('unable to retrieve config.json: ' + textStatus);
-        $.md.ConfigDfd.reject();
-    });
-    function registerFetchConfig() {
-
-        $.md.stage('init').subscribe(function(done) {
-            // TODO 404 won't get cached, requesting it every reload is not good
-            // maybe use cookies? or disable re-loading of the page
-            //$.ajax('config.json').done(function(data){
-            $.md.ConfigDfd.done(function(){
-                done();
-            }).fail(function() {
-                var log = $.md.getLogger();
-                log.info('No config.json found, using default settings');
-                done();
-            });
-        });
-    }
 
     function registerClearContent() {
 
@@ -377,64 +238,9 @@
 
         $.md.stage('bootstrap').subscribe(function(done){
             $.mdbootstrap('bootstrapify');
-            processPageLinks($('#md-content'), $.md.baseUrl);
+            $.md.processPageLinks($('#md-content'), $.md.baseUrl);
             done();
         });
-        runStages();
-    }
-
-    function runStages() {
-
-        // wire the stages up
-        $.md.stage('init').done(function() {
-            $.md.stage('load').run();
-        });
-        $.md.stage('load').done(function() {
-            $.md.stage('transform').run();
-        });
-        $.md.stage('transform').done(function() {
-            $.md.stage('ready').run();
-        });
-        $.md.stage('ready').done(function() {
-            $.md.stage('skel_ready').run();
-        });
-        $.md.stage('skel_ready').done(function() {
-            $.md.stage('bootstrap').run();
-        });
-        $.md.stage('bootstrap').done(function() {
-            $.md.stage('pregimmick').run();
-        });
-        $.md.stage('pregimmick').done(function() {
-            $.md.stage('gimmick').run();
-        });
-        $.md.stage('gimmick').done(function() {
-            $.md.stage('postgimmick').run();
-        });
-        $.md.stage('postgimmick').done(function() {
-            $.md.stage('all_ready').run();
-        });
-        $.md.stage('all_ready').done(function() {
-            $('html').removeClass('md-hidden-load');
-
-            // phantomjs hook when we are done
-            if (typeof window.callPhantom === 'function') {
-                window.callPhantom({});
-            }
-
-            $.md.stage('final_tests').run();
-        });
-        $.md.stage('final_tests').done(function() {
-            // reset the stages for next iteration
-            resetStages();
-
-            // required by dalekjs so we can wait the element to appear
-            $('body').append('<span id="start-tests"></span>');
-            $('#start-tests').hide();
-        });
-
-        // trigger the whole process by runing the init stage
-        $.md.stage('init').run();
-        return;
     }
 
     function extractHashData() {
@@ -478,8 +284,9 @@
     $(document).ready(function () {
 
         // stage init stuff
-        registerFetchConfig();
-        registerBuildNavigation();
+        $.initMDwiki();
+        var log = $.md.getLogger();
+
         extractHashData();
 
         appendDefaultFilenameToHash();
@@ -489,5 +296,6 @@
         });
 
         loadContent($.md.mainHref);
+        $.md.wiki.run();
     });
 }(jQuery));
