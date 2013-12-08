@@ -23,20 +23,17 @@ module.exports = function(grunt) {
         },
 
         ownJsFiles: [
-            'ts_compiled/stage.js',
-            'ts_compiled/wiki.js',
             'js/marked.js',
             'js/init.js',
             'js/logging.js',
-            'ts_compiled/main.js',
+            'js/modules.js',
+            'ts_compiled/mdwiki_ts.js',
             'js/main.js',
             'js/stage.js',
             'js/util.js',
-            'js/modules.js',
             'js/basic_skeleton.js',
             'js/bootstrap.js',
             'js/gimmicker.js',
-            'ts_compiled/theme.js',
 
             // gimmicks
             'js/gimmicks/alerts.js',
@@ -93,7 +90,7 @@ module.exports = function(grunt) {
         typescript: {
             base: {
                 src: ['js/ts/**/*.ts'],
-                dest: 'ts_compiled/',
+                dest: 'ts_compiled/mdwiki_ts.js',
                 options: {
                     module: 'amd', //or commonjs
                     target: 'es5', //or es3

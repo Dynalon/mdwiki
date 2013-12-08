@@ -1,5 +1,4 @@
 /// <reference path='stage.ts'/>
-var log = require('stage.ts');
 
 declare var $: any;
 declare var marked: any;
