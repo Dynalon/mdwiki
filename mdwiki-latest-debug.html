@@ -28,8 +28,6 @@
     #md-page-menu a.active {
         /* background-color: rgba(0, 0, 0, 0.01); */
         font-weight: bold;
-        padding-left: 6px;
-
     }
     @media (min-width: 992px) {
         #md-page-menu.affix {
@@ -1337,11 +1335,14 @@ if (typeof exports === 'object') {
     // default config
     $.md.config = {
         title:  null,
-        useSideMenu: true,
         lineBreaks: 'gfm',
         additionalFooterText: '',
         anchorCharacter: '&para;',
-        tocAnchor: '[ &uarr; ]'
+        pageMenu: {
+            disable: false,
+            returnAnchor: "[top]",
+            useHeadings: "h2"
+        }
     };
 
 
@@ -2617,10 +2618,25 @@ if (typeof exports === 'object') {
 
         // adds a link to the navigation at the top of the page
         function addJumpLinkToTOC($heading) {
-            if($.md.config.useSideMenu === false) return;
-            if($heading.prop("tagName") !== 'H2') return;
+            if($.md.config.pageMenu && $.md.config.pageMenu.disable !== false) return;
 
-            var c = $.md.config.tocAnchor;
+            function supportedHeading(heading) {
+                var autoAnchors = $.md.config.pageMenu.useHeadings.split(',');
+                var supported = false;
+
+                $(autoAnchors).each(function(i,e){
+                    if(heading.toLowerCase() === e.toLowerCase()) {
+                        supported = true;
+                    }
+                });
+
+                return supported;
+            }
+
+            if(!supportedHeading($heading.prop("tagName"))) return;
+
+            var c = $.md.config.pageMenu.returnAnchor;
+
             if (c === '')
                 return;
 
@@ -2914,10 +2930,9 @@ if (typeof exports === 'object') {
     }
 
     function createPageContentMenu () {
-
         // assemble the menu
-        var $headings = $('#md-content').find('h2').clone();
-        // we dont want the text of any child nodes
+        var $headings = $('#md-content').find($.md.config.pageMenu.useHeadings);
+
         $headings.children().remove();
 
         if ($headings.length <= 1) {
@@ -2974,10 +2989,10 @@ if (typeof exports === 'object') {
         var $ul = $pannel.find("ul");
         affixDiv.append($pannel);
 
-        $headings.each(function(i,e) {
-            var $heading = $(e);
-            var $li = $('<li class="list-group-item" />');
-            var $a = $('<a />');
+        function createMenuItem(heading, className) {
+            var $heading = $(heading);
+            var $a = $('<a class="list-group-item" />');
+            $a.addClass(className);
             $a.attr('href', $.md.util.getInpageAnchorHref($heading.toptext()));
             $a.click(function(ev) {
                 ev.preventDefault();
@@ -2987,8 +3002,15 @@ if (typeof exports === 'object') {
                 $.md.scrollToInPageAnchor(anchortext);
             });
             $a.text($heading.toptext());
-            $li.append($a);
-            $ul.append($li);
+            return $a;
+        }
+
+        $($headings).each(function(i,e) {
+            var hClass = $(e).prop('tagName');
+            var currLevel = parseInt(hClass.substr(1,1), 10);
+            var $hli = createMenuItem(e, hClass.toLowerCase() + '-nav');
+
+            $ul.append($hli);
         });
 
         $(window).resize(function () {
