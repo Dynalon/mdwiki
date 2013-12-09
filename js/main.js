@@ -213,7 +213,7 @@
             if (href && href.lastIndexOf ('#!') >= 0)
                 return;
 
-            if (isImage && href.lastIndexOf ('data:'))
+            if (isImage && href && href.lastIndexOf ('data:'))
                 return;
 
             if (!isImage && href.startsWith ('#') && !href.startsWith('#!')) {
