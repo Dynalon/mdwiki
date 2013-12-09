@@ -296,7 +296,7 @@
         //affix.css('top','-250px');
 
         var $pannel = $('<div class="panel panel-default"><ul class="list-group"/></div>');
-        var $parentUls = [$pannel.find("ul")];
+        var $ul = $pannel.find("ul");
         affixDiv.append($pannel);
 
         function createMenuItem(heading, className) {
@@ -315,25 +315,13 @@
             return $a;
         }
 
-        var prevLevel;
-
-        function appendSubNav() {
-            // append last element with the prev
-            var $lastParent = $parentUls.pop();
-            $($parentUls[$parentUls.length-1]).append($lastParent);
-        }
-
         $(headings).each(function(i,e) {
             var hClass = $(e).prop('tagName');
             var currLevel = parseInt(hClass.substr(1,1), 10);
             var $hli = createMenuItem(e, hClass.toLowerCase() + '-nav');
 
-            $($parentUls[$parentUls.length-1]).append($hli);
+            $ul.append($hli);
         });
-
-        while($parentUls.length > 1) {
-            appendSubNav();
-        }
 
         $(window).resize(function () {
             recalc_width($('#md-page-menu'));
