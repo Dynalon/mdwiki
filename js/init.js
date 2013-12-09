@@ -18,11 +18,14 @@
     // default config
     $.md.config = {
         title:  null,
-        useSideMenu: true,
         lineBreaks: 'gfm',
         additionalFooterText: '',
         anchorCharacter: '&para;',
-        tocAnchor: '[ &uarr; ]'
+        pageMenu: {
+            disable: false,
+            returnAnchor: "[top]",
+            useHeadings: "h2"
+        }
     };
 
 
