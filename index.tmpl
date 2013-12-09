@@ -28,9 +28,13 @@
     #md-page-menu a.active {
         /* background-color: rgba(0, 0, 0, 0.01); */
         font-weight: bold;
-        padding-left: 6px;
+        /* padding-left: 6px; */
+        border-right: 1px solid red;
 
     }
+
+    #md-page-menu ul ul li a { padding-left: 15px; }
+
     @media (min-width: 992px) {
         #md-page-menu.affix {
             position: fixed;
@@ -85,10 +89,6 @@
         background-color: !important;
         font-size: smaller;
         padding: 1em;
-    }
-
-    .nav li .nav li a {
-        margin-left: 20px;
     }
     </style>
 

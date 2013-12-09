@@ -240,17 +240,10 @@
     }
 
     function createPageContentMenu () {
-
         // assemble the menu
-        var headings = [];
-        $('#md-content').find('h2').each(function(i,e){
-            var $h2 = $(e);
-            var heading = {
-                el: $h2.clone(),
-                subs: $h2.nextUntil('h2','h3').clone()
-            };
-            headings.push(heading);
-        });
+        var headings = $('#md-content').find($.md.config.pageMenu.useHeadings);
+
+        headings.children().remove();
 
         if (headings.length <= 1) {
             return;
@@ -303,13 +296,14 @@
         //affix.css('top','-250px');
 
         var $pannel = $('<div class="panel panel-default"><ul class="nav"/></div>');
-        var $ul = $pannel.find("ul");
+        var $parentUls = [$pannel.find("ul")];
         affixDiv.append($pannel);
 
-        function createli(heading) {
+        function createli(heading, className) {
             var $heading = $(heading);
             var $li = $('<li />');
             var $a = $('<a />');
+            $a.addClass(className);
             $a.attr('href', $.md.util.getInpageAnchorHref($heading.toptext()));
             $a.click(function(ev) {
                 ev.preventDefault();
@@ -323,20 +317,32 @@
             return $li;
         }
 
+        var prevLevel;
+
         $(headings).each(function(i,e) {
+            var hClass = $(e).prop('tagName');
+            var currLevel = parseInt(hClass.substr(1,1), 10);
+            var $hli = createli(e, hClass.toLowerCase() + '-nav');
 
-            var $h2 = createli(e.el);
-
-            if(e.subs.length > 0) {
-                var $sub = $('<ul class="nav" />');
-                e.subs.each(function(i,e){
-                    $sub.append(createli(e));
-                });
-                $h2.append($sub);
+            // are we at a different heading level
+            if(prevLevel && currLevel !== prevLevel) {
+                if(currLevel > prevLevel) {
+                    $parentUls.push($('<ul class="nav" />'));
+                } else {
+                    // append last element with the prev
+                    var lastParent = $parentUls.pop();
+                    $($parentUls[$parentUls.length-1]).append(lastParent);
+                }
             }
 
-            $ul.append($h2);
+            $($parentUls[$parentUls.length-1]).append($hli);
+            prevLevel = currLevel;
         });
+
+        while($parentUls.length > 1) {
+            var lp = $parentUls.pop();
+            $($parentUls[$parentUls.length-1].append(lp));
+        }
 
         $(window).resize(function () {
             recalc_width($('#md-page-menu'));
