@@ -112,7 +112,7 @@
     // the navbar has different height depending on theme, number of navbar entries,
     // and window/device width. Therefore recalculate on start and upon window resize
     function set_offset_to_navbar () {
-        var height = $('#md-main-navbar').height();
+        var height = $('#md-main-navbar').height() + 10;
         $('#md-body').css('margin-top', height + 'px');
     }
     function check_offset_to_navbar () {

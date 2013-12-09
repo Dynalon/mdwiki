@@ -193,7 +193,7 @@
 
         // adds a link to the navigation at the top of the page
         function addJumpLinkToTOC($heading) {
-            // if($.md.config.pageMenu && $.md.config.pageMenu.disable === false) return;
+            if($.md.config.pageMenu && $.md.config.pageMenu.disable !== false) return;
 
             function supportedHeading(heading) {
                 var autoAnchors = $.md.config.pageMenu.useHeadings.split(',');
