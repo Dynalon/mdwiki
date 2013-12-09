@@ -241,11 +241,11 @@
 
     function createPageContentMenu () {
         // assemble the menu
-        var headings = $('#md-content').find($.md.config.pageMenu.useHeadings);
+        var $headings = $('#md-content').find($.md.config.pageMenu.useHeadings);
 
-        headings.children().remove();
+        $headings.children().remove();
 
-        if (headings.length <= 1) {
+        if ($headings.length <= 1) {
             return;
         }
 
@@ -315,7 +315,7 @@
             return $a;
         }
 
-        $(headings).each(function(i,e) {
+        $($headings).each(function(i,e) {
             var hClass = $(e).prop('tagName');
             var currLevel = parseInt(hClass.substr(1,1), 10);
             var $hli = createMenuItem(e, hClass.toLowerCase() + '-nav');
