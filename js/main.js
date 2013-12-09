@@ -213,6 +213,9 @@
             if (href && href.lastIndexOf ('#!') >= 0)
                 return;
 
+            if (isImage && href.lastIndexOf ('data:'))
+                return;
+
             if (!isImage && href.startsWith ('#') && !href.startsWith('#!')) {
                 // in-page link
                 link.click(function(ev) {
