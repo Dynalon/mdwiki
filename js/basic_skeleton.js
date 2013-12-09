@@ -196,13 +196,11 @@
             // if($.md.config.pageMenu && $.md.config.pageMenu.disable === false) return;
 
             function supportedHeading(heading) {
-                console.log(heading);
                 var autoAnchors = $.md.config.pageMenu.useHeadings.split(',');
                 var supported = false;
 
                 $(autoAnchors).each(function(i,e){
                     if(heading.toLowerCase() === e.toLowerCase()) {
-                        console.log("is supported");
                         supported = true;
                     }
                 });
@@ -213,7 +211,7 @@
             if(!supportedHeading($heading.prop("tagName"))) return;
             
             var c = $.md.config.pageMenu.returnAnchor;
-            console.log(c);
+
             if (c === '')
                 return;
 
