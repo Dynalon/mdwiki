@@ -193,10 +193,25 @@
 
         // adds a link to the navigation at the top of the page
         function addJumpLinkToTOC($heading) {
-            if($.md.config.useSideMenu === false) return;
-            if($heading.prop("tagName") !== 'H2') return;
+            if($.md.config.pageMenu && $.md.config.pageMenu.disable !== false) return;
 
-            var c = $.md.config.tocAnchor;
+            function supportedHeading(heading) {
+                var autoAnchors = $.md.config.pageMenu.useHeadings.split(',');
+                var supported = false;
+
+                $(autoAnchors).each(function(i,e){
+                    if(heading.toLowerCase() === e.toLowerCase()) {
+                        supported = true;
+                    }
+                });
+
+                return supported;
+            }
+
+            if(!supportedHeading($heading.prop("tagName"))) return;
+
+            var c = $.md.config.pageMenu.returnAnchor;
+
             if (c === '')
                 return;
 

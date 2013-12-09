@@ -240,10 +240,9 @@
     }
 
     function createPageContentMenu () {
-
         // assemble the menu
-        var $headings = $('#md-content').find('h2').clone();
-        // we dont want the text of any child nodes
+        var $headings = $('#md-content').find($.md.config.pageMenu.useHeadings);
+
         $headings.children().remove();
 
         if ($headings.length <= 1) {
@@ -300,10 +299,10 @@
         var $ul = $pannel.find("ul");
         affixDiv.append($pannel);
 
-        $headings.each(function(i,e) {
-            var $heading = $(e);
-            var $li = $('<li class="list-group-item" />');
-            var $a = $('<a />');
+        function createMenuItem(heading, className) {
+            var $heading = $(heading);
+            var $a = $('<a class="list-group-item" />');
+            $a.addClass(className);
             $a.attr('href', $.md.util.getInpageAnchorHref($heading.toptext()));
             $a.click(function(ev) {
                 ev.preventDefault();
@@ -313,8 +312,15 @@
                 $.md.scrollToInPageAnchor(anchortext);
             });
             $a.text($heading.toptext());
-            $li.append($a);
-            $ul.append($li);
+            return $a;
+        }
+
+        $($headings).each(function(i,e) {
+            var hClass = $(e).prop('tagName');
+            var currLevel = parseInt(hClass.substr(1,1), 10);
+            var $hli = createMenuItem(e, hClass.toLowerCase() + '-nav');
+
+            $ul.append($hli);
         });
 
         $(window).resize(function () {
