@@ -295,14 +295,13 @@
         affixDiv.css('top', top_spacing);
         //affix.css('top','-250px');
 
-        var $pannel = $('<div class="panel panel-default"><ul class="nav"/></div>');
+        var $pannel = $('<div class="panel panel-default"><ul class="list-group"/></div>');
         var $parentUls = [$pannel.find("ul")];
         affixDiv.append($pannel);
 
-        function createli(heading, className) {
+        function createMenuItem(heading, className) {
             var $heading = $(heading);
-            var $li = $('<li />');
-            var $a = $('<a />');
+            var $a = $('<a class="list-group-item" />');
             $a.addClass(className);
             $a.attr('href', $.md.util.getInpageAnchorHref($heading.toptext()));
             $a.click(function(ev) {
@@ -313,35 +312,27 @@
                 $.md.scrollToInPageAnchor(anchortext);
             });
             $a.text($heading.toptext());
-            $li.append($a);
-            return $li;
+            return $a;
         }
 
         var prevLevel;
 
+        function appendSubNav() {
+            // append last element with the prev
+            var $lastParent = $parentUls.pop();
+            $($parentUls[$parentUls.length-1]).append($lastParent);
+        }
+
         $(headings).each(function(i,e) {
             var hClass = $(e).prop('tagName');
             var currLevel = parseInt(hClass.substr(1,1), 10);
-            var $hli = createli(e, hClass.toLowerCase() + '-nav');
-
-            // are we at a different heading level
-            if(prevLevel && currLevel !== prevLevel) {
-                if(currLevel > prevLevel) {
-                    $parentUls.push($('<ul class="nav" />'));
-                } else {
-                    // append last element with the prev
-                    var lastParent = $parentUls.pop();
-                    $($parentUls[$parentUls.length-1]).append(lastParent);
-                }
-            }
+            var $hli = createMenuItem(e, hClass.toLowerCase() + '-nav');
 
             $($parentUls[$parentUls.length-1]).append($hli);
-            prevLevel = currLevel;
         });
 
         while($parentUls.length > 1) {
-            var lp = $parentUls.pop();
-            $($parentUls[$parentUls.length-1].append(lp));
+            appendSubNav();
         }
 
         $(window).resize(function () {
