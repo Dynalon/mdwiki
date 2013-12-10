@@ -183,6 +183,25 @@
         });
     }
 
+    function isSpecialLink(href) {
+        if (!href) return false;
+
+        if (href.lastIndexOf('data:') >= 0)
+            return true;
+
+        if (href.startsWith('mailto:'))
+            return true;
+
+        if (href.startsWith('file:'))
+            return true;
+
+        if (href.startsWith('ftp:'))
+            return true;
+
+        // TODO capture more special links: every non-http link with : like
+        // torrent:// etc.
+    }
+
     // modify internal links so we load them through our engine
     function processPageLinks(domElement, baseUrl) {
         var html = $(domElement);
@@ -213,7 +232,7 @@
             if (href && href.lastIndexOf ('#!') >= 0)
                 return;
 
-            if (isImage && href && href.lastIndexOf ('data:'))
+            if (isSpecialLink(href))
                 return;
 
             if (!isImage && href.startsWith ('#') && !href.startsWith('#!')) {
