@@ -10,7 +10,7 @@
     $.md.registerGimmick(editMeGimmick);
  
     function editMe($links, opt, href) {
-        opt.text = opt.text || 'Edit Me'
+        opt.text = opt.text || 'Edit Me';
         return $links.each(function(i,link) {
             $(link).text(opt.text).attr('href', href + $.md.mainHref);
         });
