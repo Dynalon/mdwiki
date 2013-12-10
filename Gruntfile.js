@@ -50,7 +50,8 @@ module.exports = function(grunt) {
             // 'js/gimmicks/leaflet.js',
             'js/gimmicks/themechooser.js',
             'js/gimmicks/twitter.js',
-            'js/gimmicks/youtube_embed.js'
+            'js/gimmicks/youtube_embed.js',
+            'js/gimmicks/editme.js'
         ],
 
         // files that we always inline (stuff not available on CDN)
