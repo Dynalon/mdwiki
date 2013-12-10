@@ -12,7 +12,11 @@
     function editMe($links, opt, href) {
         opt.text = opt.text || 'Edit Me';
         return $links.each(function(i,link) {
-            $(link).text(opt.text).attr('href', href + $.md.mainHref);
+            $(link)
+                .text(opt.text)
+                .attr('href', href + $.md.mainHref)
+                .addClass('editme')
+                .prepend('<i class="glyphicon glyphicon-pencil"></i> ');
         });
     }
 }(jQuery));
