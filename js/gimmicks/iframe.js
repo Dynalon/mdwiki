@@ -1,7 +1,7 @@
 (function($) {
     'use strict';
     var iframeGimmick= {
-        name: 'forkmeongithub',
+        name: 'iframe',
         version: $.md.version,
         once: function() {
             $.md.linkGimmick(this, 'iframe', create_iframe);
