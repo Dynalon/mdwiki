@@ -3,6 +3,9 @@
 
     // PUBLIC API
     $.md.registerGimmick = function(module) {
+        if (!log)
+            log = $.md.getLogger();
+
         $.md.gimmicks.push(module);
         return;
     };
@@ -81,19 +84,19 @@
             return true;
         }
     };
-
+    var log;
     var initialized = false;
     // TODO combine main.js and modules.js closure
     $.md.initializeGimmicks = function() {
         findActiveLinkTrigger();
         runGimmicksOnce();
         loadRequiredScripts();
+        log = $.md.getLogger();
     };
 
     // END PUBLIC API
 
 
-    var log = $.md.getLogger();
 
     // triggers that we actually found on the page
     // array of string

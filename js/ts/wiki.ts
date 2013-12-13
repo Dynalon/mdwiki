@@ -1,7 +1,14 @@
+///<reference path="stage.ts" />
+///<reference path="theme.ts" />
+///<reference path="logger.ts" />
+
 declare var $: any;
 declare var marked: any;
 
+import Logger = MDwiki.Util.Logger;
+
 module MDwiki.Core {
+
     export class Wiki {
         public stages: StageChain = new StageChain();
 
@@ -15,13 +22,17 @@ module MDwiki.Core {
 
         run() {
             // main run loop
-            var t = new BootswatchTheme('foo');
-            this.registerCoreFunctionality();
+            this.registerFetchConfigAndNavigation();
+            this.registerFetchMarkdown();
+            this.registerPageTransformation();
+            this.registerGimmickLoad ();
+            this.registerClearContent();
             this.registerFinalTasks();
+
             // start the stages chain with the init stage
             this.stages.run();
         }
-        registerCoreFunctionality() {
+        private registerFetchConfigAndNavigation() {
 
             // fetch config.json
             $.md.stage('init').subscribe(done => {
@@ -37,18 +48,108 @@ module MDwiki.Core {
                     done();
                 });
             });
+        }
+        private registerPageTransformation() {
 
-            // register fetch main content
+            $.md.stage('ready').subscribe(function(done) {
+                $.md('createBasicSkeleton');
+                done();
+            });
 
-            // when all three are ready...
-            // apply config.json
-            // transform main content
-            // process includes & previews
-            //
+            $.md.stage('bootstrap').subscribe(function(done){
+                $.mdbootstrap('bootstrapify');
+                $.md.processPageLinks($('#md-content'), $.md.baseUrl);
+                done();
+            });
 
             // register process page links (have to be done after gimmicks)
         }
-        registerBuildNavigation(navMD: string) {
+
+        private transformMarkdown(markdown: string) {
+            var options = {
+                gfm: true,
+                tables: true,
+                breaks: true
+            };
+            if ($.md.config.lineBreaks === 'original')
+                options.breaks = false;
+            else if ($.md.config.lineBreaks === 'gfm')
+                options.breaks = true;
+
+            marked.setOptions(options);
+
+            // get sample markdown
+            var uglyHtml = marked(markdown);
+            return uglyHtml;
+        }
+
+        private registerClearContent() {
+            $.md.stage('init').subscribe(function(done) {
+                $('#md-all').empty();
+                var skel ='<div id="md-body"><div id="md-title"></div><div id="md-menu">'+
+                    '</div><div id="md-content"></div></div>';
+                $('#md-all').prepend($(skel));
+                done();
+            });
+        }
+        private registerFetchMarkdown() {
+
+            var md = '';
+
+            $.md.stage('init').subscribe(function(done) {
+                var ajaxReq = {
+                    url: $.md.mainHref,
+                    dataType: 'text'
+                };
+                $.ajax(ajaxReq).done(function(data) {
+                    // TODO do this elsewhere
+                    md = data;
+                    done();
+                }).fail(function() {
+                    var log = $.md.getLogger();
+                    log.fatal('Could not get ' + $.md.mainHref);
+                    done();
+                });
+            });
+
+            // find baseUrl
+            $.md.stage('transform').subscribe(function(done) {
+                var len = $.md.mainHref.lastIndexOf('/');
+                var baseUrl = $.md.mainHref.substring(0, len+1);
+                $.md.baseUrl = baseUrl;
+                done();
+            });
+
+            $.md.stage('transform').subscribe(done => {
+                var uglyHtml = this.transformMarkdown(md);
+                $('#md-content').html(uglyHtml);
+                md = '';
+                done();
+            });
+        }
+
+        private registerGimmickLoad() {
+
+            // find out which link gimmicks we need
+            $.md.stage('ready').subscribe(function(done) {
+                $.md.initializeGimmicks();
+                $.md.registerLinkGimmicks();
+                done();
+            });
+
+            // wire up the load method of the modules
+            $.each($.md.gimmicks, function(i, module) {
+                if (module.load === undefined) {
+                    return;
+                }
+                $.md.stage('load').subscribe(function(done) {
+                    module.load();
+                    done();
+                });
+            });
+
+        }
+        private registerBuildNavigation(navMD: string) {
 
             $.md.stage('transform').subscribe(function(done) {
                 if (navMD === '') {
@@ -80,7 +181,7 @@ module MDwiki.Core {
             });
         }
 
-        registerFinalTasks () {
+        private registerFinalTasks () {
 
             // wire the stages up
             $.md.stage('all_ready').finished().done(function() {

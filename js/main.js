@@ -9,128 +9,69 @@
         });
     }
 
+    // // load [include](/foo/bar.md) external links
+    // function loadExternalIncludes(parent_dfd) {
 
-    function transformMarkdown (markdown) {
-        var options = {
-            gfm: true,
-            tables: true,
-            breaks: true
-        };
-        if ($.md.config.lineBreaks === 'original')
-            options.breaks = false;
-        else if ($.md.config.lineBreaks === 'gfm')
-            options.breaks = true;
+    //     function findExternalIncludes () {
+    //         return $('a').filter (function () {
+    //             var href = $(this).attr('href');
+    //             var text = $(this).toptext();
+    //             var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
+    //             var isInclude = text === 'include';
+    //             var isPreview = text.startsWith('preview:');
+    //             return (isInclude || isPreview) && isMarkdown;
+    //         });
+    //     }
 
-        marked.setOptions(options);
+    //     function selectPreviewElements ($jqcol, num_elements) {
+    //         function isTextNode(node) {
+    //             return node.nodeType === 3;
+    //         }
+    //         var count = 0;
+    //         var elements = [];
+    //         $jqcol.each(function (i,e) {
+    //             if (count < num_elements) {
+    //                 elements.push(e);
+    //                 if (!isTextNode(e)) count++;
+    //             }
+    //         });
+    //         return $(elements);
+    //     }
 
-        // get sample markdown
-        var uglyHtml = marked(markdown);
-        return uglyHtml;
-    }
+    //     var external_links = findExternalIncludes ();
+    //     // continue execution when all external resources are fully loaded
+    //     var latch = $.md.util.countDownLatch (external_links.length);
+    //     latch.always (function () {
+    //         parent_dfd.resolve();
+    //     });
 
-    function registerFetchMarkdown() {
+    //     external_links.each(function (i,e) {
+    //         var $el = $(e);
+    //         var href = $el.attr('href');
+    //         var text = $el.toptext();
 
-        var md = '';
-
-        $.md.stage('init').subscribe(function(done) {
-            var ajaxReq = {
-                url: $.md.mainHref,
-                dataType: 'text'
-            };
-            $.ajax(ajaxReq).done(function(data) {
-                // TODO do this elsewhere
-                md = data;
-                done();
-            }).fail(function() {
-                var log = $.md.getLogger();
-                log.fatal('Could not get ' + $.md.mainHref);
-                done();
-            });
-        });
-
-        // find baseUrl
-        $.md.stage('transform').subscribe(function(done) {
-            var len = $.md.mainHref.lastIndexOf('/');
-            var baseUrl = $.md.mainHref.substring(0, len+1);
-            $.md.baseUrl = baseUrl;
-            done();
-        });
-
-        $.md.stage('transform').subscribe(function(done) {
-            var uglyHtml = transformMarkdown(md);
-            $('#md-content').html(uglyHtml);
-            md = '';
-            var dfd = $.Deferred();
-            loadExternalIncludes(dfd);
-            dfd.always(function () {
-                done();
-            });
-        });
-    }
-
-    // load [include](/foo/bar.md) external links
-    function loadExternalIncludes(parent_dfd) {
-
-        function findExternalIncludes () {
-            return $('a').filter (function () {
-                var href = $(this).attr('href');
-                var text = $(this).toptext();
-                var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
-                var isInclude = text === 'include';
-                var isPreview = text.startsWith('preview:');
-                return (isInclude || isPreview) && isMarkdown;
-            });
-        }
-
-        function selectPreviewElements ($jqcol, num_elements) {
-            function isTextNode(node) {
-                return node.nodeType === 3;
-            }
-            var count = 0;
-            var elements = [];
-            $jqcol.each(function (i,e) {
-                if (count < num_elements) {
-                    elements.push(e);
-                    if (!isTextNode(e)) count++;
-                }
-            });
-            return $(elements);
-        }
-
-        var external_links = findExternalIncludes ();
-        // continue execution when all external resources are fully loaded
-        var latch = $.md.util.countDownLatch (external_links.length);
-        latch.always (function () {
-            parent_dfd.resolve();
-        });
-
-        external_links.each(function (i,e) {
-            var $el = $(e);
-            var href = $el.attr('href');
-            var text = $el.toptext();
-
-            $.ajax({
-                url: href,
-                dataType: 'text'
-            })
-            .done(function (data) {
-                var $html = $(transformMarkdown(data));
-                if (text.startsWith('preview:')) {
-                    // only insert the selected number of paragraphs; default 3
-                    var num_preview_elements = parseInt(text.substring(8), 10) ||3;
-                    var $preview = selectPreviewElements ($html, num_preview_elements);
-                    $preview.last().append('<a href="' + href +'"> ...read more &#10140;</a>');
-                    $preview.insertBefore($el.parent('p').eq(0));
-                    $el.remove();
-                } else {
-                    $html.insertAfter($el.parents('p'));
-                    $el.remove();
-                }
-            }).always(function () {
-                latch.countDown();
-            });
-        });
-    }
+    //         $.ajax({
+    //             url: href,
+    //             dataType: 'text'
+    //         })
+    //         .done(function (data) {
+    //             var $html = $(transformMarkdown(data));
+    //             if (text.startsWith('preview:')) {
+    //                 // only insert the selected number of paragraphs; default 3
+    //                 var num_preview_elements = parseInt(text.substring(8), 10) ||3;
+    //                 var $preview = selectPreviewElements ($html, num_preview_elements);
+    //                 $preview.last().append('<a href="' + href +'"> ...read more &#10140;</a>');
+    //                 $preview.insertBefore($el.parent('p').eq(0));
+    //                 $el.remove();
+    //             } else {
+    //                 $html.insertAfter($el.parents('p'));
+    //                 $el.remove();
+    //             }
+    //         }).always(function () {
+    //             latch.countDown();
+    //         });
+    //     });
+    // }
 
     // modify internal links so we load them through our engine
     $.md.processPageLinks = function (domElement, baseUrl) {
@@ -196,52 +137,8 @@
         });
     };
 
-    function registerClearContent() {
 
-        $.md.stage('init').subscribe(function(done) {
-            $('#md-all').empty();
-            var skel ='<div id="md-body"><div id="md-title"></div><div id="md-menu">'+
-                '</div><div id="md-content"></div></div>';
-            $('#md-all').prepend($(skel));
-            done();
-        });
 
-    }
-    function loadContent(href) {
-        $.md.mainHref = href;
-
-        registerFetchMarkdown();
-        registerClearContent();
-
-        // find out which link gimmicks we need
-        $.md.stage('ready').subscribe(function(done) {
-            $.md.initializeGimmicks();
-            $.md.registerLinkGimmicks();
-            done();
-        });
-
-        // wire up the load method of the modules
-        $.each($.md.gimmicks, function(i, module) {
-            if (module.load === undefined) {
-                return;
-            }
-            $.md.stage('load').subscribe(function(done) {
-                module.load();
-                done();
-            });
-        });
-
-        $.md.stage('ready').subscribe(function(done) {
-            $.md('createBasicSkeleton');
-            done();
-        });
-
-        $.md.stage('bootstrap').subscribe(function(done){
-            $.mdbootstrap('bootstrapify');
-            $.md.processPageLinks($('#md-content'), $.md.baseUrl);
-            done();
-        });
-    }
 
     function extractHashData() {
         // first char is the # or #!
@@ -285,7 +182,6 @@
 
         // stage init stuff
         $.initMDwiki();
-        var log = $.md.getLogger();
 
         extractHashData();
 
@@ -295,7 +191,6 @@
             window.location.reload(false);
         });
 
-        loadContent($.md.mainHref);
         $.md.wiki.run();
     });
 }(jQuery));
