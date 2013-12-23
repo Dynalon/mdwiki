@@ -24,6 +24,7 @@
 [Examples](examples.md)
 [Download](download.md)
 [Contribute](contribute/index.md)
+[Blog](blog.md)
 [Forum](forum.md)
 
 
