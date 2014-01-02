@@ -16,6 +16,7 @@
         { name: 'united', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/united/bootstrap.min.css' },
         { name: 'yeti', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.2/yeti/bootstrap.min.css' }
     ];
+    var useChooser = false;
     var themeChooserGimmick = {
         name: 'Themes',
         version: $.md.version,
@@ -78,8 +79,9 @@
             $.md.stage('postgimmick').subscribe(function(done) {
                 var $link = $(link);
 
-                // only set a theme if no theme from the choser is selected
-                if (window.localStorage.theme === undefined) {
+                // only set a theme if no theme from the chooser is selected,
+                // or if the chooser isn't enabled
+                if (window.localStorage.theme === undefined || !useChooser) {
                     set_theme(opt);
                 }
 
@@ -91,6 +93,7 @@
 
     var themechooser = function($links, opt, text) {
 
+        useChooser = true;
         $.md.stage('bootstrap').subscribe(function(done) {
             restore_theme(opt);
             done();
