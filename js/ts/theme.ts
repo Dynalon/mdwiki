@@ -39,6 +39,7 @@ class BootswatchTheme extends Theme {
 
 class ThemeChooser {
     private themes: Theme[] = [];
+    public enableChooser: boolean = false;
 
     public get themeNames (): string[] {
         return this.themes.map(t => t.name);
@@ -96,6 +97,7 @@ class ThemeChooser {
             });
 
             var build_chooser = ($links, opt, text) => {
+                tc.enableChooser = true;
                 themechooser($links, opt, text, tc);
             };
             var apply_theme = ($links, opt, text) => {
@@ -113,7 +115,7 @@ class ThemeChooser {
         opt.name = opt.name || text;
         $links.each(function (i, link) {
             $.md.stage('postgimmick').subscribe(function(done) {
-                if (!tc.currentTheme || tc.currentTheme == '')
+                if (!tc.currentTheme || tc.currentTheme == '' || tc.enableChooser == false)
                     tc.load(opt.name);
                 done();
             });
