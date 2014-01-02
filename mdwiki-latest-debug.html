@@ -1949,6 +1949,7 @@ var BootswatchTheme = (function (_super) {
 var ThemeChooser = (function () {
     function ThemeChooser() {
         this.themes = [];
+        this.enableChooser = false;
     }
     Object.defineProperty(ThemeChooser.prototype, "themeNames", {
         get: function () {
@@ -2018,6 +2019,7 @@ var ThemeChooser = (function () {
             });
 
             var build_chooser = function ($links, opt, text) {
+                tc.enableChooser = true;
                 themechooser($links, opt, text, tc);
             };
             var apply_theme = function ($links, opt, text) {
@@ -2034,7 +2036,7 @@ var ThemeChooser = (function () {
         opt.name = opt.name || text;
         $links.each(function (i, link) {
             $.md.stage('postgimmick').subscribe(function (done) {
-                if (!tc.currentTheme || tc.currentTheme == '')
+                if (!tc.currentTheme || tc.currentTheme == '' || tc.enableChooser == false)
                     tc.load(opt.name);
                 done();
             });
