@@ -105,6 +105,7 @@
     // a count-down latch as in Java7.
     $.md.util.countDownLatch = function (capacity, min) {
         min = min || 0;
+        capacity = capacity || 1;
         var dfd = $.Deferred();
         if (capacity <= min) dfd.resolve();
         dfd.capacity = capacity;

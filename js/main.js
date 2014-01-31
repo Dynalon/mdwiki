@@ -61,7 +61,15 @@
     var publicMethods = {};
     $.md.publicMethods = $.extend ({}, $.md.publicMethods, publicMethods);
 
-    function transformMarkdown (markdown) {
+    function transformMarkdown (markdown,baseUrl) {
+        
+        if (baseUrl === undefined) {
+            baseUrl = '';
+        }else{
+            baseUrl = baseUrl + '/';
+            console.log('base: ' +  baseUrl);
+        }
+
         var options = {
             gfm: true,
             tables: true,
@@ -76,6 +84,21 @@
 
         // get sample markdown
         var uglyHtml = marked(markdown);
+
+
+        //translate urls
+
+        uglyHtml = $('<div>'+uglyHtml+'</div>').find('a[href],img[src]').each(function() { 
+            var t = $(this);
+            if(t.attr('href') && (!t.attr('href').startsWith('/'))){
+                t.attr('href',baseUrl + t.attr('href')); 
+            }
+            if(t.attr('src') && (!t.attr('src').startsWith('/'))){
+                t.attr('src',baseUrl + t.attr('src')); 
+            }
+        }).end().html();
+
+
         return uglyHtml;
     }
 
@@ -111,7 +134,7 @@
             var uglyHtml = transformMarkdown(md);
             $('#md-content').html(uglyHtml);
             md = '';
-            var dfd = $.Deferred();
+            var dfd = $.md.util.countDownLatch();
             loadExternalIncludes(dfd);
             dfd.always(function () {
                 done();
@@ -120,17 +143,30 @@
     }
 
     // load [include](/foo/bar.md) external links
-    function loadExternalIncludes(parent_dfd) {
-
-        function findExternalIncludes () {
-            return $('a').filter (function () {
+    function loadExternalIncludes(parent_dfd,$dom) {
+        function findExternalIncludes (idom) {
+            if (idom === undefined) { 
+                return $('a').filter (function () {
                 var href = $(this).attr('href');
                 var text = $(this).toptext();
+                console.log('href -> ' + href + "  -  this -> " + this + ' --- dom : ' + idom);
                 var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
                 var isInclude = text === 'include';
                 var isPreview = text.startsWith('preview:');
                 return (isInclude || isPreview) && isMarkdown;
             });
+             }else{
+                return idom.find('a').filter (function () {
+                var href = $(this).attr('href');
+                var text = $(this).toptext();
+                console.log('href -> ' + href + "  -  this -> " + this + ' --- dom : ' + idom);
+                var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
+                var isInclude = text === 'include';
+                var isPreview = text.startsWith('preview:');
+                return (isInclude || isPreview) && isMarkdown;
+            });
+             }
+            
         }
 
         function selectPreviewElements ($jqcol, num_elements) {
@@ -148,16 +184,22 @@
             return $(elements);
         }
 
-        var external_links = findExternalIncludes ();
+        var external_links = findExternalIncludes ($dom);
         // continue execution when all external resources are fully loaded
         var latch = $.md.util.countDownLatch (external_links.length);
         latch.always (function () {
-            parent_dfd.resolve();
+            parent_dfd.countDown();
         });
 
         external_links.each(function (i,e) {
             var $el = $(e);
             var href = $el.attr('href');
+
+            // get baseUrl for relative path resolving
+            var baseUrl = href.split('/');
+            baseUrl.pop();
+            baseUrl = baseUrl.join('/');
+
             var text = $el.toptext();
 
             $.ajax({
@@ -165,7 +207,12 @@
                 dataType: 'text'
             })
             .done(function (data) {
-                var $html = $(transformMarkdown(data));
+                // transformMarkdown will deal with relative links if we pass a baseUrl to the call
+                var $html = $(transformMarkdown(data,baseUrl));
+                console.log('$html --- ' + $html);
+                //resolve includes on the included document.
+                loadExternalIncludes(latch,$html);
+
                 if (text.startsWith('preview:')) {
                     // only insert the selected number of paragraphs; default 3
                     var num_preview_elements = parseInt(text.substring(8), 10) ||3;
@@ -177,7 +224,8 @@
                     $html.insertAfter($el.parents('p'));
                     $el.remove();
                 }
-            }).always(function () {
+            }).fail(function () {
+                //if failed, we count down. if it succeded, it will have been counted down by loadExternalIncludes(latch,$html);
                 latch.countDown();
             });
         });
