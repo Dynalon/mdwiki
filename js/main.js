@@ -67,7 +67,6 @@
             baseUrl = '';
         }else{
             baseUrl = baseUrl + '/';
-            console.log('base: ' +  baseUrl);
         }
 
         var options = {
@@ -149,7 +148,6 @@
                 return $('a').filter (function () {
                 var href = $(this).attr('href');
                 var text = $(this).toptext();
-                console.log('href -> ' + href + "  -  this -> " + this + ' --- dom : ' + idom);
                 var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
                 var isInclude = text === 'include';
                 var isPreview = text.startsWith('preview:');
@@ -159,7 +157,6 @@
                 return idom.find('a').filter (function () {
                 var href = $(this).attr('href');
                 var text = $(this).toptext();
-                console.log('href -> ' + href + "  -  this -> " + this + ' --- dom : ' + idom);
                 var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
                 var isInclude = text === 'include';
                 var isPreview = text.startsWith('preview:');
@@ -185,8 +182,10 @@
         }
 
         var external_links = findExternalIncludes ($dom);
+        
         // continue execution when all external resources are fully loaded
         var latch = $.md.util.countDownLatch (external_links.length);
+        //when all included external links finish loading, we'll notify our parent dfd that ONE of us finished.
         latch.always (function () {
             parent_dfd.countDown();
         });
@@ -209,10 +208,9 @@
             .done(function (data) {
                 // transformMarkdown will deal with relative links if we pass a baseUrl to the call
                 var $html = $(transformMarkdown(data,baseUrl));
-                console.log('$html --- ' + $html);
+                
                 //resolve includes on the included document.
                 loadExternalIncludes(latch,$html);
-
                 if (text.startsWith('preview:')) {
                     // only insert the selected number of paragraphs; default 3
                     var num_preview_elements = parseInt(text.substring(8), 10) ||3;
