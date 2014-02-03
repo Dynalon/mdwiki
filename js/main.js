@@ -171,14 +171,14 @@
                 return node.nodeType === 3;
             }
             var count = 0;
-            var elements = [];
+            var elements = $('<div></div>');
             $jqcol.each(function (i,e) {
                 if (count < num_elements) {
-                    elements.push(e);
+                    elements.append(e);
                     if (!isTextNode(e)) count++;
                 }
             });
-            return $(elements);
+            return elements.html();
         }
 
         var external_links = findExternalIncludes ($dom);
@@ -214,9 +214,9 @@
                 if (text.startsWith('preview:')) {
                     // only insert the selected number of paragraphs; default 3
                     var num_preview_elements = parseInt(text.substring(8), 10) ||3;
-                    var $preview = selectPreviewElements ($html, num_preview_elements);
+                    var $preview = $(selectPreviewElements ($html, num_preview_elements));
                     $preview.last().append('<a href="' + href +'"> ...read more &#10140;</a>');
-                    $preview.insertBefore($el.parent('p').eq(0));
+                    $preview.insertAfter($el.parents('p'));
                     $el.remove();
                 } else {
                     $html.insertAfter($el.parents('p'));
