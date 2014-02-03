@@ -124,13 +124,13 @@
         // find baseUrl
         $.md.stage('transform').subscribe(function(done) {
             var len = $.md.mainHref.lastIndexOf('/');
-            var baseUrl = $.md.mainHref.substring(0, len+1);
+            var baseUrl = $.md.mainHref.substring(0, len);
             $.md.baseUrl = baseUrl;
             done();
         });
 
         $.md.stage('transform').subscribe(function(done) {
-            var uglyHtml = transformMarkdown(md);
+            var uglyHtml = transformMarkdown(md,$.md.baseUrl);
             $('#md-content').html(uglyHtml);
             md = '';
             var dfd = $.md.util.countDownLatch();
@@ -455,7 +455,7 @@
 
         $.md.stage('bootstrap').subscribe(function(done){
             $.mdbootstrap('bootstrapify');
-            processPageLinks($('#md-content'), $.md.baseUrl);
+            processPageLinks($('#md-content'), $.md.baseUrl + '/');
             done();
         });
         runStages();
