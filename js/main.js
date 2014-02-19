@@ -89,10 +89,10 @@
 
         uglyHtml = $('<div>'+uglyHtml+'</div>').find('a[href],img[src]').each(function() { 
             var t = $(this);
-            if($.md.util.isRelativeUrl(t.attr('href')) && ! $.md.util.isRelativePath(t.attr('href')) ){
+            if($.md.util.isRelativeUrl(t.attr('href')) && $.md.util.isRelativePath(t.attr('href')) ){
                 t.attr('href',baseUrl + t.attr('href')); 
             }
-            if($.md.util.isRelativeUrl(t.attr('src')) && ! $.md.util.isRelativePath(t.attr('src')) ){
+            if($.md.util.isRelativeUrl(t.attr('src')) && $.md.util.isRelativePath(t.attr('src')) ){
                 t.attr('src',baseUrl + t.attr('src')); 
             }
         }).end().html();
