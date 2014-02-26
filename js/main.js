@@ -61,7 +61,14 @@
     var publicMethods = {};
     $.md.publicMethods = $.extend ({}, $.md.publicMethods, publicMethods);
 
-    function transformMarkdown (markdown) {
+    function transformMarkdown (markdown,baseUrl) {
+        
+        if (baseUrl === undefined) {
+            baseUrl = '';
+        }else{
+            baseUrl = baseUrl + '/';
+        }
+
         var options = {
             gfm: true,
             tables: true,
@@ -76,6 +83,21 @@
 
         // get sample markdown
         var uglyHtml = marked(markdown);
+
+
+        //translate urls
+
+        uglyHtml = $('<div>'+uglyHtml+'</div>').find('a[href],img[src]').each(function() { 
+            var t = $(this);
+            if($.md.util.isRelativeUrl(t.attr('href')) && $.md.util.isRelativePath(t.attr('href')) ){
+                t.attr('href',baseUrl + t.attr('href')); 
+            }
+            if($.md.util.isRelativeUrl(t.attr('src')) && $.md.util.isRelativePath(t.attr('src')) ){
+                t.attr('src',baseUrl + t.attr('src')); 
+            }
+        }).end().html();
+
+
         return uglyHtml;
     }
 
@@ -102,16 +124,16 @@
         // find baseUrl
         $.md.stage('transform').subscribe(function(done) {
             var len = $.md.mainHref.lastIndexOf('/');
-            var baseUrl = $.md.mainHref.substring(0, len+1);
+            var baseUrl = $.md.mainHref.substring(0, len);
             $.md.baseUrl = baseUrl;
             done();
         });
 
         $.md.stage('transform').subscribe(function(done) {
-            var uglyHtml = transformMarkdown(md);
+            var uglyHtml = transformMarkdown(md,$.md.baseUrl);
             $('#md-content').html(uglyHtml);
             md = '';
-            var dfd = $.Deferred();
+            var dfd = $.md.util.countDownLatch();
             loadExternalIncludes(dfd);
             dfd.always(function () {
                 done();
@@ -120,10 +142,10 @@
     }
 
     // load [include](/foo/bar.md) external links
-    function loadExternalIncludes(parent_dfd) {
-
-        function findExternalIncludes () {
-            return $('a').filter (function () {
+    function loadExternalIncludes(parent_dfd,$dom) {
+        function findExternalIncludes (idom) {
+            if (idom === undefined) { 
+                return $('a').filter (function () {
                 var href = $(this).attr('href');
                 var text = $(this).toptext();
                 var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
@@ -131,6 +153,17 @@
                 var isPreview = text.startsWith('preview:');
                 return (isInclude || isPreview) && isMarkdown;
             });
+             }else{
+                return idom.find('a').filter (function () {
+                var href = $(this).attr('href');
+                var text = $(this).toptext();
+                var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
+                var isInclude = text === 'include';
+                var isPreview = text.startsWith('preview:');
+                return (isInclude || isPreview) && isMarkdown;
+            });
+             }
+            
         }
 
         function selectPreviewElements ($jqcol, num_elements) {
@@ -138,26 +171,34 @@
                 return node.nodeType === 3;
             }
             var count = 0;
-            var elements = [];
+            var elements = $('<div></div>');
             $jqcol.each(function (i,e) {
                 if (count < num_elements) {
-                    elements.push(e);
+                    elements.append(e);
                     if (!isTextNode(e)) count++;
                 }
             });
-            return $(elements);
+            return elements.html();
         }
 
-        var external_links = findExternalIncludes ();
+        var external_links = findExternalIncludes ($dom);
+        
         // continue execution when all external resources are fully loaded
         var latch = $.md.util.countDownLatch (external_links.length);
+        //when all included external links finish loading, we'll notify our parent dfd that ONE of us finished.
         latch.always (function () {
-            parent_dfd.resolve();
+            parent_dfd.countDown();
         });
 
         external_links.each(function (i,e) {
             var $el = $(e);
             var href = $el.attr('href');
+
+            // get baseUrl for relative path resolving
+            var baseUrl = href.split('/');
+            baseUrl.pop();
+            baseUrl = baseUrl.join('/');
+
             var text = $el.toptext();
 
             $.ajax({
@@ -165,19 +206,24 @@
                 dataType: 'text'
             })
             .done(function (data) {
-                var $html = $(transformMarkdown(data));
+                // transformMarkdown will deal with relative links if we pass a baseUrl to the call
+                var $html = $(transformMarkdown(data,baseUrl));
+                
+                //resolve includes on the included document.
+                loadExternalIncludes(latch,$html);
                 if (text.startsWith('preview:')) {
                     // only insert the selected number of paragraphs; default 3
                     var num_preview_elements = parseInt(text.substring(8), 10) ||3;
-                    var $preview = selectPreviewElements ($html, num_preview_elements);
+                    var $preview = $(selectPreviewElements ($html, num_preview_elements));
                     $preview.last().append('<a href="' + href +'"> ...read more &#10140;</a>');
-                    $preview.insertBefore($el.parent('p').eq(0));
+                    $preview.insertAfter($el.parents('p'));
                     $el.remove();
                 } else {
                     $html.insertAfter($el.parents('p'));
                     $el.remove();
                 }
-            }).always(function () {
+            }).fail(function () {
+                //if failed, we count down. if it succeded, it will have been counted down by loadExternalIncludes(latch,$html);
                 latch.countDown();
             });
         });
@@ -409,7 +455,7 @@
 
         $.md.stage('bootstrap').subscribe(function(done){
             $.mdbootstrap('bootstrapify');
-            processPageLinks($('#md-content'), $.md.baseUrl);
+            processPageLinks($('#md-content'), $.md.baseUrl + '/');
             done();
         });
         runStages();
