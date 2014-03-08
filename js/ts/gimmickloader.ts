@@ -1,5 +1,4 @@
 declare var $: any;
-declare var RegExp: any;
 
 module MDwiki.Gimmicks {
     export interface IExternalResource {
@@ -55,7 +54,7 @@ module MDwiki.Gimmicks {
                 return null;
             }
             var href = $.trim($link.attr('href'));
-            var r = new RegExp(/gimmick:\s*([^(\s]*)\s*(\(\s*{?(.*)\s*}?\s*\))*/i);
+            var r = new RegExp('/gimmick:\s*([^(\s]*)\s*(\(\s*{?(.*)\s*}?\s*\))*/i');
             var matches = r.exec(link_text);
             if (matches === null || matches[1] === undefined) {
                 $.error('Error matching a gimmick: ' + link_text);

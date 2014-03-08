@@ -1,4 +1,5 @@
 declare var $: any;
+declare var jQuery: any;
 declare var MDwikiEnableDebug: any;
 
 (function($) {

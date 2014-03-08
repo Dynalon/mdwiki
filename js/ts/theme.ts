@@ -1,4 +1,4 @@
-/// <reference path="./d.ts/DefinitelyTyped/jquery/jquery.d.ts" />
+declare var $:any;
 
 class StringUtil {
     static startsWith (search: string, suffix: string) {
