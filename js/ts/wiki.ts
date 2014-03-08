@@ -1,6 +1,7 @@
 ///<reference path="stage.ts" />
 ///<reference path="theme.ts" />
 ///<reference path="logger.ts" />
+///<reference path="gimmickloader.ts" />
 
 declare var $: any;
 declare var marked: any;
@@ -134,6 +135,16 @@ module MDwiki.Core {
             $.md.stage('ready').subscribe(function(done) {
                 $.md.initializeGimmicks();
                 $.md.registerLinkGimmicks();
+
+                var helloGimmick = new MDwiki.Gimmicks.HelloWorldGimmick();
+                var gimmickLoader = new MDwiki.Gimmicks.GimmickLoader ();
+                gimmickLoader.registerLinkGimmick(helloGimmick);
+                gimmickLoader.initLinkGimmicks();
+                $.md.stage('gimmick').subscribe(done => {
+                    gimmickLoader.loadLinkGimmicks();
+                    done();
+                });
+
                 done();
             });
 
