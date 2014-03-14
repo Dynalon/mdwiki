@@ -1607,7 +1607,7 @@ if (typeof exports === 'object') {
         var r = new RegExp(/gimmick:\s*([^(\s]*)\s*(\(\s*{?(.*)\s*}?\s*\))*/i);
         var matches = r.exec(link_text);
         if (matches === null || matches[1] === undefined) {
-            $.error('Error matching a gimmick: ' + link_text);
+            // $.error('Error matching a gimmick: ' + link_text);
             return null;
         }
         var trigger = matches[1].toLowerCase();
@@ -1685,7 +1685,7 @@ if (typeof exports === 'object') {
 
 var MDwiki;
 (function (MDwiki) {
-    (function (Gimmicks) {
+    (function (Core) {
         var ScriptResource = (function () {
             function ScriptResource(url, loadstage) {
                 if (typeof loadstage === "undefined") { loadstage = 'gimmick'; }
@@ -1694,74 +1694,79 @@ var MDwiki;
             }
             return ScriptResource;
         })();
-        Gimmicks.ScriptResource = ScriptResource;
+        Core.ScriptResource = ScriptResource;
 
-        var StyleResource = (function () {
-            function StyleResource(url) {
+        var CssResource = (function () {
+            function CssResource(url) {
                 this.url = url;
             }
-            return StyleResource;
+            return CssResource;
         })();
+        Core.CssResource = CssResource;
 
-        var LinkGimmick = (function () {
-            function LinkGimmick() {
+        function getGimmickLinkParts($link) {
+            var link_text = $.trim($link.toptext());
+
+            if (link_text.match(/gimmick:/i) === null) {
+                return null;
             }
-            LinkGimmick.prototype.init = function () {
-            };
-            LinkGimmick.prototype.loadAll = function ($links) {
-            };
-            LinkGimmick.prototype.load = function ($link, options, text) {
-            };
-            LinkGimmick.prototype.ready = function () {
-            };
+            var href = $.trim($link.attr('href'));
+            var r = new RegExp('gimmick:\s*([^(\s]*)\s*((\s*{?(.*)\s*}?\s*\))*', 'i');
+            var matches = r.exec(link_text);
+            if (matches === null || matches[1] === undefined) {
+                $.error('Error matching a gimmick: ' + link_text);
+                return null;
+            }
+            var trigger = matches[1].toLowerCase();
+            var args = null;
 
-            LinkGimmick.getGimmickLinkParts = function ($link) {
-                var link_text = $.trim($link.toptext());
+            if (matches[2] !== undefined) {
+                var params = $.trim(matches[3].toString());
 
-                if (link_text.match(/gimmick:/i) === null) {
-                    return null;
+                if (params.charAt(params.length - 1) === '}') {
+                    params = params.substring(0, params.length - 1);
                 }
-                var href = $.trim($link.attr('href'));
-                var r = new RegExp('/gimmick:\s*([^(\s]*)\s*(\(\s*{?(.*)\s*}?\s*\))*/i');
-                var matches = r.exec(link_text);
-                if (matches === null || matches[1] === undefined) {
-                    $.error('Error matching a gimmick: ' + link_text);
-                    return null;
+
+                var replace_quotes = new RegExp("'", 'g');
+                params = params.replace(replace_quotes, '"');
+
+                try  {
+                    args = eval(params);
+                } catch (err) {
+                    $.error('error parsing argument of gimmick: ' + link_text + 'giving error: ' + err);
                 }
-                var trigger = matches[1].toLowerCase();
-                var args = null;
+            }
+            return new GimmickLinkParts(trigger, args, href);
+        }
 
-                if (matches[2] !== undefined) {
-                    var params = $.trim(matches[3].toString());
-
-                    if (params.charAt(params.length - 1) === '}') {
-                        params = params.substring(0, params.length - 1);
-                    }
-
-                    params = '({' + params + '})';
-
-                    params = params.replace(/'/g, '"');
-
-                    try  {
-                        args = eval(params);
-                    } catch (err) {
-                    }
-                }
-                return { trigger: trigger, options: args, href: href };
+        var Gimmick = (function () {
+            function Gimmick() {
+                this.scripts = [];
+                this.styles = [];
+            }
+            Gimmick.prototype.init = function () {
             };
-            return LinkGimmick;
+            Gimmick.prototype.ready = function () {
+            };
+            Gimmick.prototype.load = function ($link, options, text) {
+            };
+            return Gimmick;
         })();
-        Gimmicks.LinkGimmick = LinkGimmick;
+        Core.Gimmick = Gimmick;
 
-        var BasicGimmick = (function () {
-            function BasicGimmick() {
+        var GimmickLinkParts = (function () {
+            function GimmickLinkParts(trigger, options, href) {
+                this.trigger = trigger;
+                this.options = options;
+                this.href = href;
             }
-            return BasicGimmick;
+            return GimmickLinkParts;
         })();
 
         var MathJaxGimmick = (function () {
             function MathJaxGimmick() {
-                this.trigger = 'forkmeongithub';
+                this.name = 'mathjax';
+                this.trigger = 'math';
                 this.scripts = [];
                 this.styles = [];
             }
@@ -1772,8 +1777,6 @@ var MDwiki;
             };
             MathJaxGimmick.prototype.load = function ($link, options, text) {
             };
-            MathJaxGimmick.prototype.loadAll = function ($links) {
-            };
             MathJaxGimmick.prototype.ready = function () {
             };
             return MathJaxGimmick;
@@ -1782,6 +1785,7 @@ var MDwiki;
         var HelloWorldGimmick = (function () {
             function HelloWorldGimmick() {
                 this.trigger = 'hello';
+                this.name = 'Hello World Gimmick';
                 this.scripts = [];
                 this.styles = [];
             }
@@ -1797,37 +1801,45 @@ var MDwiki;
             };
             return HelloWorldGimmick;
         })();
-        Gimmicks.HelloWorldGimmick = HelloWorldGimmick;
+        Core.HelloWorldGimmick = HelloWorldGimmick;
 
         var GimmickLoader = (function () {
             function GimmickLoader() {
-                this.registeredLinkGimmicks = [];
-                this.requiredLinkGimmicks = [];
+                this.registeredGimmicks = [];
+                this.requiredGimmicks = [];
             }
             GimmickLoader.prototype.init = function () {
                 return;
             };
 
             GimmickLoader.prototype.register = function (gmck) {
-                return;
+                this.registeredGimmicks.push(gmck);
             };
 
-            GimmickLoader.prototype.registerLinkGimmick = function (gmck) {
-                this.registeredLinkGimmicks.push(gmck);
-            };
-
-            GimmickLoader.prototype.initLinkGimmicks = function () {
+            GimmickLoader.prototype.initGimmicks = function () {
                 var used_triggers = this.findActiveLinkTrigger();
 
-                this.requiredLinkGimmicks = this.registeredLinkGimmicks.filter(function (lgmck) {
-                    return used_triggers.indexOf(lgmck.trigger) > 0;
+                this.requiredGimmicks = this.registeredGimmicks.filter(function (lgmck) {
+                    return used_triggers.indexOf(lgmck.trigger) >= 0;
                 });
 
-                this.requiredLinkGimmicks.map(function (gmck) {
+                this.requiredGimmicks.map(function (gmck) {
                     gmck.init();
                 });
             };
-            GimmickLoader.prototype.loadLinkGimmicks = function () {
+
+            GimmickLoader.prototype.loadGimmicks = function () {
+                var _this = this;
+                var $gimmick_links = $('a:icontains(gimmick:)');
+                $gimmick_links.map(function (i, e) {
+                    var $link = $(e);
+                    var parts = getGimmickLinkParts($link);
+                    var gimmick_impl = _this.requiredGimmicks.filter(function (n) {
+                        return n.trigger == parts.trigger;
+                    })[0];
+
+                    gimmick_impl.load($link, parts.options, parts.trigger);
+                });
             };
 
             GimmickLoader.prototype.findActiveLinkTrigger = function () {
@@ -1835,7 +1847,7 @@ var MDwiki;
 
                 var $gimmicks = $('a:icontains(gimmick:)');
                 $gimmicks.each(function (i, e) {
-                    var parts = LinkGimmick.getGimmickLinkParts($(e));
+                    var parts = getGimmickLinkParts($(e));
                     if (activeLinkTriggers.indexOf(parts.trigger) === -1)
                         activeLinkTriggers.push(parts.trigger);
                 });
@@ -1843,9 +1855,9 @@ var MDwiki;
             };
             return GimmickLoader;
         })();
-        Gimmicks.GimmickLoader = GimmickLoader;
-    })(MDwiki.Gimmicks || (MDwiki.Gimmicks = {}));
-    var Gimmicks = MDwiki.Gimmicks;
+        Core.GimmickLoader = GimmickLoader;
+    })(MDwiki.Core || (MDwiki.Core = {}));
+    var Core = MDwiki.Core;
 })(MDwiki || (MDwiki = {}));
 var MDwiki;
 (function (MDwiki) {
@@ -2272,6 +2284,7 @@ var MDwiki;
                 stage_names.map(function (n) {
                     return _this.stages.append(new MDwiki.Core.Stage(n));
                 });
+                this.gimmicks = new MDwiki.Core.GimmickLoader();
             }
             Wiki.prototype.run = function () {
                 this.registerFetchConfigAndNavigation();
@@ -2369,28 +2382,25 @@ var MDwiki;
             };
 
             Wiki.prototype.registerGimmickLoad = function () {
+                var _this = this;
                 $.md.stage('ready').subscribe(function (done) {
                     $.md.initializeGimmicks();
-                    $.md.registerLinkGimmicks();
+                    $.md.registerGimmick();
 
-                    var helloGimmick = new MDwiki.Gimmicks.HelloWorldGimmick();
-                    var gimmickLoader = new MDwiki.Gimmicks.GimmickLoader();
-                    gimmickLoader.registerLinkGimmick(helloGimmick);
-                    gimmickLoader.initLinkGimmicks();
                     $.md.stage('gimmick').subscribe(function (done) {
-                        gimmickLoader.loadLinkGimmicks();
+                        _this.gimmicks.initGimmicks();
+                        _this.gimmicks.loadGimmicks();
                         done();
                     });
-
                     done();
                 });
 
-                $.each($.md.gimmicks, function (i, module) {
-                    if (module.load === undefined) {
+                $.each($.md.gimmicks, function (i, mod) {
+                    if (mod.load === undefined) {
                         return;
                     }
                     $.md.stage('load').subscribe(function (done) {
-                        module.load();
+                        mod.load();
                         done();
                     });
                 });
@@ -2561,10 +2571,11 @@ var MDwiki;
             window.location.hash = newHashString;
     }
 
+    $.initMDwiki();
+
     $(document).ready(function () {
 
         // stage init stuff
-        $.initMDwiki();
 
         extractHashData();
 
@@ -3398,17 +3409,15 @@ var MDwiki;
 (function($) {
     //'use strict';
     var alertsGimmick = {
-        name: 'alerts',
-        // TODO
-        //version: $.md.version,
-        load: function() {
+        trigger: 'alerts',
+        init: function() {
             $.md.stage('bootstrap').subscribe(function(done) {
                 createAlerts();
                 done();
             });
         }
     };
-    $.md.registerGimmick(alertsGimmick);
+    $.md.wiki.gimmicks.register(alertsGimmick);
 
     // takes a standard <img> tag and adds a hyperlink to the image source
     // needed since we scale down images via css and want them to be accessible
@@ -3682,13 +3691,15 @@ var MDwiki;
 (function($) {
     'use strict';
     var forkmeongithubGimmick = {
-        name: 'forkmeongithub',
+        trigger: 'forkmeongithub',
         version: $.md.version,
-        once: function() {
-            $.md.linkGimmick(this, 'forkmeongithub', forkmeongithub);
+        init: function() {
+        },
+        load: function($links, options, text) {
+            forkmeongithub($links, options, text);
         }
     };
-    $.md.registerGimmick(forkmeongithubGimmick);
+    $.md.wiki.gimmicks.register(forkmeongithubGimmick);
 
     function forkmeongithub($links, opt, text) {
         return $links.each (function (i, link){
@@ -4199,8 +4210,8 @@ function googlemapsReady() {
                 done();
             });
         }
-    } ;
-    $.md.registerGimmick(youtubeGimmick);
+    };
+    $.md.wiki.gimmicks.register(youtubeGimmick);
 
     function youtubeLinkToIframe() {
         var $youtube_links = $('a[href*=youtube\\.com]:empty, a[href*=youtu\\.be]:empty');
