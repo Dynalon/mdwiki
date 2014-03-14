@@ -250,7 +250,7 @@
         var r = new RegExp(/gimmick:\s*([^(\s]*)\s*(\(\s*{?(.*)\s*}?\s*\))*/i);
         var matches = r.exec(link_text);
         if (matches === null || matches[1] === undefined) {
-            $.error('Error matching a gimmick: ' + link_text);
+            // $.error('Error matching a gimmick: ' + link_text);
             return null;
         }
         var trigger = matches[1].toLowerCase();

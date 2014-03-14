@@ -8,8 +8,8 @@
                 done();
             });
         }
-    } ;
-    $.md.registerGimmick(youtubeGimmick);
+    };
+    $.md.wiki.gimmicks.register(youtubeGimmick);
 
     function youtubeLinkToIframe() {
         var $youtube_links = $('a[href*=youtube\\.com]:empty, a[href*=youtu\\.be]:empty');

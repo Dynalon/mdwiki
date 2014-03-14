@@ -13,6 +13,7 @@ module MDwiki.Core {
 
     export class Wiki {
         public stages: StageChain = new StageChain();
+        public gimmicks: MDwiki.Core.GimmickLoader;
 
         constructor() {
             var stage_names = (['init','load','transform','ready','skel_ready',
@@ -20,6 +21,7 @@ module MDwiki.Core {
                 'final_tests'
             ]);
             stage_names.map(n => this.stages.append (new Stage(n)));
+            this.gimmicks = new GimmickLoader();
         }
 
         run() {
@@ -132,30 +134,27 @@ module MDwiki.Core {
 
         private registerGimmickLoad() {
 
-            // find out which link gimmicks we need
-            $.md.stage('ready').subscribe(function(done) {
+            $.md.stage('ready').subscribe((done: DoneCallback) => {
+                /* legacy code - remove me */
                 $.md.initializeGimmicks();
-                $.md.registerLinkGimmicks();
+                $.md.registerGimmick();
+                /* end legacy code */
 
-                var helloGimmick = new MDwiki.Gimmicks.HelloWorldGimmick();
-                var gimmickLoader = new MDwiki.Gimmicks.GimmickLoader ();
-                gimmickLoader.registerLinkGimmick(helloGimmick);
-                gimmickLoader.initLinkGimmicks();
-                $.md.stage('gimmick').subscribe(done => {
-                    gimmickLoader.loadLinkGimmicks();
+                $.md.stage('gimmick').subscribe((done: DoneCallback) => {
+                    this.gimmicks.initGimmicks();
+                    this.gimmicks.loadGimmicks();
                     done();
                 });
-
                 done();
             });
 
             // wire up the load method of the modules
-            $.each($.md.gimmicks, function(i, module) {
-                if (module.load === undefined) {
+            $.each($.md.gimmicks, function(i, mod) {
+                if (mod.load === undefined) {
                     return;
                 }
                 $.md.stage('load').subscribe(function(done) {
-                    module.load();
+                    mod.load();
                     done();
                 });
             });

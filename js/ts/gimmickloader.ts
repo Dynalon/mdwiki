@@ -1,15 +1,12 @@
 declare var $: any;
 
-module MDwiki.Gimmicks {
+module MDwiki.Core {
     export interface IExternalResource {
         url: string
     }
 
     export interface IScriptResource extends IExternalResource {
         loadstage: string;
-    }
-
-    export interface IStyleResource extends IExternalResource {
     }
 
     export class ScriptResource implements IScriptResource {
@@ -20,89 +17,94 @@ module MDwiki.Gimmicks {
         ) { }
     }
 
-    class StyleResource implements IStyleResource {
+    export interface ICssResource extends IExternalResource {
+    }
+    export class CssResource implements ICssResource {
         constructor
         (
             public url: string
         ) { }
     }
 
-    export interface ILinkGimmick {
+    export interface IGimmick {
+        name: string;
+        // if it is a link gimmick trigger != null
         trigger: string;
         scripts: IScriptResource[];
-        styles: IStyleResource[];
+        styles: ICssResource[];
         init: () => void;
-        loadAll: ($links: any) => void;
         load: ($link: any, options: any, text: string) => void;
         ready: () => void;
     }
 
-    export class LinkGimmick implements ILinkGimmick {
-        trigger: string;
-        scripts: IScriptResource[];
-        styles: IStyleResource[];
-
-        init() { }
-        loadAll($links: any) { }
-        load($link: any, options: any, text: string) { }
-        ready() { }
-
-        static getGimmickLinkParts($link: any) {
-            var link_text = $.trim($link.toptext());
-            // returns linkTrigger, options, linkText
-            if (link_text.match(/gimmick:/i) === null) {
-                return null;
-            }
-            var href = $.trim($link.attr('href'));
-            var r = new RegExp('/gimmick:\s*([^(\s]*)\s*(\(\s*{?(.*)\s*}?\s*\))*/i');
-            var matches = r.exec(link_text);
-            if (matches === null || matches[1] === undefined) {
-                $.error('Error matching a gimmick: ' + link_text);
-                return null;
-            }
-            var trigger = matches[1].toLowerCase();
-            var args = null;
-            // getting the parameters
-            if (matches[2] !== undefined) {
-                // remove whitespaces
-                var params = $.trim(matches[3].toString());
-                // remove the closing } if present
-                if (params.charAt (params.length - 1) === '}') {
-                    params = params.substring(0, params.length - 1);
-                }
-                // add surrounding braces and paranthese
-                params = '({' + params + '})';
-                // replace any single quotes by double quotes
-                params = params.replace(/'/g, '"');
-                // finally, try if the json object is valid
-                try {
-                    /*jshint -W061 */
-                    args = eval(params);
-                } catch (err) {
-                    // TODO log.error('error parsing argument of gimmick: ' + link_text + 'giving error: ' + err);
-                }
-            }
-            return { trigger: trigger, options: args, href: href };
+    function getGimmickLinkParts($link: any) {
+        var link_text = $.trim($link.toptext());
+        // returns linkTrigger, options, linkText
+        if (link_text.match(/gimmick:/i) === null) {
+            return null;
         }
+        var href = $.trim($link.attr('href'));
+        var r = new RegExp('gimmick:\s*([^(\s]*)\s*((\s*{?(.*)\s*}?\s*\))*','i');
+        var matches = r.exec(link_text);
+        if (matches === null || matches[1] === undefined) {
+            $.error('Error matching a gimmick: ' + link_text);
+            return null;
+        }
+        var trigger = matches[1].toLowerCase();
+        var args = null;
+        // getting the parameters
+        if (matches[2] !== undefined) {
+            // remove whitespaces
+            var params = $.trim(matches[3].toString());
+            // remove the closing } if present
+            if (params.charAt (params.length - 1) === '}') {
+                params = params.substring(0, params.length - 1);
+            }
+
+            // add surrounding braces and paranthese
+            // TODO this should be enabled?
+            // params = '({' + params + '})';
+
+            // replace any single quotes by double quotes
+            var replace_quotes = new RegExp ("'", 'g');
+            params = params.replace (replace_quotes, '"');
+            // finally, try if the json object is valid
+            try {
+                /*jshint -W061 */
+                args = eval(params);
+            } catch (err) {
+                $.error('error parsing argument of gimmick: ' + link_text + 'giving error: ' + err);
+            }
+        }
+        return new GimmickLinkParts (trigger, args, href);
     }
 
-    export interface Gimmick {
-        name: string;
-        scripts: IScriptResource[];
-        styles: IStyleResource[];
-    }
-
-    class BasicGimmick {
+    export class Gimmick implements IGimmick {
         public name: string;
+        public trigger: string;
+        public scripts: IScriptResource[] = [];
+        public styles: IScriptResource[] = [];
         constructor() {
-
         }
+        init () { }
+        ready () { }
+        load($link: any, options: any, text: string) { }
     }
 
-    class MathJaxGimmick implements ILinkGimmick {
-        trigger: string = 'forkmeongithub';
+    // [gimmick:trigger({option1: value1, option2:value2})](href)
+    class GimmickLinkParts {
+        constructor (
+            public trigger:string,
+            public options: any,
+            public href: string
+        ) { }
+    }
+
+    class MathJaxGimmick implements IGimmick {
+        name: string = 'mathjax';
+        trigger: string = 'math';
         scripts: IScriptResource[] = [];
-        styles: IStyleResource[] = [];
+        styles: ICssResource[] = [];
 
         constructor() {
         }
@@ -114,14 +116,14 @@ module MDwiki.Gimmicks {
             this.scripts.push(s);
         }
         load($link: any, options: any, text: string) { }
-        loadAll($links) { }
         ready() { }
     }
 
-    export class HelloWorldGimmick implements ILinkGimmick {
+    export class HelloWorldGimmick implements IGimmick {
         trigger: string = 'hello';
+        name: string = 'Hello World Gimmick';
         scripts: IScriptResource[] = [];
-        styles: IStyleResource[] = [];
+        styles: ICssResource[] = [];
 
         init() {
             alert("init");
@@ -133,60 +135,46 @@ module MDwiki.Gimmicks {
         ready() { }
     }
 
-    // function mg (){
-    //     var scripts = [];
-
-    //     registerGimmick({
-    //         'trigger': 'math',
-    //         init: function () {
-    //             var href = $.md.prepareLink('cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML', { forceHTTP: true });
-    //             var s = new Script(href, 'gimmick');
-    //             scripts.push(s);
-    //         }
-    //     });
-    // }
-
     export class GimmickLoader {
         // all available gimmicks
-        private registeredLinkGimmicks: ILinkGimmick[] = [];
+        private registeredGimmicks: IGimmick[] = [];
         // all really required (existing on page) gimmicks
-        private requiredLinkGimmicks: ILinkGimmick[] = [];
+        private requiredGimmicks: IGimmick[] = [];
 
         constructor() {
         }
 
         init() {
             return;
-
         }
 
-        register(gmck: Gimmick) {
-            return;
-        }
-        // called from where?
-        registerLinkGimmick(gmck: ILinkGimmick) {
-           this.registeredLinkGimmicks.push(gmck);
+        register(gmck: IGimmick) {
+           this.registeredGimmicks.push(gmck);
         }
 
-        // called where?
-        initLinkGimmicks() {
+        initGimmicks() {
             // find all used gimmick: links in page
             var used_triggers = this.findActiveLinkTrigger();
 
-            // TODO debug log all triggers that we don't have
-            // a gimmick for
-
-            // TODO this is nutds - underscore.js?
-            this.requiredLinkGimmicks = this.registeredLinkGimmicks.filter (lgmck => {
-                return used_triggers.indexOf(lgmck.trigger) > 0;
+            this.requiredGimmicks = this.registeredGimmicks.filter (lgmck => {
+                return used_triggers.indexOf(lgmck.trigger) >= 0;
             });
+            // load  deps
 
-            this.requiredLinkGimmicks.map(gmck => {
-                // TODO add script register to be loaded
+            this.requiredGimmicks.map(gmck => {
                 gmck.init();
             });
         }
-        loadLinkGimmicks() {
+
+        loadGimmicks() {
+            var $gimmick_links = $('a:icontains(gimmick:)');
+            $gimmick_links.map((i,e) => {
+                var $link = $(e);
+                var parts = getGimmickLinkParts($link);
+                var gimmick_impl = this.requiredGimmicks.filter (n => n.trigger == parts.trigger)[0];
+
+                gimmick_impl.load ($link, parts.options, parts.trigger);
+            });
         }
 
         private findActiveLinkTrigger() {
@@ -195,7 +183,7 @@ module MDwiki.Gimmicks {
 
             var $gimmicks = $('a:icontains(gimmick:)');
             $gimmicks.each((i,e) => {
-                var parts = LinkGimmick.getGimmickLinkParts($(e));
+                var parts = getGimmickLinkParts($(e));
                 if (activeLinkTriggers.indexOf(parts.trigger) === -1)
                     activeLinkTriggers.push(parts.trigger);
             });

@@ -1,13 +1,15 @@
 (function($) {
     'use strict';
     var forkmeongithubGimmick = {
-        name: 'forkmeongithub',
+        trigger: 'forkmeongithub',
         version: $.md.version,
-        once: function() {
-            $.md.linkGimmick(this, 'forkmeongithub', forkmeongithub);
+        init: function() {
+        },
+        load: function($links, options, text) {
+            forkmeongithub($links, options, text);
         }
     };
-    $.md.registerGimmick(forkmeongithubGimmick);
+    $.md.wiki.gimmicks.register(forkmeongithubGimmick);
 
     function forkmeongithub($links, opt, text) {
         return $links.each (function (i, link){

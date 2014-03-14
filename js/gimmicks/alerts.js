@@ -1,17 +1,15 @@
 (function($) {
     //'use strict';
     var alertsGimmick = {
-        name: 'alerts',
-        // TODO
-        //version: $.md.version,
-        load: function() {
+        trigger: 'alerts',
+        init: function() {
             $.md.stage('bootstrap').subscribe(function(done) {
                 createAlerts();
                 done();
             });
         }
     };
-    $.md.registerGimmick(alertsGimmick);
+    $.md.wiki.gimmicks.register(alertsGimmick);
 
     // takes a standard <img> tag and adds a hyperlink to the image source
     // needed since we scale down images via css and want them to be accessible

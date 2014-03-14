@@ -114,10 +114,11 @@
             window.location.hash = newHashString;
     }
 
+    $.initMDwiki();
+
     $(document).ready(function () {
 
         // stage init stuff
-        $.initMDwiki();
 
         extractHashData();
 
