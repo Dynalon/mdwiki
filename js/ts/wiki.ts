@@ -13,7 +13,7 @@ module MDwiki.Core {
 
     export class Wiki {
         public stages: StageChain = new StageChain();
-        public gimmicks: MDwiki.Core.GimmickLoader;
+        public gimmicks: GimmickLoader = new GimmickLoader();
 
         constructor() {
             var stage_names = (['init','load','transform','ready','skel_ready',
@@ -21,7 +21,6 @@ module MDwiki.Core {
                 'final_tests'
             ]);
             stage_names.map(n => this.stages.append (new Stage(n)));
-            this.gimmicks = new GimmickLoader();
         }
 
         run() {

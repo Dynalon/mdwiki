@@ -29,7 +29,7 @@ module MDwiki.Core {
     export interface IGimmick {
         name: string;
         // if it is a link gimmick trigger != null
-        trigger: string;
+        trigger?: string;
         scripts: IScriptResource[];
         styles: ICssResource[];
         init: () => void;
@@ -77,18 +77,6 @@ module MDwiki.Core {
             }
         }
         return new GimmickLinkParts (trigger, args, href);
-    }
-
-    export class Gimmick implements IGimmick {
-        public name: string;
-        public trigger: string;
-        public scripts: IScriptResource[] = [];
-        public styles: IScriptResource[] = [];
-        constructor() {
-        }
-        init () { }
-        ready () { }
-        load($link: any, options: any, text: string) { }
     }
 
     // [gimmick:trigger({option1: value1, option2:value2})](href)
