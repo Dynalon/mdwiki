@@ -133,29 +133,27 @@ module MDwiki.Core {
 
         private registerGimmickLoad() {
 
+            /* legacy code - remove me */
+            // $.md.stage('ready').subscribe((done: DoneCallback) => {
+            //     $.md.initializeGimmicks();
+            //     $.md.registerGimmick();
+            //     done();
+            // });
+            // // wire up the load method of the modules
+            // $.each($.md.gimmicks, function(i, mod) {
+            //     if (mod.load === undefined) {
+            //         return;
+            //     }
+            //     $.md.stage('load').subscribe(function(done) {
+            //         mod.load();
+            //         done();
+            //     });
+            // });
+            /* end legacy code */
+
             $.md.stage('ready').subscribe((done: DoneCallback) => {
-                /* legacy code - remove me */
-                $.md.initializeGimmicks();
-                $.md.registerGimmick();
-                /* end legacy code */
-
-                $.md.stage('gimmick').subscribe((done: DoneCallback) => {
-                    this.gimmicks.initGimmicks();
-                    this.gimmicks.loadGimmicks();
-                    done();
-                });
+                this.gimmicks.loadGimmicks();
                 done();
-            });
-
-            // wire up the load method of the modules
-            $.each($.md.gimmicks, function(i, mod) {
-                if (mod.load === undefined) {
-                    return;
-                }
-                $.md.stage('load').subscribe(function(done) {
-                    mod.load();
-                    done();
-                });
             });
 
         }

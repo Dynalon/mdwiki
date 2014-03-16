@@ -1,93 +1,98 @@
+
 declare var $:any;
+declare var jQuery:any;
 
-class StringUtil {
-    static startsWith (search: string, suffix: string) {
-        return search.slice(0, suffix.length) == suffix;
-    }
-    static endsWith (search: string, prefix: string) : boolean {
-        return search.slice(search.length - prefix.length, search.length) == prefix;
-    }
-}
-
-class Theme {
-    public name: string;
-    public styles: string[];
-    public scripts: string[];
-
-    constructor(name: string, styles: string[], scripts: string[] = []) {
-        this.name = name;
-        this.styles = styles;
-        this.scripts = scripts;
-    }
-    public onLoad() {
-    }
-}
-
-class BootswatchTheme extends Theme {
-    private baseUrl: string =  '//netdna.bootstrapcdn.com/bootswatch/3.0.0/'
-    private baseFilename: string = '/bootstrap.min.css';
-    private get url() {
-        return this.baseUrl + this.name + this.baseFilename;
+module MDwiki.Core {
+    class StringUtil {
+        static startsWith (search: string, suffix: string) {
+            return search.slice(0, suffix.length) == suffix;
+        }
+        static endsWith (search: string, prefix: string) : boolean {
+            return search.slice(search.length - prefix.length, search.length) == prefix;
+        }
     }
 
-    constructor (name: string) {
-        super(name, [], []);
-        this.styles = [ this.url ];
-    }
-}
+    class Theme {
+        public name: string;
+        public styles: string[];
+        public scripts: string[];
 
-
-class ThemeChooser {
-    private themes: Theme[] = [];
-    public enableChooser: boolean = false;
-
-    public get themeNames (): string[] {
-        return this.themes.map(t => t.name);
-    }
-
-    public get currentTheme (): string {
-        var theme = window.localStorage.getItem("theme");
-        return theme;
-    }
-    public set currentTheme (val: string) {
-        if (val == '')
-            window.localStorage.removeItem("theme");
-        else
-            window.localStorage.setItem("theme", val);
+        constructor(name: string, styles: string[], scripts: string[] = []) {
+            this.name = name;
+            this.styles = styles;
+            this.scripts = scripts;
+        }
+        public onLoad() {
+        }
     }
 
-    // registers a theme into the catalog
-    public register (theme: Theme): void {
-        this.themes.push(theme);
-    }
-    public loadDefaultTheme (): void {
-        this.load(this.currentTheme);
-        // TODO load a default theme - right now this is baked in the index.tmpl
-    }
+    class BootswatchTheme extends Theme {
+        private baseUrl: string =  '//netdna.bootstrapcdn.com/bootswatch/3.0.0/'
+        private baseFilename: string = '/bootstrap.min.css';
+        private get url() {
+            return this.baseUrl + this.name + this.baseFilename;
+        }
 
-    public load (name: string): void {
-        var target = this.themes.filter(t => t.name == name);
-        if (target.length <= 0) return;
-        else this.applyTheme(target[0]);
+        constructor (name: string) {
+            super(name, [], []);
+            this.styles = [ this.url ];
+        }
     }
 
-    private applyTheme (theme: Theme): void {
 
-        $('link[rel=stylesheet][href*="netdna.bootstrapcdn.com"]').remove();
-        var link_tag = this.createLinkTag(theme.styles[0]);
-        $('head').append(link_tag);
+    class ThemeChooser {
+        private themes: Theme[] = [];
+        public enableChooser: boolean = false;
+
+        public get themeNames (): string[] {
+            return this.themes.map(t => t.name);
+        }
+
+        public get currentTheme (): string {
+            var theme = window.localStorage.getItem("theme");
+            return theme;
+        }
+        public set currentTheme (val: string) {
+            if (val == '')
+                window.localStorage.removeItem("theme");
+            else
+                window.localStorage.setItem("theme", val);
+        }
+
+        // registers a theme into the catalog
+        public register (theme: Theme): void {
+            this.themes.push(theme);
+        }
+        public loadDefaultTheme (): void {
+            this.load(this.currentTheme);
+            // TODO load a default theme - right now this is baked in the index.tmpl
+        }
+
+        public load (name: string): void {
+            var target = this.themes.filter(t => t.name == name);
+            if (target.length <= 0) return;
+            else this.applyTheme(target[0]);
+        }
+
+        private applyTheme (theme: Theme): void {
+
+            $('link[rel=stylesheet][href*="netdna.bootstrapcdn.com"]').remove();
+            var link_tag = this.createLinkTag(theme.styles[0]);
+            $('head').append(link_tag);
+        }
+
+        private createLinkTag (url: string) {
+            return $('<link rel="stylesheet" type="text/css">').attr('href', url);
+        }
     }
 
-    private createLinkTag (url: string) {
-        return $('<link rel="stylesheet" type="text/css">').attr('href', url);
-    }
-}
+    // TODO at some point the themechoosergimmick has to be loaded
+    class ThemeChooserGimmick extends Module {
+        name: string = "Theme Chooser";
+        trigger: string = "theme";
 
-(function($) {
-    var themeChooserGimmick = {
-        name: 'Themes',
-        version: $.md.version,
-        once: function() {
+        init() {
+            super.init();
             var tc = new ThemeChooser ();
             registerDefaultThemes(tc);
 
@@ -109,13 +114,12 @@ class ThemeChooser {
 
         }
     };
-    $.md.registerGimmick(themeChooserGimmick);
 
     var set_theme = function($links, opt, text, tc: ThemeChooser) {
         opt.name = opt.name || text;
         $links.each(function (i, link) {
             $.md.stage('postgimmick').subscribe(function(done) {
-                if (!tc.currentTheme || tc.currentTheme == '' || tc.enableChooser == false)
+                if (!tc.currentTheme ||  tc.currentTheme == '' || tc.enableChooser == false)
                     tc.load(opt.name);
                 done();
             });
@@ -172,8 +176,7 @@ class ThemeChooser {
             $this.replaceWith($chooser);
         });
     };
-}(jQuery));
-
+}
 
 
 

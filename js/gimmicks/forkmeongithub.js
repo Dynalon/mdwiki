@@ -1,15 +1,6 @@
 (function($) {
     'use strict';
-    var forkmeongithubGimmick = {
-        trigger: 'forkmeongithub',
-        version: $.md.version,
-        init: function() {
-        },
-        load: function($links, options, text) {
-            forkmeongithub($links, options, text);
-        }
-    };
-    $.md.wiki.gimmicks.register(forkmeongithubGimmick);
+
 
     function forkmeongithub($links, opt, text) {
         return $links.each (function (i, link){
@@ -57,5 +48,13 @@
             $link.remove();
         });
     }
+
+    var github_module = new MDwiki.Core.Module ();
+    github_module.init = function() {
+        // subscribeGimmick();
+            // forkmeongithub($links, options, text);
+            alert("foo");
+    };
+    github_module.subscribeGimmick("forkmeongithub", forkmeongithub);
 
 }(jQuery));

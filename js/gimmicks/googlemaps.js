@@ -69,13 +69,10 @@ function googlemapsReady() {
     }
 
     var googleMapsGimmick = {
-        name: 'googlemaps',
-        version: $.md.version,
-        once: function() {
+        trigger: 'googlemaps',
+        init: function() {
             googlemapsLoadDone = $.Deferred();
 
-            // register the gimmick:googlemaps identifier
-            $.md.linkGimmick(this, 'googlemaps', googlemaps);
 
             // load the googlemaps js from the google server
             $.md.registerScript(this, scripturl, {
@@ -95,7 +92,10 @@ function googlemapsReady() {
                     done();
                 }
             });
+        },
+        load: function ($links, opt, trigger) {
+            googlemaps($links, opt, trigger);
         }
     };
-    $.md.registerGimmick(googleMapsGimmick);
+    $.md.wiki.gimmicks.register(googleMapsGimmick);
 }(jQuery));

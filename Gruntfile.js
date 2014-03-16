@@ -36,21 +36,21 @@ module.exports = function(grunt) {
             'js/gimmicker.js',
 
             // gimmicks
-            'js/gimmicks/alerts.js',
-            'js/gimmicks/colorbox.js',
-            'js/gimmicks/carousel.js',
-            'js/gimmicks/disqus.js',
-            'js/gimmicks/facebooklike.js',
+            // 'js/gimmicks/alerts.js',
+            // 'js/gimmicks/colorbox.js',
+            // 'js/gimmicks/carousel.js',
+            // 'js/gimmicks/disqus.js',
+            // 'js/gimmicks/facebooklike.js',
             'js/gimmicks/forkmeongithub.js',
-            //'js/gimmicks/github_gist.js',
-            'js/gimmicks/gist.js',
-            'js/gimmicks/googlemaps.js',
-            'js/gimmicks/highlight.js',
-            'js/gimmicks/iframe.js',
-            'js/gimmicks/math.js',
-            // 'js/gimmicks/leaflet.js',
-            'js/gimmicks/twitter.js',
-            'js/gimmicks/youtube_embed.js'
+            // //'js/gimmicks/github_gist.js',
+            // 'js/gimmicks/gist.js',
+            // 'js/gimmicks/googlemaps.js',
+            // 'js/gimmicks/highlight.js',
+            // 'js/gimmicks/iframe.js',
+            // 'js/gimmicks/math.js',
+            // // 'js/gimmicks/leaflet.js',
+            // 'js/gimmicks/twitter.js',
+            // 'js/gimmicks/youtube_embed.js'
         ],
 
         // files that we always inline (stuff not available on CDN)

@@ -1,40 +1,71 @@
 declare var $: any;
 
+interface String {
+    startsWith: (x: any) => any;
+}
+
 module MDwiki.Core {
-    export interface IExternalResource {
-        url: string
-    }
-
-    export interface IScriptResource extends IExternalResource {
-        loadstage: string;
-    }
-
-    export class ScriptResource implements IScriptResource {
-        constructor
-        (
+    export class ScriptResource {
+        constructor (
             public url: string,
-            public loadstage: string = 'gimmick'
+            public finishstage: string = 'gimmick'
         ) { }
     }
 
-    export interface ICssResource extends IExternalResource {
-    }
-    export class CssResource implements ICssResource {
-        constructor
-        (
-            public url: string
+    export class CssResource {
+        constructor (
+            public url: string,
+            public finishstage: string = 'gimmick'
         ) { }
     }
 
-    export interface IGimmick {
-        name: string;
-        // if it is a link gimmick trigger != null
-        trigger?: string;
-        scripts: IScriptResource[];
-        styles: ICssResource[];
-        init: () => void;
-        load: ($link: any, options: any, text: string) => void;
-        ready: () => void;
+    export class Module {
+        init() { }
+        private subscribeGimmick(trigger: string, fn: () => void) {
+            $.md.wiki.gimmicks.subscribeGimmick(trigger, fn);
+        }
+        private defaultLoadStage: string = "ready";
+        private registerScriptResource (res: ScriptResource) {
+            var loadDone = $.Deferred();
+
+            // load the script
+            $.md.stage(this.defaultLoadStage).subscribe(done => {
+                if (res.url.startsWith('//') || res.url.startsWith('http')) {
+                    $.getScript(res.url, () => loadDone.resolve());
+                } else {
+                    // inline script that we directly insert
+                    // jQuery does some magic when inserting inline scripts, so better
+                    // use vanilla JS. See:
+                    // http://stackoverflow.com/questions/610995/jquery-cant-append-script-element
+                    // scripts always need to go directly into the DOM
+                    var script = document.createElement('script');
+                    script.type = 'text/javascript';
+                    script.text = res.url;
+                    document.body.appendChild(script);
+                    loadDone.resolve();
+                }
+            });
+
+            // wait for the script to be fully loaded
+            $.md.stage(res.finishstage).subscribe(done => {
+                loadDone.done(() => done());
+            });
+        }
+        private registerCssResource (resource: CssResource) {
+        }
+        private registerResource (resource: any, type: string = "script") {
+            if (resource && typeof resource == "CssResource")
+                this.registerCssResource(resource);
+            else if (resource && typeof resource == "ScriptResource")
+                this.registerScriptResource(resource);
+            else if (resource && typeof resource == "string") {
+                if (type == "script") {
+                    this.registerScriptResource(new ScriptResource(resource));
+                } else {
+                   this.registerCssResource(new CssResource(resource));
+                }
+            }
+        }
     }
 
     function getGimmickLinkParts($link: any) {
@@ -44,7 +75,7 @@ module MDwiki.Core {
             return null;
         }
         var href = $.trim($link.attr('href'));
-        var r = new RegExp('gimmick:\s*([^(\s]*)\s*((\s*{?(.*)\s*}?\s*\))*','i');
+        var r = /gimmick\s?:\s*([^(\s]*)\s*\(?\s*{?(.*)\s*}?\)?/i;
         var matches = r.exec(link_text);
         if (matches === null || matches[1] === undefined) {
             $.error('Error matching a gimmick: ' + link_text);
@@ -53,17 +84,19 @@ module MDwiki.Core {
         var trigger = matches[1].toLowerCase();
         var args = null;
         // getting the parameters
-        if (matches[2] !== undefined) {
+        if (matches[2].toLowerCase().indexOf("gimmick") != 0) {
             // remove whitespaces
-            var params = $.trim(matches[3].toString());
+            var params = $.trim(matches[2].toString());
+            if (params.charAt (params.length - 1) === ')') {
+                params = params.substring(0, params.length - 1);
+            }
             // remove the closing } if present
             if (params.charAt (params.length - 1) === '}') {
                 params = params.substring(0, params.length - 1);
             }
 
             // add surrounding braces and paranthese
-            // TODO this should be enabled?
-            // params = '({' + params + '})';
+            params = '({' + params + '})';
 
             // replace any single quotes by double quotes
             var replace_quotes = new RegExp ("'", 'g');
@@ -88,70 +121,30 @@ module MDwiki.Core {
         ) { }
     }
 
-    class MathJaxGimmick implements IGimmick {
-        name: string = 'mathjax';
-        trigger: string = 'math';
-        scripts: IScriptResource[] = [];
-        styles: ICssResource[] = [];
-
-        constructor() {
-        }
-
-        init() {
-            // TODO auto-link parsing
-            var href = $.md.prepareLink('cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML', { forceHTTP: true });
-            var s = new ScriptResource(href, 'gimmick');
-            this.scripts.push(s);
-        }
-        load($link: any, options: any, text: string) { }
-        ready() { }
+    class GimmickHandler {
+        constructor(
+            public trigger: string,
+            public handler: ($link, options, trigger) => void
+        ) {}
     }
-
-    export class HelloWorldGimmick implements IGimmick {
-        trigger: string = 'hello';
-        name: string = 'Hello World Gimmick';
-        scripts: IScriptResource[] = [];
-        styles: ICssResource[] = [];
-
-        init() {
-            alert("init");
-        }
-        load($link: any, options: any, text: string) {
-            alert(text);
-        }
-        loadAll($links) { }
-        ready() { }
-    }
-
     export class GimmickLoader {
         // all available gimmicks
-        private registeredGimmicks: IGimmick[] = [];
+        private registeredModules: Module[] = [];
         // all really required (existing on page) gimmicks
-        private requiredGimmicks: IGimmick[] = [];
+        private requiredGimmicks: string[] = [];
+        private gimmickHandler: GimmickHandler[] = [];
 
         constructor() {
         }
-
-        init() {
-            return;
+        initModules() {
+            this.registeredModules.map(m => m.init());
         }
-
-        register(gmck: IGimmick) {
-           this.registeredGimmicks.push(gmck);
+        registerModule(mod: Module) {
+           this.registeredModules.push(mod);
         }
-
-        initGimmicks() {
-            // find all used gimmick: links in page
-            var used_triggers = this.findActiveLinkTrigger();
-
-            this.requiredGimmicks = this.registeredGimmicks.filter (lgmck => {
-                return used_triggers.indexOf(lgmck.trigger) >= 0;
-            });
-            // load  deps
-
-            this.requiredGimmicks.map(gmck => {
-                gmck.init();
-            });
+        // todo don't use any for fn
+        subscribeGimmick(trigger: string, fn: any) {
+           this.gimmickHandler.push(new GimmickHandler(trigger, fn));
         }
 
         loadGimmicks() {
@@ -159,12 +152,16 @@ module MDwiki.Core {
             $gimmick_links.map((i,e) => {
                 var $link = $(e);
                 var parts = getGimmickLinkParts($link);
-                var gimmick_impl = this.requiredGimmicks.filter (n => n.trigger == parts.trigger)[0];
-
-                gimmick_impl.load ($link, parts.options, parts.trigger);
+                var handler = this.selectGimmickHandler(parts.trigger);
+                handler.handler($link, parts.options, parts.trigger);
             });
         }
-
+        private selectGimmickHandler(trigger: string) {
+            var handlers = this.gimmickHandler.filter(h => h.trigger == trigger);
+            if (handlers == null || handlers.length == 0)
+                $.error("don't have a handler for this gimmick; " + trigger);
+            return handlers[0];
+        }
         private findActiveLinkTrigger() {
             // log.debug('Scanning for required gimmick links: ' + JSON.stringify(activeLinkTriggers));
             var activeLinkTriggers = [];
