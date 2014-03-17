@@ -1,7 +1,5 @@
 (function($) {
     'use strict';
-
-
     function forkmeongithub($links, opt, text) {
         return $links.each (function (i, link){
             var $link = $(link);
@@ -49,12 +47,17 @@
         });
     }
 
-    var github_module = new MDwiki.Core.Module ();
+    var github_module = new MDwiki.Core.Module();
     github_module.init = function() {
-        // subscribeGimmick();
-            // forkmeongithub($links, options, text);
-            alert("foo");
+        console.log('module init');
     };
-    github_module.subscribeGimmick("forkmeongithub", forkmeongithub);
+
+    var gimmick = new MDwiki.Core.Gimmick();
+    gimmick.addHandler('forkmeongithub', forkmeongithub);
+    gimmick.init = function() {
+        console.log('gimmick init');
+    };
+    $.md.wiki.gimmicks.registerGimmick(gimmick);
+    $.md.wiki.gimmicks.registerModule(github_module);
 
 }(jQuery));

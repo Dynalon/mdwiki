@@ -68,34 +68,26 @@ function googlemapsReady() {
         });
     }
 
-    var googleMapsGimmick = {
-        trigger: 'googlemaps',
-        init: function() {
-            googlemapsLoadDone = $.Deferred();
+    var googleMapsGimmick = new MDwiki.Core.Module();
+    googleMapsGimmick.init = function() {
+        googlemapsLoadDone = $.Deferred();
 
+        // googleMapsGimmick.subscribeGimmick('googlemaps', googlemaps);
+        // load the googlemaps js from the google server
+        var script = new MDwiki.Core.ScriptResource (scripturl, 'skel_ready', 'bootstrap');
+        googleMapsGimmick.registerScriptResource(script);
 
-            // load the googlemaps js from the google server
-            $.md.registerScript(this, scripturl, {
-                license: 'EXCEPTION',
-                loadstage: 'skel_ready',
-                finishstage: 'bootstrap'
-            });
-
-            $.md.stage('bootstrap').subscribe(function(done) {
-                // defer the pregimmick phase until the google script fully loaded
-                if ($.md.triggerIsActive('googlemaps')) {
-                    googlemapsLoadDone.done(function() {
-                        done();
-                    });
-                } else {
-                    // immediately return as there will never a load success
+        $.md.stage('bootstrap').subscribe(function(done) {
+            // defer the pregimmick phase until the google script fully loaded
+            if ($.md.triggerIsActive('googlemaps') || 1) {
+                googlemapsLoadDone.done(function() {
                     done();
-                }
-            });
-        },
-        load: function ($links, opt, trigger) {
-            googlemaps($links, opt, trigger);
-        }
+                });
+            } else {
+                // immediately return as there will never a load success
+                done();
+            }
+        });
     };
-    $.md.wiki.gimmicks.register(googleMapsGimmick);
+    $.md.wiki.gimmicks.registerModule(googleMapsGimmick);
 }(jQuery));

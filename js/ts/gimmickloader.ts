@@ -8,6 +8,7 @@ module MDwiki.Core {
     export class ScriptResource {
         constructor (
             public url: string,
+            public loadstage: string = 'skel_ready',
             public finishstage: string = 'gimmick'
         ) { }
     }
@@ -19,17 +20,45 @@ module MDwiki.Core {
         ) { }
     }
 
+    export interface IGimmickCallback {
+        ($links: Array, options: any, trigger: string): void;
+    }
+
+    // [gimmick:trigger({option1: value1, option2:value2})](href)
+    class GimmickLinkParts {
+        constructor (
+            public trigger:string,
+            public options: any,
+            public href: string
+        ) { }
+    }
+
+    export class GimmickHandler {
+        constructor(
+            public trigger: string,
+            public handler: IGimmickCallback
+        ) {}
+    }
+
+    export class Gimmick {
+        Handlers: GimmickHandler[] = [];
+        // only gets called if any of the gimmick's trigger are active
+        init () { }
+        private addHandler(trigger: string, cb: IGimmickCallback) {
+            var handler = new GimmickHandler(trigger, cb);
+            this.Handlers.push(handler);
+        }
+    }
+
     export class Module {
         init() { }
-        private subscribeGimmick(trigger: string, fn: () => void) {
-            $.md.wiki.gimmicks.subscribeGimmick(trigger, fn);
-        }
+
         private defaultLoadStage: string = "ready";
         private registerScriptResource (res: ScriptResource) {
             var loadDone = $.Deferred();
 
             // load the script
-            $.md.stage(this.defaultLoadStage).subscribe(done => {
+            $.md.stage(res.loadstage).subscribe(done => {
                 if (res.url.startsWith('//') || res.url.startsWith('http')) {
                     $.getScript(res.url, () => loadDone.resolve());
                 } else {
@@ -112,27 +141,14 @@ module MDwiki.Core {
         return new GimmickLinkParts (trigger, args, href);
     }
 
-    // [gimmick:trigger({option1: value1, option2:value2})](href)
-    class GimmickLinkParts {
-        constructor (
-            public trigger:string,
-            public options: any,
-            public href: string
-        ) { }
-    }
 
-    class GimmickHandler {
-        constructor(
-            public trigger: string,
-            public handler: ($link, options, trigger) => void
-        ) {}
-    }
     export class GimmickLoader {
         // all available gimmicks
         private registeredModules: Module[] = [];
         // all really required (existing on page) gimmicks
         private requiredGimmicks: string[] = [];
-        private gimmickHandler: GimmickHandler[] = [];
+        private gimmicks: Gimmick[] = [];
+
 
         constructor() {
         }
@@ -142,9 +158,19 @@ module MDwiki.Core {
         registerModule(mod: Module) {
            this.registeredModules.push(mod);
         }
-        // todo don't use any for fn
-        subscribeGimmick(trigger: string, fn: any) {
-           this.gimmickHandler.push(new GimmickHandler(trigger, fn));
+        registerGimmick(gmck: Gimmick) {
+           this.gimmicks.push(gmck);
+        }
+
+        initGimmicks() {
+            var $gimmick_links = $('a:icontains(gimmick:)');
+            $gimmick_links.map((i,e) => {
+                var $link = $(e);
+                var parts = getGimmickLinkParts($link);
+
+                var gmck = this.selectGimmick(parts.trigger);
+                gmck.init();
+            });
         }
 
         loadGimmicks() {
@@ -156,11 +182,18 @@ module MDwiki.Core {
                 handler.handler($link, parts.options, parts.trigger);
             });
         }
+        private selectGimmick(trigger: string) {
+            var gimmicks = this.gimmicks.filter(g => {
+                var triggers = g.Handlers.map(h => h.trigger);
+                if (triggers.indexOf(trigger) >= 0)
+                    return true;
+            });
+            return gimmicks[0];
+        }
         private selectGimmickHandler(trigger: string) {
-            var handlers = this.gimmickHandler.filter(h => h.trigger == trigger);
-            if (handlers == null || handlers.length == 0)
-                $.error("don't have a handler for this gimmick; " + trigger);
-            return handlers[0];
+            var gimmick = this.selectGimmick(trigger);
+            var handler = gimmick.Handlers.filter(h => h.trigger == trigger)[0];
+            return handler;
         }
         private findActiveLinkTrigger() {
             // log.debug('Scanning for required gimmick links: ' + JSON.stringify(activeLinkTriggers));

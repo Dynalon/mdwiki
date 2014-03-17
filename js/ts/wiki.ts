@@ -152,6 +152,8 @@ module MDwiki.Core {
             /* end legacy code */
 
             $.md.stage('ready').subscribe((done: DoneCallback) => {
+                this.gimmicks.initModules();
+                this.gimmicks.initGimmicks();
                 this.gimmicks.loadGimmicks();
                 done();
             });

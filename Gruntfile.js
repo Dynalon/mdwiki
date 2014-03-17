@@ -157,7 +157,9 @@ module.exports = function(grunt) {
                     hljs: true,
                     /* leaflet.js*/
                     L: true,
-                    console: true
+                    console: true,
+                    MDwiki: true,
+                    alert: true
                 }
             },
             /*gruntfile: {
