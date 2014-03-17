@@ -1355,354 +1355,429 @@ if (typeof exports === 'object') {
 
 }(jQuery));
 
-(function($) {
-    'use strict';
+// (function($) {
+//     'use strict';
 
-    // PUBLIC API
-    $.md.registerGimmick = function(module) {
-        if (!log)
-            log = $.md.getLogger();
+//     // PUBLIC API
+//     $.md.registerGimmick = function(module) {
+//         if (!log)
+//             log = $.md.getLogger();
 
-        $.md.gimmicks.push(module);
-        return;
-    };
+//         $.md.gimmicks.push(module);
+//         return;
+//     };
 
-    // registers a script for a gimmick, that is later dynamically loaded
-    // by the core.
-    // src may be an URL or direct javascript sourcecode. When options.callback
-    // is provided, the done() function is passed to the function and needs to
-    // be called.
-    $.md.registerScript = function(module, src, options) {
-        var scriptinfo = new ScriptInfo({
-            module: module,
-            src: src,
-            options: options
-        });
-        registeredScripts.push(scriptinfo);
-    };
+//     // registers a script for a gimmick, that is later dynamically loaded
+//     // by the core.
+//     // src may be an URL or direct javascript sourcecode. When options.callback
+//     // is provided, the done() function is passed to the function and needs to
+//     // be called.
+//     $.md.registerScript = function(module, src, options) {
+//         var scriptinfo = new ScriptInfo({
+//             module: module,
+//             src: src,
+//             options: options
+//         });
+//         registeredScripts.push(scriptinfo);
+//     };
 
-    // same as registerScript but for css. Note that we do not provide a
-    // callback when the load finishes
-    $.md.registerCss = function(module, url, options) {
-        var license = options.license,
-            stage = options.stage || 'skel_ready',
-            callback = options.callback;
+//     // same as registerScript but for css. Note that we do not provide a
+//     // callback when the load finishes
+//     $.md.registerCss = function(module, url, options) {
+//         var license = options.license,
+//             stage = options.stage || 'skel_ready',
+//             callback = options.callback;
 
-        checkLicense(license, module);
-        var tag = '<link rel="stylesheet" href="' + url + '" type="text/css"></link>';
-        $.md.stage(stage).subscribe(function(done) {
-            $('head').append(tag);
-            if (callback !== undefined) {
-                callback(done);
-            } else {
-                done();
-            }
-        });
-    };
+//         checkLicense(license, module);
+//         var tag = '<link rel="stylesheet" href="' + url + '" type="text/css"></link>';
+//         $.md.stage(stage).subscribe(function(done) {
+//             $('head').append(tag);
+//             if (callback !== undefined) {
+//                 callback(done);
+//             } else {
+//                 done();
+//             }
+//         });
+//     };
 
-    // turns hostname/path links into http://hostname/path links
-    // we need to do this because if accessed by file:///, we need a different
-    // transport scheme for external resources (like http://)
-    $.md.prepareLink = function(link, options) {
-        options = options || {};
-        var ownProtocol = window.location.protocol;
+//     // associate a link trigger for a gimmick. i.e. [gimmick:foo]() then
+//     // foo is the trigger and will invoke the corresponding gimmick
+//     $.md.linkGimmick = function(module, trigger, callback, stage) {
+//         if (stage === undefined) {
+//             stage = 'gimmick';
+//         }
+//         var linktrigger = new LinkTrigger({
+//             trigger: trigger,
+//             module: module,
+//             stage: stage,
+//             callback: callback
+//         });
+//         linkTriggers.push(linktrigger);
+//     };
 
-        if (options.forceSSL)
-            return 'https://' + link;
-        if (options.forceHTTP)
-            return 'http://' + link;
+//     $.md.triggerIsActive = function(trigger) {
+//         if (activeLinkTriggers.indexOf(trigger) === -1) {
+//             return false;
+//         } else {
+//             return true;
+//         }
+//     };
+//     var log;
+//     var initialized = false;
+//     // TODO combine main.js and modules.js closure
+//     $.md.initializeGimmicks = function() {
+//         findActiveLinkTrigger();
+//         runGimmicksOnce();
+//         loadRequiredScripts();
+//         log = $.md.getLogger();
+//     };
 
-        if (ownProtocol === 'file:') {
-            return 'http://' + link;
-        }
-        // default: use the same as origin resource
-        return '//' + link;
-    };
-
-    // associate a link trigger for a gimmick. i.e. [gimmick:foo]() then
-    // foo is the trigger and will invoke the corresponding gimmick
-    $.md.linkGimmick = function(module, trigger, callback, stage) {
-        if (stage === undefined) {
-            stage = 'gimmick';
-        }
-        var linktrigger = new LinkTrigger({
-            trigger: trigger,
-            module: module,
-            stage: stage,
-            callback: callback
-        });
-        linkTriggers.push(linktrigger);
-    };
-
-    $.md.triggerIsActive = function(trigger) {
-        if (activeLinkTriggers.indexOf(trigger) === -1) {
-            return false;
-        } else {
-            return true;
-        }
-    };
-    var log;
-    var initialized = false;
-    // TODO combine main.js and modules.js closure
-    $.md.initializeGimmicks = function() {
-        findActiveLinkTrigger();
-        runGimmicksOnce();
-        loadRequiredScripts();
-        log = $.md.getLogger();
-    };
-
-    // END PUBLIC API
+//     // END PUBLIC API
 
 
 
-    // triggers that we actually found on the page
-    // array of string
-    var activeLinkTriggers = [];
+//     // triggers that we actually found on the page
+//     // array of string
+//     var activeLinkTriggers = [];
 
 
-    // array of ScriptInfo
-    var registeredScripts = [];
-    function ScriptInfo(initial) {
-        this.module = undefined;
-        this.options = {};
+//     // array of ScriptInfo
+//     var registeredScripts = [];
+//     function ScriptInfo(initial) {
+//         this.module = undefined;
+//         this.options = {};
 
-        // can ba an URL or javascript sourcecode
-        this.src = '';
+//         // can ba an URL or javascript sourcecode
+//         this.src = '';
 
-        $.extend(this, initial);
-    }
+//         $.extend(this, initial);
+//     }
 
-    // array of linkTriggers
-    var linkTriggers = [];
-    function LinkTrigger(initial) {
-        this.trigger = undefined;
-        this.module = undefined;
-        this.callback = undefined;
+//     // array of linkTriggers
+//     var linkTriggers = [];
+//     function LinkTrigger(initial) {
+//         this.trigger = undefined;
+//         this.module = undefined;
+//         this.callback = undefined;
 
-        $.extend(this, initial);
-    }
+//         $.extend(this, initial);
+//     }
 
-    // jQuery does some magic when inserting inline scripts, so better
-    // use vanilla JS. See:
-    // http://stackoverflow.com/questions/610995/jquery-cant-append-script-element
-    function insertInlineScript(src) {
-        // scripts always need to go directly into the DOM
-        var script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.text = src;
-        document.body.appendChild(script);
-    }
+//     // jQuery does some magic when inserting inline scripts, so better
+//     // use vanilla JS. See:
+//     // http://stackoverflow.com/questions/610995/jquery-cant-append-script-element
+//     function insertInlineScript(src) {
+//         // scripts always need to go directly into the DOM
+//         var script = document.createElement('script');
+//         script.type = 'text/javascript';
+//         script.text = src;
+//         document.body.appendChild(script);
+//     }
 
-    // since we are GPL, we have to be cautious what other scripts we load
-    // as delivering to the browser is considered delivering a derived work
-    var licenses = ['MIT', 'BSD', 'GPL', 'GPL2', 'GPL3', 'LGPL', 'LGPL2',
-        'APACHE2', 'PUBLICDOMAIN', 'EXCEPTION', 'OTHER'
-    ];
-    function checkLicense(license, module) {
-        if ($.inArray(license, licenses) === -1) {
-            var availLicenses = JSON.stringify(licenses);
-            log.warn('license ' + license + ' is not known.');
-            log.warn('Known licenses:' + availLicenses);
+//     // since we are GPL, we have to be cautious what other scripts we load
+//     // as delivering to the browser is considered delivering a derived work
+//     var licenses = ['MIT', 'BSD', 'GPL', 'GPL2', 'GPL3', 'LGPL', 'LGPL2',
+//         'APACHE2', 'PUBLICDOMAIN', 'EXCEPTION', 'OTHER'
+//     ];
+//     function checkLicense(license, module) {
+//         if ($.inArray(license, licenses) === -1) {
+//             var availLicenses = JSON.stringify(licenses);
+//             log.warn('license ' + license + ' is not known.');
+//             log.warn('Known licenses:' + availLicenses);
 
-        } else if (license === 'OTHER') {
-            log.warn('WARNING: Module ' + module.name + ' uses a script'+
-                ' with unknown license. This may be a GPL license violation if'+
-                ' this website is publically available!');
-        }
-    }
+//         } else if (license === 'OTHER') {
+//             log.warn('WARNING: Module ' + module.name + ' uses a script'+
+//                 ' with unknown license. This may be a GPL license violation if'+
+//                 ' this website is publically available!');
+//         }
+//     }
 
-    // will actually schedule the script load into the DOM.
-    function loadScript(scriptinfo) {
+//     // will actually schedule the script load into the DOM.
+//     function loadScript(scriptinfo) {
 
-        var module = scriptinfo.module,
-            src = scriptinfo.src,
-            options = scriptinfo.options;
+//         var module = scriptinfo.module,
+//             src = scriptinfo.src,
+//             options = scriptinfo.options;
 
-        var license = options.license || 'OTHER',
-            loadstage = options.loadstage || 'skel_ready',
-            finishstage = options.finishstage || 'pregimmick',
-            callback = options.callback;
+//         var license = options.license || 'OTHER',
+//             loadstage = options.loadstage || 'skel_ready',
+//             finishstage = options.finishstage || 'pregimmick',
+//             callback = options.callback;
 
-        var loadDone = $.Deferred();
+//         var loadDone = $.Deferred();
 
-        checkLicense(license, module);
-        // start script loading
-        log.debug('subscribing ' + module.name + ' to start: ' + loadstage + ' end in: ' + finishstage);
-        $.md.stage(loadstage).subscribe(function(done) {
-            if (src.startsWith('//') || src.startsWith('http')) {
-                $.getScript(src, function() {
-                    if (callback !== undefined) {
-                        callback(done);
-                    } else {
-                        log.debug('module' + module.name + ' script load done: ' + src);
-                        done();
-                    }
-                    loadDone.resolve();
-                });
-            } else {
-                // inline script that we directly insert
-                insertInlineScript(src);
-                log.debug('module' + module.name + ' script inject done');
-                loadDone.resolve();
-                done();
-            }
-        });
-        // if loading is not yet finished in stage finishstage, wait
-        // for the loading to complete
-        $.md.stage(finishstage).subscribe(function(done) {
-            loadDone.done(function() {
-                done();
-            });
-        });
-    }
+//         checkLicense(license, module);
+//         // start script loading
+//         log.debug('subscribing ' + module.name + ' to start: ' + loadstage + ' end in: ' + finishstage);
+//         $.md.stage(loadstage).subscribe(function(done) {
+//             if (src.startsWith('//') || src.startsWith('http')) {
+//                 $.getScript(src, function() {
+//                     if (callback !== undefined) {
+//                         callback(done);
+//                     } else {
+//                         log.debug('module' + module.name + ' script load done: ' + src);
+//                         done();
+//                     }
+//                     loadDone.resolve();
+//                 });
+//             } else {
+//                 // inline script that we directly insert
+//                 insertInlineScript(src);
+//                 log.debug('module' + module.name + ' script inject done');
+//                 loadDone.resolve();
+//                 done();
+//             }
+//         });
+//         // if loading is not yet finished in stage finishstage, wait
+//         // for the loading to complete
+//         $.md.stage(finishstage).subscribe(function(done) {
+//             loadDone.done(function() {
+//                 done();
+//             });
+//         });
+//     }
 
-    // finds out that kind of trigger words are acutally used on a given page
-    // this is most likely a very small subset of all available gimmicks
-    function findActiveLinkTrigger() {
-        var $gimmicks = $('a:icontains(gimmick:)');
-        $gimmicks.each(function(i,e) {
-            var parts = getGimmickLinkParts($(e));
-            if (activeLinkTriggers.indexOf(parts.trigger) === -1) {
-                activeLinkTriggers.push(parts.trigger);
-            }
-        });
-        log.debug('Scanning for required gimmick links: ' + JSON.stringify(activeLinkTriggers));
-    }
+//     // finds out that kind of trigger words are acutally used on a given page
+//     // this is most likely a very small subset of all available gimmicks
+//     function findActiveLinkTrigger() {
+//         var $gimmicks = $('a:icontains(gimmick:)');
+//         $gimmicks.each(function(i,e) {
+//             var parts = getGimmickLinkParts($(e));
+//             if (activeLinkTriggers.indexOf(parts.trigger) === -1) {
+//                 activeLinkTriggers.push(parts.trigger);
+//             }
+//         });
+//         log.debug('Scanning for required gimmick links: ' + JSON.stringify(activeLinkTriggers));
+//     }
 
-    function loadRequiredScripts() {
-        // find each module responsible for the link trigger
-        $.each(activeLinkTriggers, function(i,trigger) {
-            var module = findModuleByTrigger(trigger);
-            if (module === undefined) {
-                log.error('Gimmick link: "' + trigger + '" found but no suitable gimmick loaded');
-                return;
-            }
-            var scriptinfo = registeredScripts.filter(function(info) {
-                return info.module.name === module.name;
-            })[0];
-            // register to load the script
-            if (scriptinfo !== undefined) {
-                loadScript(scriptinfo);
-            }
-        });
-    }
+//     function loadRequiredScripts() {
+//         // find each module responsible for the link trigger
+//         $.each(activeLinkTriggers, function(i,trigger) {
+//             var module = findModuleByTrigger(trigger);
+//             if (module === undefined) {
+//                 log.error('Gimmick link: "' + trigger + '" found but no suitable gimmick loaded');
+//                 return;
+//             }
+//             var scriptinfo = registeredScripts.filter(function(info) {
+//                 return info.module.name === module.name;
+//             })[0];
+//             // register to load the script
+//             if (scriptinfo !== undefined) {
+//                 loadScript(scriptinfo);
+//             }
+//         });
+//     }
 
-    function findModuleByTrigger(trigger) {
-        var ret;
-        $.each(linkTriggers, function(i,e) {
-            if (e.trigger === trigger) {
-                ret = e.module;
-            }
-        });
-        return ret;
-    }
+//     function findModuleByTrigger(trigger) {
+//         var ret;
+//         $.each(linkTriggers, function(i,e) {
+//             if (e.trigger === trigger) {
+//                 ret = e.module;
+//             }
+//         });
+//         return ret;
+//     }
 
-    function getGimmickLinkParts($link) {
-        var link_text = $.trim($link.toptext());
-        // returns linkTrigger, options, linkText
-        if (link_text.match(/gimmick:/i) === null) {
-            return null;
-        }
-        var href = $.trim($link.attr('href'));
-        var r = new RegExp(/gimmick:\s*([^(\s]*)\s*(\(\s*{?(.*)\s*}?\s*\))*/i);
-        var matches = r.exec(link_text);
-        if (matches === null || matches[1] === undefined) {
-            // $.error('Error matching a gimmick: ' + link_text);
-            return null;
-        }
-        var trigger = matches[1].toLowerCase();
-        var args = null;
-        // getting the parameters
-        if (matches[2] !== undefined) {
-            // remove whitespaces
-            var params = $.trim(matches[3].toString());
-            // remove the closing } if present
-            if (params.charAt (params.length - 1) === '}') {
-                params = params.substring(0, params.length - 1);
-            }
-            // add surrounding braces and paranthese
-            params = '({' + params + '})';
-            // replace any single quotes by double quotes
-            params = params.replace(/'/g, '"');
-            // finally, try if the json object is valid
-            try {
-                /*jshint -W061 */
-                args = eval(params);
-            } catch (err) {
-                log.error('error parsing argument of gimmick: ' + link_text + 'giving error: ' + err);
-            }
-        }
-        return { trigger: trigger, options: args, href: href };
-    }
+//     function getGimmickLinkParts($link) {
+//         var link_text = $.trim($link.toptext());
+//         // returns linkTrigger, options, linkText
+//         if (link_text.match(/gimmick:/i) === null) {
+//             return null;
+//         }
+//         var href = $.trim($link.attr('href'));
+//         var r = new RegExp(/gimmick:\s*([^(\s]*)\s*(\(\s*{?(.*)\s*}?\s*\))*/i);
+//         var matches = r.exec(link_text);
+//         if (matches === null || matches[1] === undefined) {
+//             // $.error('Error matching a gimmick: ' + link_text);
+//             return null;
+//         }
+//         var trigger = matches[1].toLowerCase();
+//         var args = null;
+//         // getting the parameters
+//         if (matches[2] !== undefined) {
+//             // remove whitespaces
+//             var params = $.trim(matches[3].toString());
+//             // remove the closing } if present
+//             if (params.charAt (params.length - 1) === '}') {
+//                 params = params.substring(0, params.length - 1);
+//             }
+//             // add surrounding braces and paranthese
+//             params = '({' + params + '})';
+//             // replace any single quotes by double quotes
+//             params = params.replace(/'/g, '"');
+//             // finally, try if the json object is valid
+//             try {
+//                 /*jshint -W061 */
+//                 args = eval(params);
+//             } catch (err) {
+//                 log.error('error parsing argument of gimmick: ' + link_text + 'giving error: ' + err);
+//             }
+//         }
+//         return { trigger: trigger, options: args, href: href };
+//     }
 
-    function runGimmicksOnce() {
-        // runs the once: callback for each gimmick within the init stage
-        $.each($.md.gimmicks, function(i, module) {
-            if (module.once === undefined) {
-                return;
-            }
-            module.once();
-        });
-    }
+//     function runGimmicksOnce() {
+//         // runs the once: callback for each gimmick within the init stage
+//         $.each($.md.gimmicks, function(i, module) {
+//             if (module.once === undefined) {
+//                 return;
+//             }
+//             module.once();
+//         });
+//     }
 
-    // activate all gimmicks on a page, that are contain the text gimmick:
-    // TODO make private / merge closures
-    $.md.registerLinkGimmicks = function () {
-        var $gimmick_links = $('a:icontains(gimmick:)');
-        $gimmick_links.each(function(i, e) {
-            var $link = $(e);
-            var gimmick_arguments = getGimmickLinkParts($link);
+//     // activate all gimmicks on a page, that are contain the text gimmick:
+//     // TODO make private / merge closures
+//     $.md.registerLinkGimmicks = function () {
+//         var $gimmick_links = $('a:icontains(gimmick:)');
+//         $gimmick_links.each(function(i, e) {
+//             var $link = $(e);
+//             var gimmick_arguments = getGimmickLinkParts($link);
 
-            $.each(linkTriggers, function(i, linktrigger) {
-                if (gimmick_arguments.trigger === linktrigger.trigger) {
-                    subscribeLinkTrigger($link, gimmick_arguments, linktrigger);
-                }
-            });
-        });
-    };
+//             $.each(linkTriggers, function(i, linktrigger) {
+//                 if (gimmick_arguments.trigger === linktrigger.trigger) {
+//                     subscribeLinkTrigger($link, gimmick_arguments, linktrigger);
+//                 }
+//             });
+//         });
+//     };
 
-    function subscribeLinkTrigger($link, args, linktrigger) {
-        log.debug('Subscribing gimmick ' + linktrigger.module.name + ' to stage: ' + linktrigger.stage);
+//     function subscribeLinkTrigger($link, args, linktrigger) {
+//         log.debug('Subscribing gimmick ' + linktrigger.module.name + ' to stage: ' + linktrigger.stage);
 
-        $.md.stage(linktrigger.stage).subscribe(function(done) {
-            args.options = args.options ||{};
+//         $.md.stage(linktrigger.stage).subscribe(function(done) {
+//             args.options = args.options ||{};
 
-            // it is possible that broken modules or any other transformation removed the $link
-            // from the dom in the meantime
-            if (!jQuery.contains(document.documentElement, $link[0])) {
-                log.error ('LINK IS NOT IN THE DOM ANYMORE: ');
-                console.log($link);
-            }
+//             // it is possible that broken modules or any other transformation removed the $link
+//             // from the dom in the meantime
+//             if (!jQuery.contains(document.documentElement, $link[0])) {
+//                 log.error ('LINK IS NOT IN THE DOM ANYMORE: ');
+//                 console.log($link);
+//             }
 
-            log.debug('Running gimmick ' + linktrigger.module.name);
-            linktrigger.callback($link, args.options, args.href, done);
+//             log.debug('Running gimmick ' + linktrigger.module.name);
+//             linktrigger.callback($link, args.options, args.href, done);
 
-            // if the gimmick didn't call done, we trigger it here
-            done();
-        });
-    }
-}(jQuery));
+//             // if the gimmick didn't call done, we trigger it here
+//             done();
+//         });
+//     }
+// }(jQuery));
 
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var MDwiki;
 (function (MDwiki) {
     (function (Core) {
         var ScriptResource = (function () {
-            function ScriptResource(url, loadstage) {
-                if (typeof loadstage === "undefined") { loadstage = 'gimmick'; }
+            function ScriptResource(url, loadstage, finishstage) {
+                if (typeof loadstage === "undefined") { loadstage = 'skel_ready'; }
+                if (typeof finishstage === "undefined") { finishstage = 'gimmick'; }
                 this.url = url;
                 this.loadstage = loadstage;
+                this.finishstage = finishstage;
             }
             return ScriptResource;
         })();
         Core.ScriptResource = ScriptResource;
 
         var CssResource = (function () {
-            function CssResource(url) {
+            function CssResource(url, finishstage) {
+                if (typeof finishstage === "undefined") { finishstage = 'gimmick'; }
                 this.url = url;
+                this.finishstage = finishstage;
             }
             return CssResource;
         })();
         Core.CssResource = CssResource;
+
+        var GimmickLinkParts = (function () {
+            function GimmickLinkParts(trigger, options, href) {
+                this.trigger = trigger;
+                this.options = options;
+                this.href = href;
+            }
+            return GimmickLinkParts;
+        })();
+
+        var GimmickHandler = (function () {
+            function GimmickHandler(trigger, handler) {
+                this.trigger = trigger;
+                this.handler = handler;
+            }
+            return GimmickHandler;
+        })();
+        Core.GimmickHandler = GimmickHandler;
+
+        var Module = (function () {
+            function Module() {
+            }
+            Module.prototype.init = function () {
+            };
+
+            Module.prototype.registerScriptResource = function (res) {
+                var loadDone = $.Deferred();
+
+                $.md.stage(res.loadstage).subscribe(function (done) {
+                    if (res.url.startsWith('//') || res.url.startsWith('http')) {
+                        $.getScript(res.url, function () {
+                            return loadDone.resolve();
+                        });
+                    } else {
+                        var script = document.createElement('script');
+                        script.type = 'text/javascript';
+                        script.text = res.url;
+                        document.body.appendChild(script);
+                        loadDone.resolve();
+                    }
+                    done();
+                });
+
+                $.md.stage(res.finishstage).subscribe(function (done) {
+                    loadDone.done(function () {
+                        return done();
+                    });
+                });
+            };
+            Module.prototype.registerCssResource = function (resource) {
+            };
+            Module.prototype.registerResource = function (resource, type) {
+                if (typeof type === "undefined") { type = "script"; }
+                if (resource && typeof resource == "CssResource")
+                    this.registerCssResource(resource);
+                else if (resource && typeof resource == "ScriptResource")
+                    this.registerScriptResource(resource);
+                else if (resource && typeof resource == "string") {
+                    if (type == "script") {
+                        this.registerScriptResource(new ScriptResource(resource));
+                    } else {
+                        this.registerCssResource(new CssResource(resource));
+                    }
+                }
+            };
+            return Module;
+        })();
+        Core.Module = Module;
+
+        var Gimmick = (function (_super) {
+            __extends(Gimmick, _super);
+            function Gimmick() {
+                _super.apply(this, arguments);
+                this.Handlers = [];
+            }
+            Gimmick.prototype.init = function () {
+            };
+            Gimmick.prototype.addHandler = function (trigger, cb) {
+                var handler = new GimmickHandler(trigger, cb);
+                this.Handlers.push(handler);
+            };
+            return Gimmick;
+        })(Module);
+        Core.Gimmick = Gimmick;
 
         function getGimmickLinkParts($link) {
             var link_text = $.trim($link.toptext());
@@ -1711,7 +1786,7 @@ var MDwiki;
                 return null;
             }
             var href = $.trim($link.attr('href'));
-            var r = new RegExp('gimmick:\s*([^(\s]*)\s*((\s*{?(.*)\s*}?\s*\))*', 'i');
+            var r = /gimmick\s?:\s*([^(\s]*)\s*\(?\s*{?(.*)\s*}?\)?/i;
             var matches = r.exec(link_text);
             if (matches === null || matches[1] === undefined) {
                 $.error('Error matching a gimmick: ' + link_text);
@@ -1720,12 +1795,17 @@ var MDwiki;
             var trigger = matches[1].toLowerCase();
             var args = null;
 
-            if (matches[2] !== undefined) {
-                var params = $.trim(matches[3].toString());
+            if (matches[2].toLowerCase().indexOf("gimmick") != 0) {
+                var params = $.trim(matches[2].toString());
+                if (params.charAt(params.length - 1) === ')') {
+                    params = params.substring(0, params.length - 1);
+                }
 
                 if (params.charAt(params.length - 1) === '}') {
                     params = params.substring(0, params.length - 1);
                 }
+
+                params = '({' + params + '})';
 
                 var replace_quotes = new RegExp("'", 'g');
                 params = params.replace(replace_quotes, '"');
@@ -1739,91 +1819,32 @@ var MDwiki;
             return new GimmickLinkParts(trigger, args, href);
         }
 
-        var Gimmick = (function () {
-            function Gimmick() {
-                this.scripts = [];
-                this.styles = [];
-            }
-            Gimmick.prototype.init = function () {
-            };
-            Gimmick.prototype.ready = function () {
-            };
-            Gimmick.prototype.load = function ($link, options, text) {
-            };
-            return Gimmick;
-        })();
-        Core.Gimmick = Gimmick;
-
-        var GimmickLinkParts = (function () {
-            function GimmickLinkParts(trigger, options, href) {
-                this.trigger = trigger;
-                this.options = options;
-                this.href = href;
-            }
-            return GimmickLinkParts;
-        })();
-
-        var MathJaxGimmick = (function () {
-            function MathJaxGimmick() {
-                this.name = 'mathjax';
-                this.trigger = 'math';
-                this.scripts = [];
-                this.styles = [];
-            }
-            MathJaxGimmick.prototype.init = function () {
-                var href = $.md.prepareLink('cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML', { forceHTTP: true });
-                var s = new ScriptResource(href, 'gimmick');
-                this.scripts.push(s);
-            };
-            MathJaxGimmick.prototype.load = function ($link, options, text) {
-            };
-            MathJaxGimmick.prototype.ready = function () {
-            };
-            return MathJaxGimmick;
-        })();
-
-        var HelloWorldGimmick = (function () {
-            function HelloWorldGimmick() {
-                this.trigger = 'hello';
-                this.name = 'Hello World Gimmick';
-                this.scripts = [];
-                this.styles = [];
-            }
-            HelloWorldGimmick.prototype.init = function () {
-                alert("init");
-            };
-            HelloWorldGimmick.prototype.load = function ($link, options, text) {
-                alert(text);
-            };
-            HelloWorldGimmick.prototype.loadAll = function ($links) {
-            };
-            HelloWorldGimmick.prototype.ready = function () {
-            };
-            return HelloWorldGimmick;
-        })();
-        Core.HelloWorldGimmick = HelloWorldGimmick;
-
         var GimmickLoader = (function () {
             function GimmickLoader() {
-                this.registeredGimmicks = [];
+                this.registeredModules = [];
                 this.requiredGimmicks = [];
+                this.gimmicks = [];
             }
-            GimmickLoader.prototype.init = function () {
-                return;
+            GimmickLoader.prototype.initModules = function () {
+                this.registeredModules.map(function (m) {
+                    return m.init();
+                });
             };
-
-            GimmickLoader.prototype.register = function (gmck) {
-                this.registeredGimmicks.push(gmck);
+            GimmickLoader.prototype.registerModule = function (mod) {
+                this.registeredModules.push(mod);
+            };
+            GimmickLoader.prototype.registerGimmick = function (gmck) {
+                this.gimmicks.push(gmck);
             };
 
             GimmickLoader.prototype.initGimmicks = function () {
-                var used_triggers = this.findActiveLinkTrigger();
+                var _this = this;
+                var $gimmick_links = $('a:icontains(gimmick:)');
+                $gimmick_links.map(function (i, e) {
+                    var $link = $(e);
+                    var parts = getGimmickLinkParts($link);
 
-                this.requiredGimmicks = this.registeredGimmicks.filter(function (lgmck) {
-                    return used_triggers.indexOf(lgmck.trigger) >= 0;
-                });
-
-                this.requiredGimmicks.map(function (gmck) {
+                    var gmck = _this.selectGimmick(parts.trigger);
                     gmck.init();
                 });
             };
@@ -1834,14 +1855,27 @@ var MDwiki;
                 $gimmick_links.map(function (i, e) {
                     var $link = $(e);
                     var parts = getGimmickLinkParts($link);
-                    var gimmick_impl = _this.requiredGimmicks.filter(function (n) {
-                        return n.trigger == parts.trigger;
-                    })[0];
-
-                    gimmick_impl.load($link, parts.options, parts.trigger);
+                    var handler = _this.selectGimmickHandler(parts.trigger);
+                    handler.handler($link, parts.options, parts.trigger);
                 });
             };
-
+            GimmickLoader.prototype.selectGimmick = function (trigger) {
+                var gimmicks = this.gimmicks.filter(function (g) {
+                    var triggers = g.Handlers.map(function (h) {
+                        return h.trigger;
+                    });
+                    if (triggers.indexOf(trigger) >= 0)
+                        return true;
+                });
+                return gimmicks[0];
+            };
+            GimmickLoader.prototype.selectGimmickHandler = function (trigger) {
+                var gimmick = this.selectGimmick(trigger);
+                var handler = gimmick.Handlers.filter(function (h) {
+                    return h.trigger == trigger;
+                })[0];
+                return handler;
+            };
             GimmickLoader.prototype.findActiveLinkTrigger = function () {
                 var activeLinkTriggers = [];
 
@@ -2074,198 +2108,202 @@ var MDwiki;
     })(MDwiki.Core || (MDwiki.Core = {}));
     var Core = MDwiki.Core;
 })(MDwiki || (MDwiki = {}));
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var StringUtil = (function () {
-    function StringUtil() {
-    }
-    StringUtil.startsWith = function (search, suffix) {
-        return search.slice(0, suffix.length) == suffix;
-    };
-    StringUtil.endsWith = function (search, prefix) {
-        return search.slice(search.length - prefix.length, search.length) == prefix;
-    };
-    return StringUtil;
-})();
+var MDwiki;
+(function (MDwiki) {
+    (function (Core) {
+        var StringUtil = (function () {
+            function StringUtil() {
+            }
+            StringUtil.startsWith = function (search, suffix) {
+                return search.slice(0, suffix.length) == suffix;
+            };
+            StringUtil.endsWith = function (search, prefix) {
+                return search.slice(search.length - prefix.length, search.length) == prefix;
+            };
+            return StringUtil;
+        })();
 
-var Theme = (function () {
-    function Theme(name, styles, scripts) {
-        if (typeof scripts === "undefined") { scripts = []; }
-        this.name = name;
-        this.styles = styles;
-        this.scripts = scripts;
-    }
-    Theme.prototype.onLoad = function () {
-    };
-    return Theme;
-})();
+        var Theme = (function () {
+            function Theme(name, styles, scripts) {
+                if (typeof scripts === "undefined") { scripts = []; }
+                this.name = name;
+                this.styles = styles;
+                this.scripts = scripts;
+            }
+            Theme.prototype.onLoad = function () {
+            };
+            return Theme;
+        })();
 
-var BootswatchTheme = (function (_super) {
-    __extends(BootswatchTheme, _super);
-    function BootswatchTheme(name) {
-        _super.call(this, name, [], []);
-        this.baseUrl = '//netdna.bootstrapcdn.com/bootswatch/3.0.0/';
-        this.baseFilename = '/bootstrap.min.css';
-        this.styles = [this.url];
-    }
-    Object.defineProperty(BootswatchTheme.prototype, "url", {
-        get: function () {
-            return this.baseUrl + this.name + this.baseFilename;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return BootswatchTheme;
-})(Theme);
-
-var ThemeChooser = (function () {
-    function ThemeChooser() {
-        this.themes = [];
-        this.enableChooser = false;
-    }
-    Object.defineProperty(ThemeChooser.prototype, "themeNames", {
-        get: function () {
-            return this.themes.map(function (t) {
-                return t.name;
+        var BootswatchTheme = (function (_super) {
+            __extends(BootswatchTheme, _super);
+            function BootswatchTheme(name) {
+                _super.call(this, name, [], []);
+                this.baseUrl = '//netdna.bootstrapcdn.com/bootswatch/3.0.0/';
+                this.baseFilename = '/bootstrap.min.css';
+                this.styles = [this.url];
+            }
+            Object.defineProperty(BootswatchTheme.prototype, "url", {
+                get: function () {
+                    return this.baseUrl + this.name + this.baseFilename;
+                },
+                enumerable: true,
+                configurable: true
             });
-        },
-        enumerable: true,
-        configurable: true
-    });
+            return BootswatchTheme;
+        })(Theme);
 
-    Object.defineProperty(ThemeChooser.prototype, "currentTheme", {
-        get: function () {
-            var theme = window.localStorage.getItem("theme");
-            return theme;
-        },
-        set: function (val) {
-            if (val == '')
-                window.localStorage.removeItem("theme");
-            else
-                window.localStorage.setItem("theme", val);
-        },
-        enumerable: true,
-        configurable: true
-    });
-
-    ThemeChooser.prototype.register = function (theme) {
-        this.themes.push(theme);
-    };
-    ThemeChooser.prototype.loadDefaultTheme = function () {
-        this.load(this.currentTheme);
-    };
-
-    ThemeChooser.prototype.load = function (name) {
-        var target = this.themes.filter(function (t) {
-            return t.name == name;
-        });
-        if (target.length <= 0)
-            return;
-        else
-            this.applyTheme(target[0]);
-    };
-
-    ThemeChooser.prototype.applyTheme = function (theme) {
-        $('link[rel=stylesheet][href*="netdna.bootstrapcdn.com"]').remove();
-        var link_tag = this.createLinkTag(theme.styles[0]);
-        $('head').append(link_tag);
-    };
-
-    ThemeChooser.prototype.createLinkTag = function (url) {
-        return $('<link rel="stylesheet" type="text/css">').attr('href', url);
-    };
-    return ThemeChooser;
-})();
-
-(function ($) {
-    var themeChooserGimmick = {
-        name: 'Themes',
-        version: $.md.version,
-        once: function () {
-            var tc = new ThemeChooser();
-            registerDefaultThemes(tc);
-
-            $.md.stage('bootstrap').subscribe(function (done) {
-                tc.loadDefaultTheme();
-                done();
+        var ThemeChooser = (function () {
+            function ThemeChooser() {
+                this.themes = [];
+                this.enableChooser = false;
+            }
+            Object.defineProperty(ThemeChooser.prototype, "themeNames", {
+                get: function () {
+                    return this.themes.map(function (t) {
+                        return t.name;
+                    });
+                },
+                enumerable: true,
+                configurable: true
             });
 
-            var build_chooser = function ($links, opt, text) {
-                tc.enableChooser = true;
-                themechooser($links, opt, text, tc);
+            Object.defineProperty(ThemeChooser.prototype, "currentTheme", {
+                get: function () {
+                    var theme = window.localStorage.getItem("theme");
+                    return theme;
+                },
+                set: function (val) {
+                    if (val == '')
+                        window.localStorage.removeItem("theme");
+                    else
+                        window.localStorage.setItem("theme", val);
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            ThemeChooser.prototype.register = function (theme) {
+                this.themes.push(theme);
             };
-            var apply_theme = function ($links, opt, text) {
-                set_theme($links, opt, text, tc);
+            ThemeChooser.prototype.loadDefaultTheme = function () {
+                this.load(this.currentTheme);
             };
 
-            $.md.linkGimmick(this, 'themechooser', build_chooser, 'skel_ready');
-            $.md.linkGimmick(this, 'theme', apply_theme);
+            ThemeChooser.prototype.load = function (name) {
+                var target = this.themes.filter(function (t) {
+                    return t.name == name;
+                });
+                if (target.length <= 0)
+                    return;
+                else
+                    this.applyTheme(target[0]);
+            };
+
+            ThemeChooser.prototype.applyTheme = function (theme) {
+                $('link[rel=stylesheet][href*="netdna.bootstrapcdn.com"]').remove();
+                var link_tag = this.createLinkTag(theme.styles[0]);
+                $('head').append(link_tag);
+            };
+
+            ThemeChooser.prototype.createLinkTag = function (url) {
+                return $('<link rel="stylesheet" type="text/css">').attr('href', url);
+            };
+            return ThemeChooser;
+        })();
+
+        var ThemeChooserGimmick = (function (_super) {
+            __extends(ThemeChooserGimmick, _super);
+            function ThemeChooserGimmick() {
+                _super.apply(this, arguments);
+                this.name = "Theme Chooser";
+                this.trigger = "theme";
+            }
+            ThemeChooserGimmick.prototype.init = function () {
+                _super.prototype.init.call(this);
+                var tc = new ThemeChooser();
+                registerDefaultThemes(tc);
+
+                $.md.stage('bootstrap').subscribe(function (done) {
+                    tc.loadDefaultTheme();
+                    done();
+                });
+
+                var build_chooser = function ($links, opt, text) {
+                    tc.enableChooser = true;
+                    themechooser($links, opt, text, tc);
+                };
+                var apply_theme = function ($links, opt, text) {
+                    set_theme($links, opt, text, tc);
+                };
+
+                $.md.linkGimmick(this, 'themechooser', build_chooser, 'skel_ready');
+                $.md.linkGimmick(this, 'theme', apply_theme);
+            };
+            return ThemeChooserGimmick;
+        })(MDwiki.Core.Module);
+        ;
+
+        var set_theme = function ($links, opt, text, tc) {
+            opt.name = opt.name || text;
+            $links.each(function (i, link) {
+                $.md.stage('postgimmick').subscribe(function (done) {
+                    if (!tc.currentTheme || tc.currentTheme == '' || tc.enableChooser == false)
+                        tc.load(opt.name);
+                    done();
+                });
+            });
+            $links.remove();
+        };
+
+        function registerDefaultThemes(tc) {
+            var bootstrap = new Theme('bootstrap', ['netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css']);
+            tc.register(bootstrap);
+
+            var bootswatch_theme_names = [
+                'amelia', 'cerulean', 'cosmo', 'cyborg', 'flatly', 'journal',
+                'readable', 'simplex', 'slate', 'spacelab', 'united'
+            ];
+            bootswatch_theme_names.map(function (name) {
+                return tc.register(new BootswatchTheme(name));
+            });
         }
-    };
-    $.md.registerGimmick(themeChooserGimmick);
 
-    var set_theme = function ($links, opt, text, tc) {
-        opt.name = opt.name || text;
-        $links.each(function (i, link) {
-            $.md.stage('postgimmick').subscribe(function (done) {
-                if (!tc.currentTheme || tc.currentTheme == '' || tc.enableChooser == false)
-                    tc.load(opt.name);
-                done();
-            });
-        });
-        $links.remove();
-    };
+        var themechooser = function ($links, opt, text, tc) {
+            return $links.each(function (i, e) {
+                var $this = $(e);
+                var $chooser = $('<a href=""></a><ul></ul>');
+                $chooser.eq(0).text(text);
 
-    function registerDefaultThemes(tc) {
-        var bootstrap = new Theme('bootstrap', ['netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css']);
-        tc.register(bootstrap);
+                $.each(tc.themeNames, function (i, themeName) {
+                    var $li = $('<li></li>');
+                    $chooser.eq(1).append($li);
+                    var $a = $('<a/>').text(themeName).attr('href', '').click(function (ev) {
+                        ev.preventDefault();
+                        tc.currentTheme = themeName;
+                        window.location.reload();
+                    }).appendTo($li);
+                });
 
-        var bootswatch_theme_names = [
-            'amelia', 'cerulean', 'cosmo', 'cyborg', 'flatly', 'journal',
-            'readable', 'simplex', 'slate', 'spacelab', 'united'
-        ];
-        bootswatch_theme_names.map(function (name) {
-            return tc.register(new BootswatchTheme(name));
-        });
-    }
-
-    var themechooser = function ($links, opt, text, tc) {
-        return $links.each(function (i, e) {
-            var $this = $(e);
-            var $chooser = $('<a href=""></a><ul></ul>');
-            $chooser.eq(0).text(text);
-
-            $.each(tc.themeNames, function (i, themeName) {
-                var $li = $('<li></li>');
-                $chooser.eq(1).append($li);
-                var $a = $('<a/>').text(themeName).attr('href', '').click(function (ev) {
+                $chooser.eq(1).append('<li class="divider" />');
+                var $li = $('<li/>');
+                var $a_use_default = $('<a>Use default</a>');
+                $a_use_default.click(function (ev) {
                     ev.preventDefault();
-                    tc.currentTheme = themeName;
+                    tc.currentTheme = '';
                     window.location.reload();
-                }).appendTo($li);
-            });
+                });
+                $li.append($a_use_default);
+                $chooser.eq(1).append($li);
 
-            $chooser.eq(1).append('<li class="divider" />');
-            var $li = $('<li/>');
-            var $a_use_default = $('<a>Use default</a>');
-            $a_use_default.click(function (ev) {
-                ev.preventDefault();
-                tc.currentTheme = '';
-                window.location.reload();
+                $chooser.eq(1).append('<li class="divider" />');
+                $chooser.eq(1).append('<li><a href="http://www.bootswatch.com">Powered by Bootswatch</a></li>');
+                $this.replaceWith($chooser);
             });
-            $li.append($a_use_default);
-            $chooser.eq(1).append($li);
-
-            $chooser.eq(1).append('<li class="divider" />');
-            $chooser.eq(1).append('<li><a href="http://www.bootswatch.com">Powered by Bootswatch</a></li>');
-            $this.replaceWith($chooser);
-        });
-    };
-}(jQuery));
+        };
+    })(MDwiki.Core || (MDwiki.Core = {}));
+    var Core = MDwiki.Core;
+})(MDwiki || (MDwiki = {}));
 
 var Logger = MDwiki.Util.Logger;
 
@@ -2276,6 +2314,7 @@ var MDwiki;
             function Wiki() {
                 var _this = this;
                 this.stages = new MDwiki.Core.StageChain();
+                this.gimmicks = new MDwiki.Core.GimmickLoader();
                 var stage_names = ([
                     'init', 'load', 'transform', 'ready', 'skel_ready',
                     'bootstrap', 'pregimmick', 'gimmick', 'postgimmick', 'all_ready',
@@ -2284,7 +2323,6 @@ var MDwiki;
                 stage_names.map(function (n) {
                     return _this.stages.append(new MDwiki.Core.Stage(n));
                 });
-                this.gimmicks = new MDwiki.Core.GimmickLoader();
             }
             Wiki.prototype.run = function () {
                 this.registerFetchConfigAndNavigation();
@@ -2384,25 +2422,13 @@ var MDwiki;
             Wiki.prototype.registerGimmickLoad = function () {
                 var _this = this;
                 $.md.stage('ready').subscribe(function (done) {
-                    $.md.initializeGimmicks();
-                    $.md.registerGimmick();
-
-                    $.md.stage('gimmick').subscribe(function (done) {
-                        _this.gimmicks.initGimmicks();
-                        _this.gimmicks.loadGimmicks();
-                        done();
-                    });
+                    _this.gimmicks.initModules();
+                    _this.gimmicks.initGimmicks();
                     done();
                 });
-
-                $.each($.md.gimmicks, function (i, mod) {
-                    if (mod.load === undefined) {
-                        return;
-                    }
-                    $.md.stage('load').subscribe(function (done) {
-                        mod.load();
-                        done();
-                    });
+                $.md.stage('gimmick').subscribe(function (done) {
+                    _this.gimmicks.loadGimmicks();
+                    done();
                 });
             };
             Wiki.prototype.registerBuildNavigation = function (navMD) {
@@ -2635,6 +2661,25 @@ var MDwiki;
         }
     };
     $.md.util = $.extend ({}, $.md.util, publicMethods);
+
+    // turns hostname/path links into http://hostname/path links
+    // we need to do this because if accessed by file:///, we need a different
+    // transport scheme for external resources (like http://)
+    $.md.prepareLink = function(link, options) {
+        options = options || {};
+        var ownProtocol = window.location.protocol;
+
+        if (options.forceSSL)
+            return 'https://' + link;
+        if (options.forceHTTP)
+            return 'http://' + link;
+
+        if (ownProtocol === 'file:') {
+            return 'http://' + link;
+        }
+        // default: use the same as origin resource
+        return '//' + link;
+    };
 
     if (typeof String.prototype.startsWith !== 'function') {
         String.prototype.startsWith = function(str) {
@@ -3407,300 +3452,7 @@ var MDwiki;
 }(jQuery));
 
 (function($) {
-    //'use strict';
-    var alertsGimmick = {
-        trigger: 'alerts',
-        init: function() {
-            $.md.stage('bootstrap').subscribe(function(done) {
-                createAlerts();
-                done();
-            });
-        }
-    };
-    $.md.wiki.gimmicks.register(alertsGimmick);
-
-    // takes a standard <img> tag and adds a hyperlink to the image source
-    // needed since we scale down images via css and want them to be accessible
-    // in original format
-    function createAlerts() {
-        var matches = $(select_paragraphs());
-        matches.each(function() {
-            var $p = $(this.p);
-            var type = this.alertType;
-            $p.addClass('alert');
-
-            if (type === 'note') {
-                $p.addClass('alert-info');
-            } else if (type === 'hint') {
-                $p.addClass('alert-success');
-            } else if (type === 'warning') {
-                $p.addClass('alert-warning');
-            }
-        });
-    }
-
-    // picks out the paragraphs that start with a trigger word
-    function select_paragraphs() {
-        var note = ['note', 'beachte' ];
-        var warning = [ 'achtung', 'attention', 'warnung', 'warning', 'atención', 'guarda', 'advertimiento' ];
-        var hint = ['hint', 'tipp', 'tip', 'hinweis'];
-        var exp = note.concat(warning);
-        exp = exp.concat(hint);
-        var matches = [];
-
-        $('p').filter (function () {
-            var $par = $(this);
-            // check against each expression
-            $(exp).each (function (i,trigger) {
-                var txt = $par.text().toLowerCase ();
-                // we match only paragrachps in which the 'trigger' expression
-                // is follow by a ! or :
-                var re = new RegExp (trigger + '(:|!)+.*','i');
-                var alertType = 'none';
-                if (txt.match (re) !== null) {
-                    if ($.inArray(trigger, note) >= 0) {
-                        alertType = 'note';
-                    } else if ($.inArray(trigger, warning) >= 0) {
-                        alertType = 'warning';
-                    } else if ($.inArray(trigger, hint) >= 0) {
-                        alertType = 'hint';
-                    }
-                    matches.push ({
-                        p: $par,
-                        alertType: alertType
-                    });
-                }
-            });
-        });
-        return matches;
-    }
-}(jQuery));
-
-(function($) {
-    // makes trouble, find out why
-    //'use strict';
-    var colorboxGimmick = {
-        name: 'colorbox',
-        load: function() {
-            $.md.stage('gimmick').subscribe(function(done) {
-                $.gimmicks('colorbox');
-                done();
-            });
-        }
-    };
-    $.md.registerGimmick(colorboxGimmick);
-
-    var methods = {
-        // takes a standard <img> tag and adds a hyperlink to the image source
-        // needed since we scale down images via css and want them to be accessible
-        // in original format
-        colorbox: function() {
-            var $image_groups;
-            if (!(this instanceof jQuery)) {
-                // select the image groups of the page
-                $image_groups = $('.md-image-group');
-            } else {
-                $image_groups = $(this);
-            }
-            // operate on md-image-group, which holds one
-            // or more images that are to be colorbox'ed
-            var counter = 0;
-            return $image_groups.each(function() {
-                var $this = $(this);
-
-                // each group requires a unique name
-                var gal_group = 'gallery-group-' + (counter++);
-
-                // create a hyperlink around the image
-                $this.find('a.md-image-selfref img')
-                // filter out images that already are a hyperlink
-                // (so won't be part of the gallery)
-
-                // apply colorbox on their parent anchors
-                .parents('a').colorbox({
-                    rel: gal_group,
-                    opacity: 0.75,
-                    slideshow: true,
-                    maxWidth: '95%',
-                    maxHeight: '95%',
-                    scalePhotos: true,
-                    photo: true,
-                    slideshowAuto: false
-                });
-            });
-        }
-    };
-    $.gimmicks.methods = $.extend({}, $.fn.gimmicks.methods, methods);
-}(jQuery));
-
-(function($) {
     'use strict';
-
-    var themeChooserGimmick = {
-        name: 'Themes',
-        version: $.md.version,
-        once: function() {
-            $.md.linkGimmick(this, 'carousel', carousel);
-        }
-    };
-    $.md.registerGimmick(themeChooserGimmick);
-
-    function carousel($link, opt, href) {
-
-        var $c = $('<div id="myCarousel" class="carousel slide"></div>');
-        var $d = $('<div class="carousel-inner"/>');
-        $c.append('<ol class="carousel-indicators" />');
-
-        var imageUrls = [];
-        var i = 0;
-        $.each(href.split(','), function(i, e) {
-            imageUrls.push($.trim(e));
-            $c.find('ol').append('<li data-target="#myCarousel" data-slide-to="' + i + '" class="active" /');
-            var div;
-            if (i === 0) {
-                div = ('<div class="active item"/>');
-            } else {
-                div = ('<div class="item"/>');
-            }
-            $d.append($(div).append('<img src="' + e + '"/>'));
-        });
-        $c.append($d);
-        $c.append('<a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>');
-        $c.append('<a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>');
-        $link.replaceWith($c);
-    }
-}(jQuery));
-
-(function($) {
-    var disqusGimmick = {
-        name: 'disqus',
-        version: $.md.version,
-        once: function() {
-            $.md.linkGimmick(this, 'disqus', disqus);
-        }
-    };
-    $.md.registerGimmick(disqusGimmick);
-
-    var alreadyDone = false;
-    var disqus = function($links, opt, text) {
-        var default_options = {
-            identifier: ''
-        };
-        var options = $.extend (default_options, opt);
-        var disqus_div = $('<div id="disqus_thread" class="md-external md-external-noheight md-external-nowidth" >' + '<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>');
-        disqus_div.css ('margin-top', '2em');
-        return $links.each(function(i,link) {
-            if (alreadyDone === true) {
-                return;
-            }
-            alreadyDone = true;
-
-            var $link = $(link);
-            var disqus_shortname = $link.attr('href');
-
-            if (disqus_shortname !== undefined && disqus_shortname.length > 0) {
-                // insert the div
-                $link.remove ();
-                // since disqus need lot of height, always but it on the bottom of the page
-                $('#md-content').append(disqus_div);
-                if ($('#disqus_thread').length > 0) {
-                    (function() {
-                        // all disqus_ variables are used by the script, they
-                        // change the config behavious.
-                        // see: http://help.disqus.com/customer/portal/articles/472098-javascript-configuration-variables
-
-                        // set to 1 if developing, or the site is password protected or not
-                        // publicaly accessible
-                        //var disqus_developer = 1;
-
-                        // by default, disqus will use the current url to determine a thread
-                        // since we might have different parameters present, we remove them
-                        // disqus_* vars HAVE TO BE IN GLOBAL SCOPE
-                        var disqus_url = window.location.href;
-                        var disqus_identifier;
-                        if (options.identifier.length > 0) {
-                            disqus_identifier = options.identifier;
-                        } else {
-                            disqus_identifier = disqus_url;
-                        }
-
-                        // dynamically load the disqus script
-                        var dsq = document.createElement('script');
-                        dsq.type = 'text/javascript';
-                        dsq.async = true;
-                        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-                        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-                    })();
-                }
-            }
-        });
-    };
-}(jQuery));
-
-(function($) {
-    var language = window.navigator.userLanguage || window.navigator.language;
-    var code = language + "_" + language.toUpperCase();
-    var fbRootDiv = $('<div id="fb-root" />');
-    var fbScriptHref = $.md.prepareLink ('connect.facebook.net/' + code + '/all.js#xfbml=1', { forceHTTP: true });
-    var fbscript ='(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = "' + fbScriptHref + '"; fjs.parentNode.insertBefore(js, fjs);}(document, "script", "facebook-jssdk"));';
-
-    var facebookLikeGimmick = {
-        name: 'FacebookLike',
-        version: $.md.version,
-        once: function() {
-            $.md.linkGimmick(this, 'facebooklike', facebooklike);
-            $.md.registerScript(this, fbscript, {
-                license: 'APACHE2',
-                loadstage: 'postgimmick',
-                finishstage: 'all_ready'
-            });
-        }
-    };
-    $.md.registerGimmick(facebookLikeGimmick);
-
-    function facebooklike($link, opt, text) {
-        var default_options = {
-            layout: 'standard',
-            showfaces: true
-        };
-        var options = $.extend ({}, default_options, opt);
-        // Due to a bug, we can have underscores _ in a markdown link
-        // so we insert the underscores needed by facebook here
-        if (options.layout === 'boxcount') {
-            options.layout = 'box_count';
-        }
-        if (options.layout === 'buttoncount') {
-            options.layout = 'button_count';
-        }
-
-        return $link.each(function(i,e) {
-            var $this = $(e);
-            var href = $this.attr('href');
-            $('body').append(fbRootDiv);
-
-            var $fb_div = $('<div class="fb-like" data-send="false" data-width="450"></div>');
-            $fb_div.attr ('data-href', href);
-            $fb_div.attr ('data-layout', options.layout);
-            $fb_div.attr ('data-show-faces', options.showfaces);
-
-            $this.replaceWith ($fb_div);
-        });
-    }
-}(jQuery));
-
-(function($) {
-    'use strict';
-    var forkmeongithubGimmick = {
-        trigger: 'forkmeongithub',
-        version: $.md.version,
-        init: function() {
-        },
-        load: function($links, options, text) {
-            forkmeongithub($links, options, text);
-        }
-    };
-    $.md.wiki.gimmicks.register(forkmeongithubGimmick);
-
     function forkmeongithub($links, opt, text) {
         return $links.each (function (i, link){
             var $link = $(link);
@@ -3748,219 +3500,20 @@ var MDwiki;
         });
     }
 
+    var github_module = new MDwiki.Core.Module();
+    github_module.init = function() {
+        console.log('module init');
+    };
+
+    var gimmick = new MDwiki.Core.Gimmick();
+    gimmick.addHandler('forkmeongithub', forkmeongithub);
+    gimmick.init = function() {
+        console.log('gimmick init');
+    };
+    $.md.wiki.gimmicks.registerGimmick(gimmick);
+    $.md.wiki.gimmicks.registerModule(github_module);
+
 }(jQuery));
-
-(function($){
-    'use strict';
-    var gistGimmick = {
-        name: 'gist',
-        once: function() {
-            $.md.linkGimmick(this, 'gist', gist);
-        }
-    };
-    $.md.registerGimmick(gistGimmick);
-
-    function gist($links, opt, href) {
-        $().lazygist('init');
-        return $links.each(function(i,link) {
-            var $link = $(link);
-            var gistDiv = $('<div class="gist_here" data-id="' + href + '" />');
-            $link.replaceWith(gistDiv);
-            gistDiv.lazygist({
-                // we dont want a specific file so modify the url template
-                url_template: 'https://gist.github.com/{id}.js?'
-            });
-        });
-    }
-}(jQuery));
-
-
- /**
- * Lazygist v0.2pre
- *
- * a jQuery plugin that will lazy load your gists.
- *
- * since jQuery 1.7.2
- * https://github.com/tammo/jquery-lazy-gist
- *
- * Copyright, Tammo Pape
- * http://tammopape.de
- *
- * Licensed under the MIT license.
- */
-
-(function( $, window, document, undefined ){
-    "use strict";
-
-    //
-    // note:
-    // this plugin is not stateful
-    // and will not communicate with own instances at different elements
-    //
-
-    var pluginName = "lazygist",
-    version = "0.2pre",
-
-    defaults = {
-        // adding the ?file parameter to choose a file
-        'url_template': 'https://gist.github.com/{id}.js?file={file}',
-
-        // if these are strings, the attributes will be read from the element
-        'id': 'data-id',
-        'file': 'data-file'
-    },
-
-    options,
-
-    // will be replaced
-    /*jshint -W060 */
-    originwrite = document.write,
-
-    // stylesheet urls found in document.write calls
-    // they are cached to write them once to the document,
-    // not three times for three gists
-    stylesheets = [],
-
-    // cache gist-ids to know which are already appended to the dom
-    ids_dom = [],
-
-    // remember gist-ids if their javascript is already loaded
-    ids_ajax = [],
-
-    methods = {
-
-        /**
-         * Standard init function
-         * No magic here
-         */
-        init : function( options_input ){
-
-            // default options are default
-            options = $.extend({}, defaults, options_input);
-
-            // can be reset
-            /*jshint -W061 */
-            document.write = _write;
-
-            $.each(options, function(index, value) {
-                if(typeof value !== 'string') {
-                    throw new TypeError(value + ' (' + (typeof value) + ') is not a string');
-                }
-            });
-
-            return this.lazygist('load');
-        },
-
-        /**
-         * Load the gists
-         */
-        load : function() {
-            // (1) iterate over gist anchors
-            // (2) append the gist-html through the new document.write func (see _write)
-
-            // (1)
-            return this.filter('[' + options.id + ']').each(function(){
-
-                var id = $(this).attr(options.id),
-                    file = $(this).attr(options.file),
-                    src;
-
-                if( id !== undefined ) {
-
-                    if( $.inArray(id, ids_ajax) !== -1 ) {
-                        // just do nothin, if gist is already ajaxed
-                        return;
-                    }
-
-                    ids_ajax.push(id);
-
-                    src = options.url_template.replace(/\{id\}/g, id).replace(/\{file\}/g, file);
-
-                    // (2) this will trigger our _write function
-                    $.getScript(src, function() {
-                    });
-                }
-            });
-        },
-
-        /**
-         * Just reset the write function
-         */
-        reset_write: function() {
-            document.write = originwrite;
-
-            return this;
-        }
-    };
-
-    /**
-     * private special document.write function
-     *
-     * Filters the css file from github.com to add it to the head - once -
-     *
-     * It has a fallback to keep flexibility with other scripts as high as possible
-     * (create a ticket if it messes things up!)
-     *
-     * Keep in mind, that a call to this function happens after
-     * an ajax call by jQuery. One *cannot* know which gist-anchor
-     * to use. You can only read the id from the content.
-     */
-    function _write( content ) {
-
-        var expression, // for regexp results
-            href, // from the url
-            id; // from the content
-
-        if( content.indexOf( 'rel="stylesheet"' ) !== -1 ) {
-            href = $(content).attr('href');
-
-            // check if stylesheet is already inserted
-            if ( $.inArray(href, stylesheets) === -1 ) {
-
-                $('head').append(content);
-                stylesheets.push(href);
-            }
-
-        } else if( content.indexOf( 'id="gist' ) !== -1 ) {
-            expression = /gist([\d]{1,})/g.exec(content);
-            id = expression[1];
-
-            if( id !== undefined ) {
-
-                // test if id is already loaded
-                if( $.inArray(id, ids_dom) !== -1 ) {
-                    // just do nothin, if gist is already attached to the dom
-                    return;
-                }
-
-                ids_dom.push(id);
-
-                $('.gist_here[data-id=' + id + ']').append(content);
-            }
-        } else {
-            // this is a fallback for interoperability
-            originwrite.apply( document, arguments );
-        }
-    }
-
-    // method invocation - from jQuery.com
-    $.fn[pluginName] = function( method ) {
-
-        if ( methods[method] ) {
-            return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
-
-        } else if ( typeof method === 'object' || ! method ) {
-            return methods.init.apply( this, arguments );
-
-        } else {
-            $.error( 'Method ' +  method + ' does not exist on jQuery.lazygist' );
-        }
-    };
-
-    // expose version for your interest
-    $.fn[pluginName].version = version;
-
-})(jQuery, window, document);
 
 // ugly, but the google loader requires the callback fn
 // to be in the global scope
@@ -4032,210 +3585,24 @@ function googlemapsReady() {
         });
     }
 
-    var googleMapsGimmick = {
-        name: 'googlemaps',
-        version: $.md.version,
-        once: function() {
-            googlemapsLoadDone = $.Deferred();
+    var googleMapsGimmick = new MDwiki.Core.Gimmick();
+    googleMapsGimmick.init = function() {
+        googlemapsLoadDone = $.Deferred();
 
-            // register the gimmick:googlemaps identifier
-            $.md.linkGimmick(this, 'googlemaps', googlemaps);
+        // googleMapsGimmick.subscribeGimmick('googlemaps', googlemaps);
+        // load the googlemaps js from the google server
+        var script = new MDwiki.Core.ScriptResource (scripturl, 'skel_ready', 'bootstrap');
+        googleMapsGimmick.registerScriptResource(script);
 
-            // load the googlemaps js from the google server
-            $.md.registerScript(this, scripturl, {
-                license: 'EXCEPTION',
-                loadstage: 'skel_ready',
-                finishstage: 'bootstrap'
-            });
-
-            $.md.stage('bootstrap').subscribe(function(done) {
-                // defer the pregimmick phase until the google script fully loaded
-                if ($.md.triggerIsActive('googlemaps')) {
-                    googlemapsLoadDone.done(function() {
-                        done();
-                    });
-                } else {
-                    // immediately return as there will never a load success
-                    done();
-                }
-            });
-        }
-    };
-    $.md.registerGimmick(googleMapsGimmick);
-}(jQuery));
-
-(function($) {
-    var highlightGimmick = {
-        name: 'highlight',
-        load: function() {
-            $.md.stage('gimmick').subscribe(function(done) {
-                highlight();
+        $.md.stage('bootstrap').subscribe(function(done) {
+            // defer the pregimmick phase until the google script fully loaded
+            googlemapsLoadDone.done(function() {
                 done();
             });
-        }
-    };
-    $.md.registerGimmick(highlightGimmick);
-
-
-    function highlight () {
-        // marked adds lang-ruby, lang-csharp etc to the <code> block like in GFM
-        var $codeblocks = $('pre code[class^=lang-]');
-        return $codeblocks.each(function() {
-            var $this = $(this);
-            var classes = $this.attr('class');
-            // TODO check for other classes and only find the lang- one
-            // highlight doesnt want a lang- prefix
-            var lang = classes.substring(5);
-            $this.removeClass(classes);
-            $this.addClass(lang);
-            var x = hljs.highlightBlock($this[0]);
         });
-    }
-
-}(jQuery));
-
-(function($) {
-    'use strict';
-    var iframeGimmick= {
-        name: 'forkmeongithub',
-        version: $.md.version,
-        once: function() {
-            $.md.linkGimmick(this, 'iframe', create_iframe);
-        }
     };
-    $.md.registerGimmick(iframeGimmick);
-
-    function create_iframe($links, opt, text) {
-        return $links.each (function (i, link){
-            var $link = $(link);
-            var href = $link.attr('href');
-            var $iframe = $('<iframe class="col-md-12" style="border: 0px solid red; height: 650px;"></iframe>');
-            $iframe.attr('src', href);
-            $link.replaceWith($iframe);
-
-            if (opt.width)
-                $iframe.css('width', opt.width);
-            if (opt.height)
-                $iframe.css('height', opt.height);
-            else {
-                var updateSizeFn = function () {
-                    var offset = $iframe.offset();
-                    var winHeight = $(window).height();
-                    var newHeight = winHeight - offset.top - 5;
-                    $iframe.height(newHeight);
-                };
-
-                $iframe.load(function(done) {
-                    updateSizeFn();
-                });
-
-                $(window).resize(function () {
-                    updateSizeFn();
-                });
-            }
-
-        });
-    }
-}(jQuery));
-
-(function($) {
-    var mathGimmick = {
-        name: 'math',
-        once: function() {
-            $.md.linkGimmick(this, 'math', load_mathjax);
-        }
-    };
-    $.md.registerGimmick(mathGimmick);
-
-    function load_mathjax($links, opt, ref) {
-        $links.remove();
-        var script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src  = $.md.prepareLink('cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML', { forceHTTP: true });
-        document.getElementsByTagName('head')[0].appendChild(script);
-    }
-
-}(jQuery));
-
-(function($) {
-    //'use strict';
-    // no license information given in the widget.js -> OTHER
-    var widgetHref = $.md.prepareLink('platform.twitter.com/widgets.js');
-    var twitterscript = '!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="' + widgetHref + '";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");';
-    var twitterGimmick = {
-        name: 'TwitterGimmick',
-        version: $.md.version,
-        once: function() {
-            $.md.linkGimmick(this, 'twitterfollow', twitterfollow);
-
-            $.md.registerScript(this, twitterscript, {
-                license: 'EXCEPTION',
-                loadstage: 'postgimmick',
-                finishstage: 'all_ready'
-            });
-
-        }
-    };
-    $.md.registerGimmick(twitterGimmick);
-
-	var twitterfollow = function($links, opt, text) {
-		return $links.each(function(i, link) {
-			var $link = $(link);
-			var user;
-			var href = $link.attr('href');
-			if (href.indexOf ('twitter.com') <= 0) {
-				user = $link.attr('href');
-				href = $.md.prepareLink('twitter.com/' + user);
-			}
-			else {
-				return;
-			}
-			// remove the leading @ if given
-			if (user[0] === '@') {
-				user = user.substring(1);
-			}
-			var twitter_src = $('<a href="' + href + '" class="twitter-follow-button" data-show-count="false" data-lang="en" data-show-screen-name="false">'+ '@' + user + '</a>');
-			$link.replaceWith (twitter_src);
-		});
-    };
-}(jQuery));
-
-(function($) {
-    //'use strict';
-    var youtubeGimmick = {
-        name: 'youtube',
-        load: function() {
-            $.md.stage('gimmick').subscribe(function(done) {
-                youtubeLinkToIframe();
-                done();
-            });
-        }
-    };
-    $.md.wiki.gimmicks.register(youtubeGimmick);
-
-    function youtubeLinkToIframe() {
-        var $youtube_links = $('a[href*=youtube\\.com]:empty, a[href*=youtu\\.be]:empty');
-
-        $youtube_links.each(function() {
-            var $this = $(this);
-            var href = $this.attr('href');
-            if (href !== undefined) {
-                // extract the v parameter from youtube
-                var exp = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\?]*).*/;
-                var m = href.match(exp);
-
-                if (m && m[1].length === 11) {
-                    // insert the iframe
-                    var short_handle = m[1];
-                    var frame = $('<iframe class="md-external" frameborder="0" allowfullscreen></iframe>');
-                    frame.attr('src', 'http://youtube.com/embed/' + short_handle);
-                    // remove the a tag
-                    $this.replaceWith(frame);
-
-                }
-            }
-        });
-    }
+    googleMapsGimmick.addHandler('googlemaps', googlemaps);
+    $.md.wiki.gimmicks.registerGimmick(googleMapsGimmick);
 }(jQuery));
 </script>
 <!-- END dist/MDwiki.js -->
