@@ -44,7 +44,7 @@ module.exports = function(grunt) {
             'js/gimmicks/forkmeongithub.js',
             // //'js/gimmicks/github_gist.js',
             // 'js/gimmicks/gist.js',
-            // 'js/gimmicks/googlemaps.js',
+            'js/gimmicks/googlemaps.js',
             // 'js/gimmicks/highlight.js',
             // 'js/gimmicks/iframe.js',
             // 'js/gimmicks/math.js',

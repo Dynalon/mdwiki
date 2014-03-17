@@ -68,7 +68,7 @@ function googlemapsReady() {
         });
     }
 
-    var googleMapsGimmick = new MDwiki.Core.Module();
+    var googleMapsGimmick = new MDwiki.Core.Gimmick();
     googleMapsGimmick.init = function() {
         googlemapsLoadDone = $.Deferred();
 
@@ -79,15 +79,11 @@ function googlemapsReady() {
 
         $.md.stage('bootstrap').subscribe(function(done) {
             // defer the pregimmick phase until the google script fully loaded
-            if ($.md.triggerIsActive('googlemaps') || 1) {
-                googlemapsLoadDone.done(function() {
-                    done();
-                });
-            } else {
-                // immediately return as there will never a load success
+            googlemapsLoadDone.done(function() {
                 done();
-            }
+            });
         });
     };
-    $.md.wiki.gimmicks.registerModule(googleMapsGimmick);
+    googleMapsGimmick.addHandler('googlemaps', googlemaps);
+    $.md.wiki.gimmicks.registerGimmick(googleMapsGimmick);
 }(jQuery));

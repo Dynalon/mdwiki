@@ -154,6 +154,9 @@ module MDwiki.Core {
             $.md.stage('ready').subscribe((done: DoneCallback) => {
                 this.gimmicks.initModules();
                 this.gimmicks.initGimmicks();
+                done();
+            });
+            $.md.stage('gimmick').subscribe((done: DoneCallback) => {
                 this.gimmicks.loadGimmicks();
                 done();
             });

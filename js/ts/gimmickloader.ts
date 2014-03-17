@@ -40,20 +40,10 @@ module MDwiki.Core {
         ) {}
     }
 
-    export class Gimmick {
-        Handlers: GimmickHandler[] = [];
-        // only gets called if any of the gimmick's trigger are active
-        init () { }
-        private addHandler(trigger: string, cb: IGimmickCallback) {
-            var handler = new GimmickHandler(trigger, cb);
-            this.Handlers.push(handler);
-        }
-    }
 
     export class Module {
         init() { }
 
-        private defaultLoadStage: string = "ready";
         private registerScriptResource (res: ScriptResource) {
             var loadDone = $.Deferred();
 
@@ -73,6 +63,7 @@ module MDwiki.Core {
                     document.body.appendChild(script);
                     loadDone.resolve();
                 }
+                done();
             });
 
             // wait for the script to be fully loaded
@@ -94,6 +85,16 @@ module MDwiki.Core {
                    this.registerCssResource(new CssResource(resource));
                 }
             }
+        }
+    }
+
+    export class Gimmick extends Module {
+        Handlers: GimmickHandler[] = [];
+        // only gets called if any of the gimmick's trigger are active
+        init () { }
+        private addHandler(trigger: string, cb: IGimmickCallback) {
+            var handler = new GimmickHandler(trigger, cb);
+            this.Handlers.push(handler);
         }
     }
 
