@@ -1,12 +1,5 @@
 (function($){
     'use strict';
-    var gistGimmick = {
-        name: 'gist',
-        once: function() {
-            $.md.linkGimmick(this, 'gist', gist);
-        }
-    };
-    $.md.registerGimmick(gistGimmick);
 
     function gist($links, opt, href) {
         $().lazygist('init');
@@ -20,6 +13,10 @@
             });
         });
     }
+
+    var gistGimmick = new MDwiki.Core.Gimmick();
+    gistGimmick.addHandler('gist', gist);
+    $.md.wiki.gimmicks.registerGimmick(gistGimmick);
 }(jQuery));
 
 

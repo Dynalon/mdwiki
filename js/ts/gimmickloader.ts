@@ -91,7 +91,7 @@ module MDwiki.Core {
     export class Gimmick extends Module {
         Handlers: GimmickHandler[] = [];
         // only gets called if any of the gimmick's trigger are active
-        init () { }
+        init () {}
         private addHandler(trigger: string, cb: IGimmickCallback) {
             var handler = new GimmickHandler(trigger, cb);
             this.Handlers.push(handler);
@@ -180,7 +180,7 @@ module MDwiki.Core {
                 var $link = $(e);
                 var parts = getGimmickLinkParts($link);
                 var handler = this.selectGimmickHandler(parts.trigger);
-                handler.handler($link, parts.options, parts.trigger);
+                handler.handler($link, parts.options, $link.attr('href'));
             });
         }
         private selectGimmick(trigger: string) {

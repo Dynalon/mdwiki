@@ -47,17 +47,8 @@
         });
     }
 
-    var github_module = new MDwiki.Core.Module();
-    github_module.init = function() {
-        console.log('module init');
-    };
-
     var gimmick = new MDwiki.Core.Gimmick();
     gimmick.addHandler('forkmeongithub', forkmeongithub);
-    gimmick.init = function() {
-        console.log('gimmick init');
-    };
     $.md.wiki.gimmicks.registerGimmick(gimmick);
-    $.md.wiki.gimmicks.registerModule(github_module);
 
 }(jQuery));
