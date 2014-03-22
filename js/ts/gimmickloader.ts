@@ -73,19 +73,6 @@ module MDwiki.Core {
         }
         private registerCssResource (resource: CssResource) {
         }
-        private registerResource (resource: any, type: string = "script") {
-            if (resource && typeof resource == "CssResource")
-                this.registerCssResource(resource);
-            else if (resource && typeof resource == "ScriptResource")
-                this.registerScriptResource(resource);
-            else if (resource && typeof resource == "string") {
-                if (type == "script") {
-                    this.registerScriptResource(new ScriptResource(resource));
-                } else {
-                   this.registerCssResource(new CssResource(resource));
-                }
-            }
-        }
     }
 
     export class Gimmick extends Module {
