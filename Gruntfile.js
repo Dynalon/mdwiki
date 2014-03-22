@@ -46,7 +46,7 @@ module.exports = function(grunt) {
             'js/gimmicks/googlemaps.js',
             'js/gimmicks/highlight.js',
             'js/gimmicks/iframe.js',
-            // 'js/gimmicks/math.js',
+            'js/gimmicks/math.js',
             // // 'js/gimmicks/leaflet.js',
             // 'js/gimmicks/twitter.js',
             // 'js/gimmicks/youtube_embed.js'
