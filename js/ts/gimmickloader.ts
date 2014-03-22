@@ -155,8 +155,11 @@ module MDwiki.Core {
             $gimmick_links.map((i,e) => {
                 var $link = $(e);
                 var parts = getGimmickLinkParts($link);
-
-                var gmck = this.selectGimmick(parts.trigger);
+                if (this.requiredGimmicks.indexOf(parts.trigger) < 0)
+                    this.requiredGimmicks.push(parts.trigger);
+            });
+            this.requiredGimmicks.map(trigger => {
+                var gmck = this.selectGimmick(trigger);
                 gmck.init();
             });
         }

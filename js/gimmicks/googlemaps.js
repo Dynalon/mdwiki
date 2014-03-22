@@ -70,7 +70,6 @@ function googlemapsReady() {
 
     var googleMapsGimmick = new MDwiki.Core.Gimmick();
     googleMapsGimmick.init = function() {
-        debugger;
         googlemapsLoadDone = $.Deferred();
 
         // googleMapsGimmick.subscribeGimmick('googlemaps', googlemaps);
