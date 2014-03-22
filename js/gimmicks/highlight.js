@@ -1,15 +1,4 @@
 (function($) {
-    var highlightGimmick = {
-        name: 'highlight',
-        load: function() {
-            $.md.stage('gimmick').subscribe(function(done) {
-                highlight();
-                done();
-            });
-        }
-    };
-    $.md.registerGimmick(highlightGimmick);
-
 
     function highlight () {
         // marked adds lang-ruby, lang-csharp etc to the <code> block like in GFM
@@ -26,4 +15,12 @@
         });
     }
 
+    var highlightGimmick = new MDwiki.Core.Module();
+    highlightGimmick.init = function() {
+        $.md.stage('gimmick').subscribe(function(done) {
+            highlight();
+            done();
+        });
+    };
+    $.md.wiki.gimmicks.registerModule(highlightGimmick);
 }(jQuery));
