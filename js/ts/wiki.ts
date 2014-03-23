@@ -36,7 +36,6 @@ module MDwiki.Core {
             this.stages.run();
         }
         private registerFetchConfigAndNavigation() {
-
             // fetch config.json
             $.md.stage('init').subscribe(done => {
                 $.when(
@@ -53,7 +52,6 @@ module MDwiki.Core {
             });
         }
         private registerPageTransformation() {
-
             $.md.stage('ready').subscribe(function(done) {
                 $.md('createBasicSkeleton');
                 done();
@@ -96,9 +94,7 @@ module MDwiki.Core {
             });
         }
         private registerFetchMarkdown() {
-
             var md = '';
-
             $.md.stage('init').subscribe(function(done) {
                 var ajaxReq = {
                     url: $.md.mainHref,
@@ -132,25 +128,6 @@ module MDwiki.Core {
         }
 
         private registerGimmickLoad() {
-
-            /* legacy code - remove me */
-            // $.md.stage('ready').subscribe((done: DoneCallback) => {
-            //     $.md.initializeGimmicks();
-            //     $.md.registerGimmick();
-            //     done();
-            // });
-            // // wire up the load method of the modules
-            // $.each($.md.gimmicks, function(i, mod) {
-            //     if (mod.load === undefined) {
-            //         return;
-            //     }
-            //     $.md.stage('load').subscribe(function(done) {
-            //         mod.load();
-            //         done();
-            //     });
-            // });
-            /* end legacy code */
-
             $.md.stage('ready').subscribe((done: DoneCallback) => {
                 this.gimmicks.initModules();
                 this.gimmicks.initGimmicks();
@@ -160,7 +137,6 @@ module MDwiki.Core {
 
         }
         private registerBuildNavigation(navMD: string) {
-
             $.md.stage('transform').subscribe(function(done) {
                 if (navMD === '') {
                     var log = $.md.getLogger();

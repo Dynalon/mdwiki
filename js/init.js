@@ -24,10 +24,6 @@
         anchorCharacter: '&para;'
     };
 
-
-    $.md.gimmicks = [];
-    $.md.stages = [];
-
     // the location of the main markdown file we display
     $.md.mainHref = '';
 

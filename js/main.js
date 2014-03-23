@@ -1,14 +1,6 @@
 (function($) {
     'use strict';
 
-    function resetStages() {
-        var old_stages = $.md.stages;
-        $.md.stages = [];
-        $(old_stages).each(function(i,e) {
-            $.md.stages.push($.Stage(e.name));
-        });
-    }
-
     // modify internal links so we load them through our engine
     $.md.processPageLinks = function (domElement, baseUrl) {
         var html = $(domElement);
