@@ -36,7 +36,8 @@ module MDwiki.Core {
     export class GimmickHandler {
         constructor(
             public trigger: string,
-            public handler: IGimmickCallback
+            public handler: IGimmickCallback,
+            public loadstage: string = 'gimmick'
         ) {}
     }
 
@@ -76,11 +77,12 @@ module MDwiki.Core {
     }
 
     export class Gimmick extends Module {
+        // property with public get and private set
         Handlers: GimmickHandler[] = [];
         // only gets called if any of the gimmick's trigger are active
         init () {}
-        private addHandler(trigger: string, cb: IGimmickCallback) {
-            var handler = new GimmickHandler(trigger, cb);
+        addHandler(trigger: string, cb: IGimmickCallback, loadstage: string = 'gimmick') {
+            var handler = new GimmickHandler(trigger, cb, loadstage);
             this.Handlers.push(handler);
         }
     }
@@ -150,7 +152,13 @@ module MDwiki.Core {
            this.gimmicks.push(gmck);
         }
 
+        registerBuiltInGimmicks() {
+           var themechooser = new ThemeChooserGimmick();
+           this.registerGimmick(themechooser);
+        }
+
         initGimmicks() {
+            this.registerBuiltInGimmicks();
             var $gimmick_links = $('a:icontains(gimmick:)');
             $gimmick_links.map((i,e) => {
                 var $link = $(e);
@@ -170,7 +178,10 @@ module MDwiki.Core {
                 var $link = $(e);
                 var parts = getGimmickLinkParts($link);
                 var handler = this.selectGimmickHandler(parts.trigger);
-                handler.handler($link, parts.options, $link.attr('href'));
+                $.md.stage(handler.loadstage).subscribe(done => {
+                    handler.handler($link, parts.options, $link.attr('href'));
+                    done();
+                });
             });
         }
         private selectGimmick(trigger: string) {

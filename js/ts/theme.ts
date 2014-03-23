@@ -86,13 +86,9 @@ module MDwiki.Core {
         }
     }
 
-    // TODO at some point the themechoosergimmick has to be loaded
-    class ThemeChooserGimmick extends Module {
-        name: string = "Theme Chooser";
-        trigger: string = "theme";
-
-        init() {
-            super.init();
+    export class ThemeChooserGimmick extends Gimmick {
+        constructor() {
+            super();
             var tc = new ThemeChooser ();
             registerDefaultThemes(tc);
 
@@ -109,8 +105,8 @@ module MDwiki.Core {
                 set_theme($links, opt, text, tc);
             }
 
-            $.md.linkGimmick(this, 'themechooser', build_chooser, 'skel_ready');
-            $.md.linkGimmick(this, 'theme', apply_theme);
+            this.addHandler('themechooser', build_chooser, 'skel_ready');
+            this.addHandler('theme', apply_theme);
 
         }
     };
