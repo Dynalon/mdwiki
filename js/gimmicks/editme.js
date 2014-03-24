@@ -1,13 +1,5 @@
 (function($){
     'use strict';
-    var editMeGimmick = {
-        name: 'editme',
-        version: $.md.version,
-        once: function() {
-            $.md.linkGimmick(this, 'editme', editMe);
-        }
-    };
-    $.md.registerGimmick(editMeGimmick);
 
     function editMe($links, opt, href) {
         opt.text = opt.text || 'Edit Me';
@@ -21,4 +13,7 @@
                 .prepend('<i class="glyphicon glyphicon-pencil"></i> ');
         });
     }
+    var editMeGimmick = new MDwiki.Core.Gimmick();
+    editMeGimmick.addHandler('editme', editMe);
+    $.md.wiki.gimmicks.registerGimmick(editMeGimmick);
 }(jQuery));

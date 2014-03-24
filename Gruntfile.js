@@ -26,10 +26,11 @@ module.exports = function(grunt) {
             'js/marked.js',
             'js/init.js',
             'js/logging.js',
-            'js/stage.js',
-            'js/main.js',
-            'js/util.js',
             'js/modules.js',
+            'ts_compiled/mdwiki_ts.js',
+            'js/main.js',
+            'js/stage.js',
+            'js/util.js',
             'js/basic_skeleton.js',
             'js/bootstrap.js',
             'js/gimmicker.js',
@@ -37,19 +38,17 @@ module.exports = function(grunt) {
             // gimmicks
             'js/gimmicks/alerts.js',
             'js/gimmicks/colorbox.js',
-            'js/gimmicks/carousel.js',
+            // 'js/gimmicks/carousel.js',
             'js/gimmicks/disqus.js',
             'js/gimmicks/editme.js',
             'js/gimmicks/facebooklike.js',
             'js/gimmicks/forkmeongithub.js',
-            //'js/gimmicks/github_gist.js',
             'js/gimmicks/gist.js',
             'js/gimmicks/googlemaps.js',
             'js/gimmicks/highlight.js',
             'js/gimmicks/iframe.js',
             'js/gimmicks/math.js',
-            // 'js/gimmicks/leaflet.js',
-            'js/gimmicks/themechooser.js',
+            // // 'js/gimmicks/leaflet.js',
             'js/gimmicks/twitter.js',
             'js/gimmicks/youtube_embed.js'
         ],
@@ -87,6 +86,21 @@ module.exports = function(grunt) {
 //            'www.3solarmasses.com/retriever-bootstrap/css/retriever.css'
 //            '3solarmasses.com/corgi-bootstrap/css/corgi.css'
         ],
+
+        typescript: {
+            base: {
+                src: ['js/ts/**/*.ts'],
+                dest: 'ts_compiled/mdwiki_ts.js',
+                options: {
+                    //module: 'amd', //or commonjs
+                    target: 'es5', //or es3
+                    base_path: '/js/ts/',
+                    sourcemap: false,
+                    fullSourceMapPath: false,
+                    declaration: false,
+                }
+            }
+        },
 
         concat: {
             options: {
@@ -143,7 +157,9 @@ module.exports = function(grunt) {
                     hljs: true,
                     /* leaflet.js*/
                     L: true,
-                    console: true
+                    console: true,
+                    MDwiki: true,
+                    alert: true
                 }
             },
             /*gruntfile: {
@@ -195,6 +211,7 @@ module.exports = function(grunt) {
                 'Gruntfile.js',
                 'js/*.js',
                 'js/**/*.js',
+                'js/ts/**/*.ts',
                 'index.tmpl'
             ],
             tasks: ['devel']
@@ -211,6 +228,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-shell');
     grunt.loadNpmTasks('grunt-reload');
 
@@ -228,7 +246,7 @@ module.exports = function(grunt) {
     grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat' ]);
 
     /* Debug is basically the fat version but without any minifing */
-    grunt.registerTask('release-debug', [ 'jshint', 'concat:dev', 'index_debug' ]);
+    grunt.registerTask('release-debug', [ 'jshint', 'typescript', 'concat:dev', 'index_debug' ]);
 
     grunt.registerTask('devel', [ 'release-debug', 'reload', 'watch' ]);
 

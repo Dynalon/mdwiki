@@ -1,14 +1,5 @@
 (function($) {
     'use strict';
-    var forkmeongithubGimmick = {
-        name: 'forkmeongithub',
-        version: $.md.version,
-        once: function() {
-            $.md.linkGimmick(this, 'forkmeongithub', forkmeongithub);
-        }
-    };
-    $.md.registerGimmick(forkmeongithubGimmick);
-
     function forkmeongithub($links, opt, text) {
         return $links.each (function (i, link){
             var $link = $(link);
@@ -55,5 +46,9 @@
             $link.remove();
         });
     }
+
+    var gimmick = new MDwiki.Core.Gimmick();
+    gimmick.addHandler('forkmeongithub', forkmeongithub);
+    $.md.wiki.gimmicks.registerGimmick(gimmick);
 
 }(jQuery));

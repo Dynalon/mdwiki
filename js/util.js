@@ -46,6 +46,25 @@
     };
     $.md.util = $.extend ({}, $.md.util, publicMethods);
 
+    // turns hostname/path links into http://hostname/path links
+    // we need to do this because if accessed by file:///, we need a different
+    // transport scheme for external resources (like http://)
+    $.md.prepareLink = function(link, options) {
+        options = options || {};
+        var ownProtocol = window.location.protocol;
+
+        if (options.forceSSL)
+            return 'https://' + link;
+        if (options.forceHTTP)
+            return 'http://' + link;
+
+        if (ownProtocol === 'file:') {
+            return 'http://' + link;
+        }
+        // default: use the same as origin resource
+        return '//' + link;
+    };
+
     if (typeof String.prototype.startsWith !== 'function') {
         String.prototype.startsWith = function(str) {
             return this.slice(0, str.length) === str;

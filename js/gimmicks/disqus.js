@@ -1,15 +1,7 @@
 (function($) {
-    var disqusGimmick = {
-        name: 'disqus',
-        version: $.md.version,
-        once: function() {
-            $.md.linkGimmick(this, 'disqus', disqus);
-        }
-    };
-    $.md.registerGimmick(disqusGimmick);
 
     var alreadyDone = false;
-    var disqus = function($links, opt, text) {
+    function disqus ($links, opt, text) {
         var default_options = {
             identifier: ''
         };
@@ -61,5 +53,9 @@
                 }
             }
         });
-    };
+    }
+
+    var disqusGimmick = new MDwiki.Core.Gimmick();
+    disqusGimmick.addHandler('disqus', disqus);
+    $.md.wiki.gimmicks.registerGimmick(disqusGimmick);
 }(jQuery));

@@ -68,34 +68,22 @@ function googlemapsReady() {
         });
     }
 
-    var googleMapsGimmick = {
-        name: 'googlemaps',
-        version: $.md.version,
-        once: function() {
-            googlemapsLoadDone = $.Deferred();
+    var googleMapsGimmick = new MDwiki.Core.Gimmick();
+    googleMapsGimmick.init = function() {
+        googlemapsLoadDone = $.Deferred();
 
-            // register the gimmick:googlemaps identifier
-            $.md.linkGimmick(this, 'googlemaps', googlemaps);
+        // googleMapsGimmick.subscribeGimmick('googlemaps', googlemaps);
+        // load the googlemaps js from the google server
+        var script = new MDwiki.Core.ScriptResource (scripturl, 'skel_ready', 'bootstrap');
+        googleMapsGimmick.registerScriptResource(script);
 
-            // load the googlemaps js from the google server
-            $.md.registerScript(this, scripturl, {
-                license: 'EXCEPTION',
-                loadstage: 'skel_ready',
-                finishstage: 'bootstrap'
+        $.md.stage('bootstrap').subscribe(function(done) {
+            // defer the pregimmick phase until the google script fully loaded
+            googlemapsLoadDone.done(function() {
+                done();
             });
-
-            $.md.stage('bootstrap').subscribe(function(done) {
-                // defer the pregimmick phase until the google script fully loaded
-                if ($.md.triggerIsActive('googlemaps')) {
-                    googlemapsLoadDone.done(function() {
-                        done();
-                    });
-                } else {
-                    // immediately return as there will never a load success
-                    done();
-                }
-            });
-        }
+        });
     };
-    $.md.registerGimmick(googleMapsGimmick);
+    googleMapsGimmick.addHandler('googlemaps', googlemaps);
+    $.md.wiki.gimmicks.registerGimmick(googleMapsGimmick);
 }(jQuery));

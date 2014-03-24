@@ -28,26 +28,10 @@
         }
     };
 
-
-    $.md.gimmicks = [];
-    $.md.stages = [];
-
     // the location of the main markdown file we display
     $.md.mainHref = '';
 
     // the in-page anchor that is specified after the !
     $.md.inPageAnchor = '';
-
-
-    $.md.loglevel = {
-        TRACE: 10,
-        DEBUG: 20,
-        INFO: 30,
-        WARN: 40,
-        ERROR: 50,
-        FATAL: 60
-    };
-    // $.md.logThreshold = $.md.loglevel.DEBUG;
-    $.md.logThreshold = $.md.loglevel.WARN;
 
 }(jQuery));
