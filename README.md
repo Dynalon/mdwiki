@@ -28,7 +28,7 @@ How to build from source
 
     bower install
 
-    (or if not installed globally)
+    (or if bower is not installed globally)
     ./node_modules/.bin/bower install
 
 5. Build MDwiki
@@ -38,8 +38,15 @@ How to build from source
     (or if not installed globally)
     ./node_modules/.bin/grunt release
 
-6. Find the `mdwiki.html` in the `release/` and `dist/` folder
+6. Find the `mdwiki.html` in the `dist/` folder
 
+7. Development
+
+For development, use
+
+    grunt devel
+
+To get unminified source code compiled to `dist/mdwiki-debug.html`, as well as auto file watching and livereload support.
 
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/Dynalon/mdwiki/trend.png)](https://bitdeli.com/free "Bitdeli Badge")

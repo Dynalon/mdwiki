@@ -124,9 +124,6 @@ module MDwiki.Core {
     };
 
     function registerDefaultThemes(tc: ThemeChooser) {
-        var bootstrap = new Theme('bootstrap', ['netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css']);
-        tc.register(bootstrap)
-
         var bootswatch_theme_names : string[] = [
             'amelia', 'cerulean', 'cosmo', 'cyborg', 'flatly', 'journal',
             'readable','simplex','slate','spacelab','united', 'yeti'

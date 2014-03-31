@@ -53,38 +53,27 @@ module.exports = function(grunt) {
             'js/gimmicks/youtube_embed.js'
         ],
 
-        // files that we always inline (stuff not available on CDN)
-        internalCssFiles: [
+        // REMEMBER: ORDER OF FILES IS IMPORTANT
+        cssFiles: [
+            'bower_components/bootstrap/dist/css/bootstrap.min.css',
+            'extlib/css/colorbox.css',
+        ],
+        jsFiles: [
+            'bower_components/jquery/jquery.min.js',
+            'extlib/js/jquery.colorbox.min.js',
+            'bower_components/bootstrap/js/affix.js',
+            'bower_components/bootstrap/js/dropdown.js'
+        ],
+        // for debug builds use unminified versions:
+        unminifiedCssFiles: [
+            'bower_components/bootstrap/dist/css/bootstrap.css',
             'extlib/css/colorbox.css'
         ],
-        // ONLY PUT ALREADY MINIFIED FILES IN HERE!
-        internalJsFiles: [
-            'extlib/js/jquery.colorbox.min.js'
-        ],
-
-        // files that we inline in the fat release (basically everything)
-        // ONLY PUT ALREADY MINIFIED FILES IN HERE!
-        externalJsFiles: [
-            'extlib/js/jquery-1.8.3.min.js',
-            'extlib/js/bootstrap-3.0.0.min.js',
-            'extlib/js/highlight-7.3.pack.min.js'
-        ],
-        externalCssFiles: [
-            'extlib/css/highlight.github.css',
-            'extlib/css/bootstrap-3.0.0.min.css',
-        ],
-
-        // references we add in the slim release (stuff available on CDN locations)
-        externalJsRefs: [
-            'ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js',
-            'netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js',
-            'yandex.st/highlightjs/7.3/highlight.min.js'
-        ],
-        externalCssRefs: [
-            'netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css',
-            'yandex.st/highlightjs/7.3/styles/github.min.css'
-//            'www.3solarmasses.com/retriever-bootstrap/css/retriever.css'
-//            '3solarmasses.com/corgi-bootstrap/css/corgi.css'
+        unminifiedJsFiles: [
+            'bower_components/jquery/jquery.js',
+            'bower_components/bootstrap/js/affix.js',
+            'bower_components/bootstrap/js/dropdown.js',
+            'extlib/js/jquery.colorbox.js'
         ],
 
         typescript: {
@@ -122,13 +111,9 @@ module.exports = function(grunt) {
             }
         },
         index: {
-            fat: {
+            release: {
                 template: 'index.tmpl',
                 dest: 'dist/mdwiki.html'
-            },
-            slim: {
-                template: 'index.tmpl',
-                dest: 'dist/mdwiki-slim.html'
             },
             debug: {
                 template: 'index.tmpl',
@@ -173,17 +158,11 @@ module.exports = function(grunt) {
             src: ['lib/**/*.js', 'test/**/*.js']
         },
         copy: {
-            release_fat: {
+            release: {
                 expand: false,
                 flatten: true,
                 src: [ 'dist/mdwiki.html' ],
                 dest: 'release/mdwiki-<%= grunt.config("pkg").version %>/mdwiki.html'
-            },
-            release_slim: {
-                expand: false,
-                flatten: true,
-                src: [ 'dist/mdwiki-slim.html' ],
-                dest: 'release/mdwiki-<%= grunt.config("pkg").version %>/mdwiki-slim.html'
             },
             release_debug: {
                 expand: false,
@@ -232,32 +211,24 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-shell');
     grunt.loadNpmTasks('grunt-reload');
 
-    grunt.registerTask('index_slim', 'Generate slim mdwiki.html, most scripts on CDN', function() {
-        createIndex(grunt, 'slim');
+    grunt.registerTask('index', 'Generate mdwiki.html, inline all scripts', function() {
+        createIndex(grunt, 'release');
     });
+    grunt.registerTask('release', [ 'jshint', 'typescript', 'concat:dev', 'uglify:dist', 'index' ]);
 
-    grunt.registerTask('index_fat', 'Generate mdwiki-fat.html, inline all scripts', function() {
-        createIndex(grunt, 'fat');
-    });
-    grunt.registerTask('index_debug', 'Generate mdwiki-fat.html, inline all scripts', function() {
+    /* Debug is basically the releaes version but without any minifing */
+    grunt.registerTask('index_debug', 'Generate mdwiki-debug.html, inline all scripts unminified', function() {
         createIndex(grunt, 'debug');
     });
-    grunt.registerTask('release-slim',[  'jshint', 'concat:dev', 'uglify:dist', 'index_slim' ]);
-    grunt.registerTask('release-fat', [ 'jshint', 'concat:dev', 'uglify:dist', 'index_fat' ]);
+    grunt.registerTask('debug', [ 'jshint', 'typescript', 'concat:dev', 'index_debug' ]);
 
-    /* Debug is basically the fat version but without any minifing */
-    grunt.registerTask('release-debug', [ 'jshint', 'typescript', 'concat:dev', 'index_debug' ]);
+    grunt.registerTask('devel', [ 'debug', 'reload', 'watch' ]);
 
-    grunt.registerTask('devel', [ 'release-debug', 'reload', 'watch' ]);
-
-    grunt.registerTask('release',[
-        'release-slim', 'release-fat', 'release-debug',
-        'copy:release_slim', 'copy:release_fat', 'copy:release_debug', 'copy:release_templates',
+    grunt.registerTask('distrelease',[
+        'release', 'debug',
+        'copy:release', 'copy:release_debug', 'copy:release_templates',
         'shell:zip_release'
     ]);
-    // Default task.
-    grunt.registerTask('default',
-        [ 'release-slim', 'release-fat', 'release-debug' ]
-    );
-
+    // Default task
+    grunt.registerTask('default', [ 'release', 'debug' ] );
 };

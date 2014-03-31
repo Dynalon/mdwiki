@@ -5,7 +5,7 @@ declare var MDwikiEnableDebug: any;
 (function($) {
 
     var logger;
-    if (MDwikiEnableDebug)
+    if (typeof(MDwikiEnableDebug) != "undefined")
         logger = new MDwiki.Util.Logger(MDwiki.Util.LogLevel.DEBUG);
     else
         logger = new MDwiki.Util.Logger(MDwiki.Util.LogLevel.ERROR);

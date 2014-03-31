@@ -93,14 +93,8 @@
     var ownJsFileFull = grunt.config('concat').dev.dest;
     var ownJsFileMin = grunt.config('uglify').dist.dest;
 
-    var internalJsFiles = grunt.config('internalJsFiles');
-    var internalCssFiles = grunt.config('internalCssFiles');
-
-    var externalJsFiles = grunt.config('externalJsFiles');
-    var externalCssFiles = grunt.config('externalCssFiles');
-
-    var externalJsRefs = grunt.config('externalJsRefs');
-    var externalCssRefs = grunt.config('externalCssRefs');
+    var minifiedJsFiles = grunt.config('internalJsFiles');
+    var minifiedCssFiles = grunt.config('internalCssFiles');
 
     function print_script_ref(ref) {
         print('<script type="text/javascript" src="//' + ref + '"></script>\n');
@@ -109,66 +103,57 @@
         print('<link rel="stylesheet" href="//' + ref + '" type="text/css"></link>\n');
     }
     function print_script_inline(name, content) {
-        print('<!-- START ' + name + ' -->\n');
+        if (task === 'debug')
+            print('<!-- START ' + name + ' -->\n');
         print('<script type="text/javascript">');
         print(content);
         print('</script>\n');
-        print('<!-- END ' + name + ' -->\n');
+        if (task === 'debug')
+            print('<!-- END ' + name + ' -->\n');
     }
     function print_style_inline(name, content) {
-        print('<!-- START ' + name + ' -->\n');
+        if (task === 'debug')
+            print('<!-- START ' + name + ' -->\n');
         print('<style id="style:' + name + '">');
         print(content);
         print('</style>');
-        print('<!-- END ' + name + ' -->\n');
+        if (task === 'debug')
+            print('<!-- END ' + name + ' -->\n');
     }
 
     if (task === 'debug') {
-        print('<script type="text/javascript">var MDwikiEnableDebug = true;</script>')
+        print('<script type="text/javascript">window.MDwikiEnableDebug = true;</script>');
     }
 
-    if (task === 'slim') {
-        // INCLUDE REFERENCES TO CDN
-
-        // css
-        for(var i = 0, len = externalCssRefs.length; i < len; i++) {
-            print_style_ref(externalCssRefs[i]);
-        }
-
-        // js
-        for(var i = 0, len = externalJsRefs.length; i < len; i++) {
-            print_script_ref(externalJsRefs[i]);
-        }
-    }
-    else if (task === 'fat' || task ==='debug') {
+    if (task === 'release') {
         // INLINE SCRIPTS AND CSS
-
-        for(var i = 0, len = externalCssFiles.length; i < len; i++) {
-            var fileContent = grunt.file.read(externalCssFiles[i]);
-            print_style_inline(externalCssFiles[i], fileContent);
+        for(var i = 0, len = cssFiles.length; i < len; i++) {
+            var fileContent = grunt.file.read(cssFiles[i]);
+            print_style_inline(cssFiles[i], fileContent);
         }
-        for(var i = 0, len = externalJsFiles.length; i < len; i++) {
-            var fileContent = grunt.file.read(externalJsFiles[i]);
-            print_script_inline(externalJsFiles[i], fileContent);
+        for(var i = 0, len = jsFiles.length; i < len; i++) {
+            var fileContent = grunt.file.read(jsFiles[i]);
+            print_script_inline(jsFiles[i], fileContent);
+        }
+    } else if (task === 'debug') {
+        // INLINE SCRIPTS AND CSS
+        for(var i = 0, len = unminifiedCssFiles.length; i < len; i++) {
+            var fileContent = grunt.file.read(unminifiedCssFiles[i]);
+            print_style_inline(unminifiedCssFiles[i], fileContent);
+        }
+        for(var i = 0, len = unminifiedJsFiles.length; i < len; i++) {
+            var fileContent = grunt.file.read(unminifiedJsFiles[i]);
+            print_script_inline(unminifiedJsFiles[i], fileContent);
         }
     }
 
-    // STUFF WE ALWAYS INLINE (not available on any CDN)
-    for(var i = 0, len = internalCssFiles.length; i < len; i++) {
-        var fileContent = grunt.file.read(internalCssFiles[i]);
-        print_style_inline(internalCssFiles[i], fileContent);
-    }
-    for(var i = 0, len = internalJsFiles.length; i < len; i++) {
-        var fileContent = grunt.file.read(internalJsFiles[i]);
-        print_script_inline(internalJsFiles[i], fileContent);
-    }
 
     // OUR OWN CODE
     var fileContent = '';
     if (task === 'debug') {
         fileContent = grunt.file.read(ownJsFileFull);
         print_script_inline(ownJsFileFull, fileContent);
-    } else if (task === 'fat' || task === 'slim') {
+    } else if (task === 'release') {
         fileContent = grunt.file.read(ownJsFileMin);
         print_script_inline(ownJsFileMin, fileContent);
     }
