@@ -9,6 +9,6 @@ before_script:
   - npm install -g tsd
   - tsd install jquery
 script:
-  - grunt release-fat release-slim release-debug
+  - grunt release debug
 
 after_success: ./upload-build.sh
