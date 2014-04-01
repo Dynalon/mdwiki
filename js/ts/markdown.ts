@@ -1,7 +1,8 @@
 declare var marked: any;
-declare var $: any;
 
-
+interface JQuery {
+    toptext: () => string;
+}
 class Markdown {
     public markdownSource: string;
     public options: any;

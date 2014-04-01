@@ -1,4 +1,3 @@
-declare var $: any;
 declare var marked: any;
 
 module MDwiki.Core {

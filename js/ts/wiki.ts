@@ -4,7 +4,6 @@
 ///<reference path="gimmickloader.ts" />
 
 
-declare var $: any;
 declare var marked: any;
 
 import Logger = MDwiki.Util.Logger;
@@ -36,18 +35,18 @@ module MDwiki.Core {
             this.stages.run();
         }
         private registerFetchConfigAndNavigation() {
+            var self = this;
             // fetch config.json
             $.md.stage('init').subscribe(done => {
-                $.when(
-                    Resource.fetch('config.json'),
-                    Resource.fetch('navigation.md')
-                ).then( (config, nav) => {
-                    var data_json = JSON.parse(config[0]);
-
-                    $.md.config = $.extend($.md.config, data_json);
-
-                    this.registerBuildNavigation(nav[0]);
-                    done();
+                var dfd1 = Resource.fetch('config.json');
+                var dfd2 = Resource.fetch('navigation.md');
+                dfd1.done(function(config) {
+                    dfd2.done(function(nav) {
+                        var data_json = JSON.parse(config);
+                        $.md.config = $.extend($.md.config, data_json);
+                        self.registerBuildNavigation(nav);
+                        done();
+                    });
                 });
             });
         }

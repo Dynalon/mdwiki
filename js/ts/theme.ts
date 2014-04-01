@@ -1,7 +1,3 @@
-
-declare var $:any;
-declare var jQuery:any;
-
 module MDwiki.Core {
     class StringUtil {
         static startsWith (search: string, suffix: string) {

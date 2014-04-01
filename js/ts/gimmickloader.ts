@@ -1,4 +1,8 @@
-declare var $: any;
+interface JQueryStatic {
+    md: any;
+    mdbootstrap: any;
+    toptext: () => string;
+}
 
 interface String {
     startsWith: (x: any) => any;
@@ -21,7 +25,7 @@ module MDwiki.Core {
     }
 
     export interface IGimmickCallback {
-        ($links: Array, options: any, trigger: string): void;
+        ($links: any, options: any, trigger: string): void;
     }
 
     // [gimmick:trigger({option1: value1, option2:value2})](href)
