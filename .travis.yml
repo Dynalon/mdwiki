@@ -10,6 +10,7 @@ before_script:
   - npm install -g tsd
   - npm install -g bower@1.3.1
   - tsd install jquery
+  - bower install
 script:
   - grunt release debug
 
