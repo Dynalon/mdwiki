@@ -167,9 +167,7 @@
             }
 
         } else if( content.indexOf( 'id="gist' ) !== -1 ) {
-            expression = /gist([\d]{1,})/g.exec(content);
-            id = expression[1];
-
+ 	    expression = /https:\/\/gist.github.com\/.*\/(.*)#/.exec(content);
             if( id !== undefined ) {
 
                 // test if id is already loaded
