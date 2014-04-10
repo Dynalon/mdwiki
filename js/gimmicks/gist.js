@@ -168,7 +168,8 @@
 
         } else if( content.indexOf( 'id="gist' ) !== -1 ) {
  	    expression = /https:\/\/gist.github.com\/.*\/(.*)#/.exec(content);
-            if( id !== undefined ) {
+            id = expression[1]; 
+	    if( id !== undefined ) {
 
                 // test if id is already loaded
                 if( $.inArray(id, ids_dom) !== -1 ) {
