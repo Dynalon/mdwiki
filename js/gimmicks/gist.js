@@ -167,10 +167,9 @@
             }
 
         } else if( content.indexOf( 'id="gist' ) !== -1 ) {
-            expression = /gist([\d]{1,})/g.exec(content);
-            id = expression[1];
-
-            if( id !== undefined ) {
+ 	    expression = /https:\/\/gist.github.com\/.*\/(.*)#/.exec(content);
+            id = expression[1]; 
+	    if( id !== undefined ) {
 
                 // test if id is already loaded
                 if( $.inArray(id, ids_dom) !== -1 ) {
