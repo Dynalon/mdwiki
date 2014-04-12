@@ -17,25 +17,23 @@ See <https://github.com/Dynalon/mdwiki/releases> for readily precompiled release
 
 How to build from source
 ------------------------
+(applies to master branch, stable may differ)
 
 1. Install node.js >= 0.8 and npm (if not included)
-2. Clone this repo
+2. Clone the mdwikirepo
 3. Install deps:
+
 
     npm install
 
-4. Install components
-
-    bower install
-
-    (or if bower is not installed globally)
+    # install required components
     ./node_modules/.bin/bower install
 
-5. Build MDwiki
+    # install typescript definitions
+    ./node_modules/.bin/tsd reinstall
 
-    grunt release
+4. Build MDwiki
 
-    (or if not installed globally)
     ./node_modules/.bin/grunt release
 
 6. Find the `mdwiki.html` in the `dist/` folder
@@ -44,9 +42,9 @@ How to build from source
 
 For development, use
 
-    grunt devel
+    grunt devel 
 
-To get unminified source code compiled to `dist/mdwiki-debug.html`, as well as auto file watching and livereload support.
+To get unminified source code compiled to `dist/mdwiki-debug.html`, as well as auto file watching and livereload support. Symlink the development mdwiki file into your webroot for testing.
 
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/Dynalon/mdwiki/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
