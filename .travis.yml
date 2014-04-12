@@ -3,7 +3,7 @@ env:
   global:
     secure: fdhQHNFGs/fvXLZ79oF4w2Csps1lIrJHyMq+NPoM9oYumDgtjNOG3FUl0rswWzRdzURbI4NrwM9ViCKNmb8axFavwDjnyD9/Ad4URPaDvLg/tQA6uZePOh7IMnHh8PG6FIIe/Hu5vRNjWpxYoocx9u/GZlDDpndwy4d4802cHpg=
 node_js:
-  - 0.8
+  - 0.10
 before_script:
   - npm install
   - ./node_modules/.bin/bower install 
