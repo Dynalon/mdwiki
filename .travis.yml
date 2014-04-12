@@ -5,13 +5,10 @@ env:
 node_js:
   - 0.8
 before_script:
-  - npm install -g grunt-cli
-  - npm install -g typescript@0.9.1-1
-  - npm install -g tsd
-  - npm install -g bower@1.3.1
-  - tsd install jquery
-  - bower install
+  - npm install
+  - ./node_modules/.bin/bower install 
+  - ./node_modules/.bin/tsd reinstall
 script:
-  - grunt release debug
+  - ./node_modules/.bin/grunt release debug
 
 after_success: ./upload-build.sh
