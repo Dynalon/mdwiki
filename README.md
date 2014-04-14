@@ -19,11 +19,13 @@ How to build from source
 ------------------------
 (applies to master branch, stable may differ)
 
-1. Install node.js >= 0.8 and npm (if not included)
-2. Clone the mdwikirepo
+1. Install node.js >= 0.10 and npm (if not included)
+2. Clone the mdwiki repo
 3. Install deps and build MDwiki (you need automake installed - if you are on Windows check the contents of the Makefile for the list of commands to run them manually):
 
+```
     make
+```
 
 4. Find the `mdwiki.html` in the `dist/` folder
 
