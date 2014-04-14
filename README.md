@@ -21,24 +21,13 @@ How to build from source
 
 1. Install node.js >= 0.8 and npm (if not included)
 2. Clone the mdwikirepo
-3. Install deps:
+3. Install deps and build MDwiki (you need automake installed - if you are on Windows check the contents of the Makefile for the list of commands to run them manually):
 
+    make
 
-    npm install
+4. Find the `mdwiki.html` in the `dist/` folder
 
-    # install required components
-    ./node_modules/.bin/bower install
-
-    # install typescript definitions
-    ./node_modules/.bin/tsd reinstall
-
-4. Build MDwiki
-
-    ./node_modules/.bin/grunt release
-
-6. Find the `mdwiki.html` in the `dist/` folder
-
-7. Development
+5. Development
 
 For development, use
 
