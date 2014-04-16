@@ -45,34 +45,40 @@ module.exports = function(grunt) {
             'js/gimmicks/forkmeongithub.js',
             'js/gimmicks/gist.js',
             'js/gimmicks/googlemaps.js',
-            // 'js/gimmicks/highlight.js',
             'js/gimmicks/iframe.js',
+            'js/gimmicks/prism.js',
             'js/gimmicks/math.js',
             // // 'js/gimmicks/leaflet.js',
             'js/gimmicks/twitter.js',
             'js/gimmicks/youtube_embed.js'
         ],
 
-        // REMEMBER: ORDER OF FILES IS IMPORTANT
+        // REMEMBER:
+        // * ORDER OF FILES IS IMPORTANT
+        // * ALWAYS ADD EACH FILE TO BOTH minified/unminified SECTIONS!
         cssFiles: [
             'bower_components/bootstrap/dist/css/bootstrap.min.css',
+            'extlib/css/prism.default.css',
             'extlib/css/colorbox.css',
         ],
         jsFiles: [
             'bower_components/jquery/jquery.min.js',
             'extlib/js/jquery.colorbox.min.js',
+            'extlib/js/prism.js',
             'bower_components/bootstrap/js/affix.js',
             'bower_components/bootstrap/js/dropdown.js'
         ],
         // for debug builds use unminified versions:
         unminifiedCssFiles: [
             'bower_components/bootstrap/dist/css/bootstrap.css',
-            'extlib/css/colorbox.css'
+            'extlib/css/colorbox.css',
+            'extlib/css/prism.default.css',
         ],
         unminifiedJsFiles: [
             'bower_components/jquery/jquery.js',
             'bower_components/bootstrap/js/affix.js',
             'bower_components/bootstrap/js/dropdown.js',
+            'extlib/js/prism.js',
             'extlib/js/jquery.colorbox.js'
         ],
 
@@ -144,6 +150,7 @@ module.exports = function(grunt) {
                     L: true,
                     console: true,
                     MDwiki: true,
+                    Prism: true,
                     alert: true
                 }
             },
