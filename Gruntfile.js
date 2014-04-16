@@ -200,7 +200,7 @@ module.exports = function(grunt) {
                 'js/ts/**/*.ts',
                 'index.tmpl'
             ],
-            tasks: ['devel']
+            tasks: ['debug','reload' ]
         },
         reload: {
             port: 35729,
@@ -229,7 +229,7 @@ module.exports = function(grunt) {
     });
     grunt.registerTask('debug', [ 'jshint', 'typescript', 'concat:dev', 'index_debug' ]);
 
-    grunt.registerTask('devel', [ 'debug', 'reload', 'watch' ]);
+    grunt.registerTask('devel', [ 'reload', 'watch' ]);
 
     grunt.registerTask('distrelease',[
         'release', 'debug',
