@@ -18,7 +18,7 @@
         'sql',
         'xml'
     ];
-    function prism_highlight (callback) {
+    function prism_highlight () {
         // marked adds lang-ruby, lang-csharp etc to the <code> block like in GFM
         var $codeblocks = $('pre code[class^=lang-]');
         $codeblocks.each(function() {
@@ -34,15 +34,14 @@
             $this.removeClass(classes);
             $this.addClass('language-' + lang);
         });
-        Prism.highlightAll(false, callback);
+        Prism.highlightAll();
     }
 
     var prismGimmick = new MDwiki.Core.Module();
     prismGimmick.init = function() {
         $.md.stage('gimmick').subscribe(function(done) {
-            prism_highlight(function() {
-                done();
-            });
+            prism_highlight();
+            done();
         });
     };
     $.md.wiki.gimmicks.registerModule(prismGimmick);
