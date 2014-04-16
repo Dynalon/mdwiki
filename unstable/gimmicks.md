@@ -162,29 +162,32 @@ Preview:
 
 Math
 -----
-[gimmick: math]()
-Math formulas are realized through the [MathJax](http://www.mathjax.org) library. To enable math formulas on a page, the `math` gimmick must be loaded by adding this link anywhere in the file:
+Math formulas are realized through the [MathJax](http://www.mathjax.org) library.
 
-    [gimmick: math]()
+You can then add math formulas by putting them into a verbatim block followed by the `math` keyword using LaTeX syntax:
 
-To enable math for all sites, put the above link into the `navigation.md` file. Putting this link onto the site will load MathJax dynamically from a CDN provider.
+    ```math
+    x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+    ```
 
-Note: The MathJax script is very large and loads some more dependencies like fonts. Using the math gimmick might result in slow page loads.
+```math
+    x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+```
 
-You can then add math formulas by putting them between to `$$` signs and use LateX syntax:
-
-    $$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
-
-$$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
 
 More examples:
 
-$$ \frac{\partial \phi}{\partial x} \vert_b = \frac{1}{\Delta x/2}(\phi_0-\phi_b) $$
+```math
+\frac{\partial \phi}{\partial x} \vert_b = \frac{1}{\Delta x/2}(\phi_0-\phi_b)
+```
 
-$$ \int u \frac{dv}{dx}\,dx=uv-\int
+```math
+\int u \frac{dv}{dx}\,dx=uv-\int
 \frac{du}{dx}v\,dx\lim_{n\rightarrow \infty }
 \left (  1 +\frac{1}{n} \right )^n
-$$
+```
+
+Note: The MathJax library is very large and loads some more dependencies like fonts. It is not part of mdwiki but loaded from the web - it does therefore not work when offline.
 
 Twitter
 -------
