@@ -15,6 +15,9 @@ module.exports = function(grunt) {
     'use strict';
     // Project configuration.
 
+    // load all grunt tasks matching the `grunt-*` pattern
+    require('load-grunt-tasks')(grunt);
+
     grunt.initConfig({
     // Metadata.
         pkg: {
@@ -57,7 +60,7 @@ module.exports = function(grunt) {
         // * ORDER OF FILES IS IMPORTANT
         // * ALWAYS ADD EACH FILE TO BOTH minified/unminified SECTIONS!
         cssFiles: [
-            'bower_components/bootstrap/dist/css/bootstrap.min.css',
+            'extlib/css/bootstrap.min.css',
             'extlib/css/prism.default.css',
             'extlib/css/colorbox.css',
         ],
@@ -93,6 +96,17 @@ module.exports = function(grunt) {
                     sourcemap: false,
                     fullSourceMapPath: false,
                     declaration: false,
+                }
+            }
+        },
+
+        less: {
+            minified: {
+                options: {
+                    compress: true,
+                },
+                files: {
+                    "extlib/css/bootstrap.min.css": "extlib/less/bootstrap.less"
                 }
             }
         },
@@ -208,26 +222,16 @@ module.exports = function(grunt) {
         }
     });
 
-    // These plugins provide necessary tasks.
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-typescript');
-    grunt.loadNpmTasks('grunt-shell');
-    grunt.loadNpmTasks('grunt-reload');
-
     grunt.registerTask('index', 'Generate mdwiki.html, inline all scripts', function() {
         createIndex(grunt, 'release');
     });
-    grunt.registerTask('release', [ 'jshint', 'typescript', 'concat:dev', 'uglify:dist', 'index' ]);
+    grunt.registerTask('release', [ 'jshint', 'typescript', 'less', 'concat:dev', 'uglify:dist', 'index' ]);
 
     /* Debug is basically the releaes version but without any minifing */
     grunt.registerTask('index_debug', 'Generate mdwiki-debug.html, inline all scripts unminified', function() {
         createIndex(grunt, 'debug');
     });
-    grunt.registerTask('debug', [ 'jshint', 'typescript', 'concat:dev', 'index_debug' ]);
+    grunt.registerTask('debug', [ 'jshint', 'typescript', 'less', 'concat:dev', 'index_debug' ]);
 
     grunt.registerTask('devel', [ 'reload', 'watch' ]);
 
