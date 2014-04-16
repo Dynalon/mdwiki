@@ -73,7 +73,7 @@ module.exports = function(grunt) {
         ],
         // for debug builds use unminified versions:
         unminifiedCssFiles: [
-            'bower_components/bootstrap/dist/css/bootstrap.css',
+            'extlib/css/bootstrap.css',
             'extlib/css/colorbox.css',
             'extlib/css/prism.default.css',
         ],
@@ -101,12 +101,20 @@ module.exports = function(grunt) {
         },
 
         less: {
-            minified: {
+            min: {
                 options: {
                     compress: true,
                 },
                 files: {
                     "extlib/css/bootstrap.min.css": "extlib/less/bootstrap.less"
+                }
+            }
+            dev: {
+                options: {
+                    compress: false,
+                }
+                files: {
+                    "extlib/css/bootstrap.css": "extlib/less/bootstrap.less"
                 }
             }
         },
@@ -225,13 +233,13 @@ module.exports = function(grunt) {
     grunt.registerTask('index', 'Generate mdwiki.html, inline all scripts', function() {
         createIndex(grunt, 'release');
     });
-    grunt.registerTask('release', [ 'jshint', 'typescript', 'less', 'concat:dev', 'uglify:dist', 'index' ]);
+    grunt.registerTask('release', [ 'jshint', 'typescript', 'less:min', 'concat:dev', 'uglify:dist', 'index' ]);
 
     /* Debug is basically the releaes version but without any minifing */
     grunt.registerTask('index_debug', 'Generate mdwiki-debug.html, inline all scripts unminified', function() {
         createIndex(grunt, 'debug');
     });
-    grunt.registerTask('debug', [ 'jshint', 'typescript', 'less', 'concat:dev', 'index_debug' ]);
+    grunt.registerTask('debug', [ 'jshint', 'typescript', 'less:dev', 'concat:dev', 'index_debug' ]);
 
     grunt.registerTask('devel', [ 'reload', 'watch' ]);
 
