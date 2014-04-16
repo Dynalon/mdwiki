@@ -26,15 +26,16 @@ IS_UNSTABLE=`head -n 10 $HOME/mdwiki/mdwiki-latest.html |grep $UNSTABLE_VERSION`
 
 if [ IS_STABLE ]; then
     cp $HOME/mdwiki/*.html .
+    git add -f *.html
 fi
 
 if [ IS_UNSTABLE ]; then
     cp $HOME/mdwiki/mdwiki-latest.html ./unstable/index.html
     cp $HOME/mdwiki/mdwiki-latest-debug.html ./unstable/index-debug.html
+    git add -f unstable/*.html
 fi
 
 # add, commit and push files
-git add -f *.html
 git commit -m "Travis build $TRAVIS_BUILD_NUMBER pushed to gh-pages"
 git push -fq origin gh-pages > /dev/null
 
