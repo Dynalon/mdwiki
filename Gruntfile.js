@@ -108,7 +108,7 @@ module.exports = function(grunt) {
                 files: {
                     "extlib/css/bootstrap.min.css": "extlib/less/bootstrap.less"
                 }
-            }
+            },
             dev: {
                 options: {
                     compress: false,
@@ -116,7 +116,7 @@ module.exports = function(grunt) {
                 files: {
                     "extlib/css/bootstrap.css": "extlib/less/bootstrap.less"
                 }
-            }
+            },
         },
 
         concat: {
