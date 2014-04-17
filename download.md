@@ -31,21 +31,21 @@ Attention: To **download** the latest build, you need to right click -> "Save li
 Source code
 -----------
 
-To download and build from source, `node.js` >= 0.8 is required with installed npm.
+To download and build from source, `node.js` >= 0.10 is required with installed npm.
 
 
 ```bash
 git clone https://github.com/Dynalon/mdwiki.git
 cd mdwiki
 
-# will install all dependencies
-npm install
+# will fetch deps and build everything (requires automake installed)
+make
 
-# create a release:
-./node_modules/.bin/grunt release
+# now find your local mdwiki.html in the dist/ folder
 
-# or a debugging friendly mdwiki-devel.html in dist/ with
-# automatic filesystem watcher
+
+# for development: Create a debugging friendly, unminified mdwiki-debug.html
+# in dist/ with automatic filesystem watcher
 ./node_modules/.bin/grunt devel
 
 ```
