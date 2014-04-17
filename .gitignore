@@ -6,6 +6,7 @@ release/
 js/ts/d.ts
 ts_compiled/
 .tmp
+tmp/
 app/components
 md/
 .DS_Store

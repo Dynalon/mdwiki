@@ -60,7 +60,7 @@ module.exports = function(grunt) {
         // * ORDER OF FILES IS IMPORTANT
         // * ALWAYS ADD EACH FILE TO BOTH minified/unminified SECTIONS!
         cssFiles: [
-            'extlib/css/bootstrap.min.css',
+            'tmp/bootstrap.min.css',
             'extlib/css/prism.default.css',
             'extlib/css/colorbox.css',
         ],
@@ -73,7 +73,7 @@ module.exports = function(grunt) {
         ],
         // for debug builds use unminified versions:
         unminifiedCssFiles: [
-            'extlib/css/bootstrap.css',
+            'tmp/bootstrap.css',
             'extlib/css/colorbox.css',
             'extlib/css/prism.default.css',
         ],
@@ -106,7 +106,7 @@ module.exports = function(grunt) {
                     compress: true,
                 },
                 files: {
-                    'extlib/css/bootstrap.min.css': 'extlib/less/bootstrap.less',
+                    'tmp/bootstrap.min.css': 'extlib/less/bootstrap.less',
                 },
             },
             dev: {
@@ -114,7 +114,7 @@ module.exports = function(grunt) {
                     compress: false,
                 },
                 files: {
-                    'extlib/css/bootstrap.css': 'extlib/less/bootstrap.less',
+                    'tmp/bootstrap.css': 'extlib/less/bootstrap.less',
                 },
             },
         },
@@ -126,7 +126,7 @@ module.exports = function(grunt) {
             },
             dev: {
                 src: '<%= ownJsFiles %>',
-                dest: 'dist/<%= pkg.name %>.js'
+                dest: 'tmp/<%= pkg.name %>.js'
             }
         },
         uglify: {
@@ -135,7 +135,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 src: '<%= concat.dev.dest %>',
-                dest: 'dist/<%= pkg.name %>.min.js'
+                dest: 'tmp/<%= pkg.name %>.min.js'
             }
         },
         index: {
