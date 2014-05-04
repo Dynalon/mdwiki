@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# fail on first error
+set -e
+
 STABLE_VERSION="v0.6"
 UNSTABLE_VERSION="v0.7"
 
