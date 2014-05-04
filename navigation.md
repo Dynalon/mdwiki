@@ -28,7 +28,7 @@
 [Forum](forum.md)
 
 
-[gimmick:theme (inverse: false)](yeti)
+[gimmick:theme (inverse: false)](spacelab)
 
 [gimmick:ThemeChooser](Change theme)
 
