@@ -237,7 +237,7 @@ module.exports = function(grunt) {
     });
     grunt.registerTask('debug', [ 'jshint', 'typescript', 'less:dev', 'concat:dev', 'index_debug' ]);
 
-    grunt.registerTask('devel', [ 'reload', 'watch' ]);
+    grunt.registerTask('devel', [ 'debug', 'reload', 'watch' ]);
 
     grunt.registerTask('distrelease',[
         'release', 'debug',
