@@ -160,6 +160,47 @@ Preview:
 [gimmick:googlemaps({maptype: 'satellite', zoom: 17})](Colloseum, Rome, Italy)
 * * *
 
+UML Diagrams via yUML.me
+-----
+
+Embeds diagrams from the excellent [yUML.me](http://yuml.me) service (see their website for documentation).
+
+Examples:
+
+[gimmick:yuml]( [HttpContext]uses -.->[Response] )
+
+    [gimmick:yuml]( [HttpContext]uses -.->[Response] )
+- - -
+[gimmick:yuml (type: 'class')]([User|+Forename;+Surname;+HashedPassword;-Salt])
+
+    [gimmick:yuml]([User|+Forename+;Surname;+HashedPassword;-Salt|+Login();+Logout()])
+- - -
+[gimmick:yuml (type: 'activity', style: 'plain') ]( `Make Coffee´->`want more coffee´ )
+
+    [gimmick:yuml (type: 'activity', style: 'plain') ]( `Make Coffee´->`want more coffee´ )
+
+- - -
+[gimmick:yuml (type: 'usecase', scale: 150) ]( [Customer]-`Sign In´, [Customer]-`Buy Products´ )
+
+    [gimmick:yuml (diag: 'usecase', scale: 150) ]( [Customer]-`Sign In´, [Customer]-`Buy Products´ )
+
+
+Arguments
+
+* **direction**
+  * is one of [ 'TB', 'LR' ]
+  * direction of the diagram: top-to-bottom or left-to-right
+* **scale**
+  * is an integer percentage value, i.e. 150 or 200
+  * defines the scaling applied to the diagram in percent, 100% = no scaling
+* **type**
+  * is one of [ 'class', 'activity', 'usecase' ]
+  * type of the UML diagram
+* **style**
+  * is one of [ 'plain', 'scruffy' ]
+  * defines the applied theme, *plain* for clean and *scruffy* for comic-style look
+
+
 Math
 -----
 [gimmick: math]()
