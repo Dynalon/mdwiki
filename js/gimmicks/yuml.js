@@ -36,9 +36,9 @@
     'use strict';
     function yuml($link, opt, text) {
         var default_options = {
-            diag: 'class',  /* { class, activity, usecase } */
+            type: 'class',  /* { class, activity, usecase } */
             style: 'plain', /* { plain, scruffy } */
-            dir: 'LR',      /* LR, TB, RL */
+            direction: 'LR',      /* LR, TB, RL */
             scale: '100'
         };
         var options = $.extend ({}, default_options, opt);
@@ -55,7 +55,7 @@
             /* `FOOBAR´ => (FOOBAR) */
             data = data.replace( new RegExp('`', 'g'), '(' ).replace( new RegExp('´', 'g'), ')' );
 
-            url += options.style + ';dir:' + options.dir + ';scale:' + options.scale + '/' + options.diag + '/' + data;
+            url += options.style + ';dir:' + options.direction + ';scale:' + options.scale + '/' + options.type + '/' + data;
 
             var $img = $('<img src="' + url + '" title="' + title + '" alt="' + title + '">');
 
@@ -63,18 +63,8 @@
         });
     }
 
-    var yumlGimmick = {
-        name: 'yuml',
-        version: $.md.version,
-        once: function() {
-            $.md.linkGimmick(this, 'yuml', yuml);
-            $.md.registerScript(this, '', {
-                license: 'GNU-LGPL',
-                loadstage: 'postgimmick',
-                finishstage: 'all_ready'
-            });
-        }
-    };
-    $.md.registerGimmick(yumlGimmick);
+    var gimmick = new MDwiki.Core.Gimmick();
+    gimmick.addHandler('yuml', yuml);
+    $.md.wiki.gimmicks.registerGimmick(gimmick);
 
 }(jQuery));

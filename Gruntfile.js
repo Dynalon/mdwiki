@@ -53,7 +53,8 @@ module.exports = function(grunt) {
             'js/gimmicks/math.js',
             // // 'js/gimmicks/leaflet.js',
             'js/gimmicks/twitter.js',
-            'js/gimmicks/youtube_embed.js'
+            'js/gimmicks/youtube_embed.js',
+            'js/gimmicks/yuml.js'
         ],
 
         // REMEMBER:
