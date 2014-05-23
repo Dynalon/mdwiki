@@ -224,6 +224,18 @@ module.exports = function(grunt) {
         reload: {
             port: 35729,
             liveReload: {}
+        },
+        'http-server': {
+            'dev': {
+                root:'dist/',
+                port: 1026,
+                host: "127.0.0.1",
+                cache: 1,
+                showDir : true,
+                autoIndex: true,
+                defaultExt: "html",
+                runInBackground: false
+            }
         }
     });
 
@@ -239,6 +251,8 @@ module.exports = function(grunt) {
     grunt.registerTask('debug', [ 'jshint', 'typescript', 'less:dev', 'concat:dev', 'index_debug' ]);
 
     grunt.registerTask('devel', [ 'debug', 'reload', 'watch' ]);
+
+    grunt.registerTask('server', [ 'http-server:dev' ]);
 
     grunt.registerTask('distrelease',[
         'release', 'debug',
