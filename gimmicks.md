@@ -1,31 +1,26 @@
 Gimmicks
-=========
+========
 
-Gimmicks are little helper that bring plenty of dynamic features into your page. For example, you can use them to inline youtube videos, image slideshows or facebook like buttons.
+Gimmicks are little helpers that bring many dynamic features to your page. For example, you can use them to inline YouTube videos, image slideshows or Facebook 'like' buttons.
 
-To use Gimmicks, all you have to do is include some specially crafted link into your markdown file. For example, if you want to embed a Youtube video (instead of linking to it), you just have to insert a link to the video:
-
+To use Gimmicks, all you have to do is include a specially crafted link into your markdown file. For example, if you want to embed a YouTube video (instead of linking to it), you just have to insert a link to the video:
 
     [](http://www.youtube.com/watch?v=RMINSD7MmT4)
 
-Gimmicks are realized via Javascript and work out of the box. Some gimmicks can be called with parameters on them, to customize their behaviour:
-
+Gimmicks are realized via Javascript and work out of the box. Some gimmicks can be called with parameters on them, to customize their behavior:
 
     [gimmick:ForkMeOnGitHub ({ color: 'red',  position: 'left' })](http://www.github.com/Dynalon/mdwiki)
 
-
-The arguments are passed as a Javascript object. But for convienience reasons, you can omit the curly brackets `{ }`. The gimmick name after `gimmick:` is also case-insensitive:
+The arguments are passed as a Javascript object. But for convienience, you can omit the curly brackets `{ }`. The gimmick name after `gimmick:` is also case-insensitive:
 
     [gimmick:forkmeongithub(color: 'red', position: 'left')](http://www.github.com/Dynalon/mdwiki)
 
-Gimmicks are designed to always chose sane default values when no parameters are given, therefore *most* gimmicks do not require any parameters to work.
+Gimmicks are designed to always choose sane default values when no parameters are given, therefore *most* gimmicks do not require any parameters to work.
 
-Note: Gimmicks will usually load code or stylesheets from the internet, therefore they won't work in offline mode
-
+Note: Gimmicks usually load code or stylesheets from the internet, therefore they won't work in offline mode.
 
 Available Gimmicks
-===================
-* * *
+==================
 
 Alerts
 ------
@@ -36,9 +31,9 @@ Trigger words are case insensitive, and must be one of the following:
 
 Type       | Trigger
 -----------|---------
-Warning    |warning, achtung, attention, warnung, atención, guarda, advertimiento
-Note       |note, beachte
-Hint       |hint, tip, tipp, hinweis
+Warning    | warning, achtung, attention, warnung, atención, guarda, advertimiento
+Note       | note, beachte
+Hint       | hint, tip, tipp, hinweis
 
 Preview:
 
@@ -64,10 +59,10 @@ Preview:
 * * *
 
 
-Facebook Likebutton
--------------------
+Facebook Like Button
+--------------------
 
-Take any link of a profile page on facebook and put it into a regular markdown link, prefixed by `gimmick:FacebookLike`.
+Take any link of a profile pages on Facebook and put it in a regular markdown link, prefixed by `gimmick:FacebookLike`.
 
 Example:
 
@@ -100,13 +95,13 @@ More Examples:
 
 3. [gimmick:FacebookLike ( layout: 'buttoncount') ](http://www.facebook.com)
 
-For more info and previews, check the [Facebook developer page](http://developers.facebook.com/docs/reference/plugins/like/).
+For more info and previews, check the [Facebook Developer Page](http://developers.facebook.com/docs/reference/plugins/like/).
 
 * * *
 Fork me on GitHub - Ribbon
 --------------------------
 
-The popular github ribbon that is also present on this page. See the [github page]() for a preview of the colors.
+The popular GitHub ribbon that is present on this page. See the [GitHub page]() for a preview of the colors.
 
 Example:
 
@@ -132,7 +127,7 @@ Note: To display the ribbon on every page, put the gimmick link into the `naviga
 Google Maps
 -----------
 
-Allows to embed a basic map from [Google Maps](http://maps.google.com), centering at any given address specified via the link target.
+Allows embedding a basic map from [Google Maps](http://maps.google.com), centering at any given address specified via the link target.
 
 Example Code:
 
@@ -146,10 +141,10 @@ Arguments:
 
 * **maptype**
   * is one of [ 'terrain', 'roadmap', 'satellite', 'hybrid' ]
-  * defined the type of the map
+  * defines the type of map
 * **zoom**
-  * Defines the zoom level of the map (default: 11)
-  * The minimum/maximum zoomlevel depends heavily on the **maptype**. Best way to find a fitting value is just try'n'error.
+  * defines the zoom level of the map (default: 11)
+  * the minimum/maximum zoom level depends heavily on the **maptype**. The best way to find a fitting value is to use trial and error.
 
 Preview:
 
@@ -178,12 +173,10 @@ Examples:
 [gimmick:yuml (type: 'activity', style: 'plain') ]( `Make Coffee´->`want more coffee´ )
 
     [gimmick:yuml (type: 'activity', style: 'plain') ]( `Make Coffee´->`want more coffee´ )
-
 - - -
 [gimmick:yuml (type: 'usecase', scale: 150) ]( [Customer]-`Sign In´, [Customer]-`Buy Products´ )
 
     [gimmick:yuml (diag: 'usecase', scale: 150) ]( [Customer]-`Sign In´, [Customer]-`Buy Products´ )
-
 
 Arguments
 
@@ -208,29 +201,35 @@ Math formulas are realized through the [MathJax](http://www.mathjax.org) library
 
     [gimmick: math]()
 
-To enable math for all sites, put the above link into the `navigation.md` file. Putting this link onto the site will load MathJax dynamically from a CDN provider.
+To enable math for all sites, put the above link into the `navigation.md` file. Putting this link in a site will load MathJax dynamically from a CDN provider.
 
 Note: The MathJax script is very large and loads some more dependencies like fonts. Using the math gimmick might result in slow page loads.
 
 You can then add math formulas by putting them between to `$$` signs and use LateX syntax:
-
-    $$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
-
+```latex
 $$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
+```
+
+```latex
+$$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
+```
 
 More examples:
-
+```latex
 $$ \frac{\partial \phi}{\partial x} \vert_b = \frac{1}{\Delta x/2}(\phi_0-\phi_b) $$
+```
 
+```latex
 $$ \int u \frac{dv}{dx}\,dx=uv-\int
 \frac{du}{dx}v\,dx\lim_{n\rightarrow \infty }
 \left (  1 +\frac{1}{n} \right )^n
 $$
+```
 
 Twitter
 -------
 
-Creates a simple twitter follow button from a given twitter screen name.
+Creates a simple Twitter follow button from a given Twitter screen name.
 
 Example:
 
@@ -240,7 +239,7 @@ Preview:
 
 [gimmick:TwitterFollow](@timodoerr)
 
-Youtube
+YouTube
 -------
 
 Whenever you insert a regular link with an empty caption that points to a video on `youtube.com` or `youtu.be`, the link is automatically turned into an embedded iframe, which will display a preview thumbnail of the video on your website.
@@ -263,7 +262,7 @@ To omit the preview and just get a regular link, add a caption:
 Disqus
 ------
 
-Adds comment / forum style functionality to your website. You first need to [signup with disqus](http://disqus.com) and use your disqus shortname as the link target.
+Adds comment / forum style functionality to your website. You first need to [Signup with Disqus](http://disqus.com) and use your disqus shortname as the link target.
 
     [gimmick:Disqus](your_disqus_shortname)
 
@@ -272,4 +271,3 @@ Preview:
 [gimmick:Disqus](mdwiki)
 
 Disqus is always embedded at the bottom of a page, so scroll down this site to see a preview.
-
