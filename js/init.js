@@ -25,7 +25,8 @@
             disable: false,
             returnAnchor: "[top]",
             useHeadings: "h2"
-        }
+        },
+        parseHeader: false
     };
 
     // the location of the main markdown file we display

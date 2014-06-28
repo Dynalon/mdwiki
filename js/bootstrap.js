@@ -23,6 +23,7 @@
     // PUBLIC API functions that are exposed
     var publicMethods = {
         bootstrapify: function () {
+            parseHeader();
             createPageSkeleton();
             buildMenu ();
             changeHeading();
@@ -57,6 +58,31 @@
     $.mdbootstrap.publicMethods = $.extend ({}, $.mdbootstrap.publicMethods, publicMethods);
 
     // PRIVATE FUNCTIONS:
+
+    function parseHeader() {
+        if ($.md.config.parseHeader) {
+            var parsedHeaders = {};
+            var header = $('#md-content > pre:first-child');
+            header.hide();
+            var headerLines = header.text().split("\n");
+            $.each(headerLines, function(n, elem) {
+                elem = elem.split(':', 2);
+                if (elem.length === 2) {
+                    parsedHeaders[elem[0].trim()] = elem[1].trim();
+                }
+            });
+            parsedHeaders.title = parsedHeaders.title || $('#md-title h1').text();
+            if (parsedHeaders.title) {
+                document.title = parsedHeaders.title;
+                $('meta[name=subject]').attr('content', parsedHeaders.title);
+            }
+            if (parsedHeaders.author) $('meta[name=author]').attr('content', parsedHeaders.author);
+            if (parsedHeaders.description) $('meta[name=description]').attr('content', parsedHeaders.description);
+            if (parsedHeaders.copyright) $('meta[name=copyright]').attr('content', parsedHeaders.copyright);
+            if (parsedHeaders.keywords) $('meta[name=keywords]').attr('content', parsedHeaders.keywords);
+            $('meta[name=generator]').attr('content', 'mdwiki');
+        }
+    }
 
     function buildTopNav() {
         // replace with the navbar skeleton
