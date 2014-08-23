@@ -201,6 +201,20 @@ module.exports = function(grunt) {
                 flatten: true,
                 src: [ 'release_templates/*' ],
                 dest: 'release/mdwiki-<%= grunt.config("pkg").version %>/'
+            },
+            unittests: {
+                files: [{
+                    expand: true,
+                    flatten: true,
+                    src: 'tmp/MDwiki.js',
+                    dest: 'unittests/lib/'
+                },
+                {
+                    expand: true,
+                    flatten: true,
+                    src: 'bower_components/jquery/jquery.min.js',
+                    dest: 'unittests/lib/'
+                }]
             }
         },
         shell: {
@@ -235,6 +249,16 @@ module.exports = function(grunt) {
                 autoIndex: true,
                 defaultExt: "html",
                 runInBackground: true
+            },
+            'unittests': {
+                root:'unittests/',
+                port: 1027,
+                host: "127.0.0.1",
+                cache: 0,
+                showDir : true,
+                autoIndex: true,
+                defaultExt: "html",
+                runInBackground: false
             }
         }
     });
@@ -249,8 +273,8 @@ module.exports = function(grunt) {
         createIndex(grunt, 'debug');
     });
     grunt.registerTask('debug', [ 'jshint', 'typescript', 'less:dev', 'concat:dev', 'index_debug' ]);
-
     grunt.registerTask('devel', [ 'debug', 'server', 'reload', 'watch' ]);
+    grunt.registerTask('unittests', [ 'copy:unittests', 'http-server:unittests' ]);
 
     grunt.registerTask('server', [ 'http-server:dev' ]);
 

@@ -9,5 +9,6 @@ ts_compiled/
 tmp/
 app/components
 md/
+unittests/lib/
 .DS_Store
 .AppleDouble
