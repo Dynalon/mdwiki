@@ -2,8 +2,8 @@
   "version": "v4",
   "repo": "borisyankov/DefinitelyTyped",
   "ref": "master",
-  "path": "js/ts/d.ts",
-  "bundle": "js/ts/d.ts/tsd.d.ts",
+  "path": "typings",
+  "bundle": "typings/tsd.d.ts",
   "installed": {
     "jquery/jquery.d.ts": {
       "commit": "fcc1ab786a3011287e281c36e1f52486b54abce8"

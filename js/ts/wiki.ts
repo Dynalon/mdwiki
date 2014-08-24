@@ -1,11 +1,5 @@
-///<reference path="stage.ts" />
-///<reference path="theme.ts" />
-///<reference path="logger.ts" />
-///<reference path="gimmickloader.ts" />
-
-
+///<reference path="../../typings/tsd.d.ts" />
 declare var marked: any;
-
 import Logger = MDwiki.Util.Logger;
 
 module MDwiki.Core {

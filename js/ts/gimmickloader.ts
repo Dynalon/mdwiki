@@ -1,3 +1,5 @@
+///<reference path="../../typings/tsd.d.ts" />
+
 interface JQueryStatic {
     md: any;
     mdbootstrap: any;
@@ -44,7 +46,6 @@ module MDwiki.Core {
             public loadstage: string = 'gimmick'
         ) {}
     }
-
 
     export class Module {
         init() { }
