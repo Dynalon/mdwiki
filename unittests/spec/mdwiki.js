@@ -1,12 +1,35 @@
 describe("MDwiki", function() {
-  var testGimmick;
+    var testGimmick = new MDwiki.Core.NewGimmick();
 
-  beforeEach(function() {
-    testGimmick = new MDwiki.Core.Gimmick();
-  });
+    // pre/code fields
+    var myCallback = function(content, domElement) {
 
-  it("should be be loaded", function() {
-    debugger;
-    expect("true").toBe("true");
-  });
+    };
+
+    // links
+    var myLinkCallback = function(text, href, domElement) {
+
+    };
+
+    testGimmick.addHandler('multiline', {
+        namepsace: 'g',
+        trigger: 'alert',
+        callback: myCallback
+    });
+
+
+    testGimmick.addHandler('link', {
+        namespace: 'g',
+        trigger: 'gist',
+        callback: myLinkCallback
+    });
+
+    beforeEach(function() {
+        loadFixtures('gimmick.html');
+    });
+
+    it('should be be loaded', function() {
+        var d = $('#my-fixture');
+        expect('true').toBe('true');
+    });
 });

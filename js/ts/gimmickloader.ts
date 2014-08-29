@@ -26,9 +26,18 @@ module MDwiki.Core {
         ) { }
     }
 
+    // TODO rename to ILinkGimimckCallback
     export interface IGimmickCallback {
         ($links: any, options: any, trigger: string): void;
     }
+
+    export interface IMultilineGimmickCallback {
+        (trigger: string, content: string, options: any, domElement: any): void;
+    }
+    export interface ISinglelineGimmickCallback {
+        (trigger: string, content: string, options: any, domElement: any): void;
+    }
+
 
     // [gimmick:trigger({option1: value1, option2:value2})](href)
     class GimmickLinkParts {
@@ -41,6 +50,7 @@ module MDwiki.Core {
 
     export class GimmickHandler {
         constructor(
+            public type: string,
             public trigger: string,
             public handler: IGimmickCallback,
             public loadstage: string = 'gimmick'
@@ -89,6 +99,19 @@ module MDwiki.Core {
         addHandler(trigger: string, cb: IGimmickCallback, loadstage: string = 'gimmick') {
             var handler = new GimmickHandler(trigger, cb, loadstage);
             this.Handlers.push(handler);
+        }
+    }
+
+    export class NewGimmick extends Module {
+        Handlers: MultilineGimmickHandler[]
+        init () {}
+        addHandler(type: string, options: any) {
+            if (!options.namespace)
+                options.namespace = "gimmick";
+            if (!options.loadStage)
+                options.loadStage = "gimmick";
+
+            var handler = new GimmickHandler();
         }
     }
 
