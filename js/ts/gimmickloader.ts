@@ -8,6 +8,7 @@ interface JQueryStatic {
 
 interface String {
     startsWith: (x: any) => any;
+    endsWith: (x: any) => any;
 }
 
 module MDwiki.Core {
@@ -50,7 +51,6 @@ module MDwiki.Core {
 
     export class GimmickHandler {
         constructor(
-            public type: string,
             public trigger: string,
             public handler: IGimmickCallback,
             public loadstage: string = 'gimmick'
@@ -103,7 +103,7 @@ module MDwiki.Core {
     }
 
     export class NewGimmick extends Module {
-        Handlers: MultilineGimmickHandler[]
+        Handlers: IMultilineGimmickCallback[] = []
         init () {}
         addHandler(type: string, options: any) {
             if (!options.namespace)
@@ -111,7 +111,7 @@ module MDwiki.Core {
             if (!options.loadStage)
                 options.loadStage = "gimmick";
 
-            var handler = new GimmickHandler();
+            //var handler = new GimmickHandler();
         }
     }
 
@@ -185,9 +185,11 @@ module MDwiki.Core {
            this.registerGimmick(themechooser);
         }
 
-        initGimmicks() {
+        initGimmicks($parent?: JQuery) {
+            if (!$parent) $parent = $(document);
+
             this.registerBuiltInGimmicks();
-            var $gimmick_links = $('a:icontains(gimmick:)');
+            var $gimmick_links = $parent.find('a:icontains(gimmick:)');
             $gimmick_links.map((i,e) => {
                 var $link = $(e);
                 var parts = getGimmickLinkParts($link);
@@ -200,8 +202,9 @@ module MDwiki.Core {
             });
         }
 
-        loadGimmicks() {
-            var $gimmick_links = $('a:icontains(gimmick:)');
+        loadGimmicks($parent?: JQuery) {
+            if (!$parent) $parent = $(document);
+            var $gimmick_links = $parent.find('a:icontains(gimmick:)');
             $gimmick_links.map((i,e) => {
                 var $link = $(e);
                 var parts = getGimmickLinkParts($link);
@@ -225,7 +228,9 @@ module MDwiki.Core {
             var handler = gimmick.Handlers.filter(h => h.trigger == trigger)[0];
             return handler;
         }
-        private findActiveLinkTrigger() {
+        private findActiveLinkTrigger($parent?: JQuery) {
+            if (!$parent) $parent = $(document);
+
             // log.debug('Scanning for required gimmick links: ' + JSON.stringify(activeLinkTriggers));
             var activeLinkTriggers = [];
 
@@ -236,6 +241,11 @@ module MDwiki.Core {
                     activeLinkTriggers.push(parts.trigger);
             });
             return activeLinkTriggers;
+        }
+
+        getMultilineGimmicks($parent: JQuery) {
+            var $verbatim = $parent.find("pre > code");
+            debugger;
         }
     }
 }

@@ -65,61 +65,7 @@
         });
     };
 
+    //$.initMDwiki(undefined, false);
 
 
-
-    function extractHashData() {
-        // first char is the # or #!
-        var href;
-        if (window.location.hash.startsWith('#!')) {
-            href = window.location.hash.substring(2);
-        } else {
-            href = window.location.hash.substring(1);
-        }
-        href = decodeURIComponent(href);
-
-        // extract possible in-page anchor
-        var ex_pos = href.indexOf('#');
-        if (ex_pos !== -1) {
-            $.md.inPageAnchor = href.substring(ex_pos + 1);
-            $.md.mainHref = href.substring(0, ex_pos);
-        } else {
-            $.md.mainHref = href;
-        }
-    }
-
-    function appendDefaultFilenameToHash () {
-        var newHashString = '';
-        var currentHashString = window.location.hash || '';
-        if (currentHashString === '' ||
-            currentHashString === '#'||
-            currentHashString === '#!')
-        {
-            newHashString = '#!index.md';
-        }
-        else if (currentHashString.startsWith ('#!') &&
-                 currentHashString.endsWith('/')
-                ) {
-            newHashString = currentHashString + 'index.md';
-        }
-        if (newHashString)
-            window.location.hash = newHashString;
-    }
-
-    $.initMDwiki();
-
-    $(document).ready(function () {
-
-        // stage init stuff
-
-        extractHashData();
-
-        appendDefaultFilenameToHash();
-
-        $(window).bind('hashchange', function () {
-            window.location.reload(false);
-        });
-
-        $.md.wiki.run();
-    });
 }(jQuery));
