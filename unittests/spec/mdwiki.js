@@ -1,6 +1,5 @@
-describe("Gimmickloader", function() {
+describe('Gimmickloader', function() {
     var testGimmick;
-
 
 /*
     testGimmick.addHandler('multiline', {
@@ -21,101 +20,106 @@ describe("Gimmickloader", function() {
 
     it('should load find the text of a mulitline gimmick', function() {
         var myCallback = function(trigger, text, options, domElement) {
-            expect(text).toBe("This is a text");
+            expect(text).toBe('This is a text');
         };
         var $mlg = $('#multiline-gimmick');
-        testGimmick.Handlers.push(myCallback);
+        testGimmick.handlers.push(myCallback);
 
-        var loa
-        der = new MDwiki.Core.GimmickLoader();
+        var loader = new MDwiki.Core.GimmickLoader();
         loader.getMultilineGimmicks($mlg);
         expect($mlg.length).toBe(1);
     });
 
+/*
     it('should get a list of gimmicks that are required on a page') {
 
-    }
+    };
 
     it('should initialize a gimmick that is required on a page') {
-
-    }
+    };
     it('should not initialize a gimmick that is not required on a page') {
-
-    }
+    };
     it('should call the handler for a multiline gimmick') {
-
-    }
+    };
     it('should call the handler for a singleline gimmick') {
-
-    }
+    };
     it('should call the handler for a link gimmick') {
-
-    }
+    }; */
 });
 
 
-describe("Gimmick", function() {
+describe('Gimmick', function() {
     var testGimmick;
 
     beforeEach(function() {
         loadFixtures('gimmick.html');
     });
 
-    it('should create a new gimmick and have a name') {
+    it('should create a new gimmick and have a name', function() {
         testGimmick = new MDwiki.Core.NewGimmick('myGimmick');
         expect(testGimmick.name).toBe('myGimmick');
-    }
+    });
 
 
-    it('should be able to register a multiline handler') {
+    it('should be able to register a multiline handler', function() {
+        testGimmick = new MDwiki.Core.NewGimmick('myGimmick');
         testGimmick.addHandler({
             type: 'multiline',
             handler: function(text, options, domElement) {
             }
         });
-    }
+        expect(testGimmick.handlers.length).toBe(1);
+    });
 
-    it('should be able to register a singleline handler') {
+    it('should be able to register a singleline handler', function() {
+        testGimmick = new MDwiki.Core.NewGimmick('myGimmick');
         testGimmick.addHandler({
             type: 'singleline',
             handler: function(text, options, domElement) {
             }
         });
-    }
+        expect(testGimmick.handlers.length).toBe(1);
+    });
 
-    it('should be able to register a singleline handler with a given loadstage') {
+    it('should be able to register a singleline handler with a given loadstage', function() {
+        testGimmick = new MDwiki.Core.NewGimmick('myGimmick');
         testGimmick.addHandler({
             type: 'singleline',
             loadstage: 'postgimmick',
             handler: function(text, options, domElement) {
             }
         });
-    }
+        expect(testGimmick.handlers.length).toBe(1);
+    });
 
-    it('should be able to register a link handler') {
+    it('should be able to register a link handler', function() {
+        testGimmick = new MDwiki.Core.NewGimmick('myGimmick');
         testGimmick.addHandler({
             type: 'singleline',
             handler: function(text, options, domElement) {
             }
         });
-    }
+        expect(testGimmick.handlers.length).toBe(1);
+    });
 
-    it('should be able to register a handler without a trigger name') {
+    it('should be able to register a handler without a trigger name', function() {
         testGimmick = new MDwiki.Core.NewGimmick('myGimmick');
         testGimmick.addHandler({
             type: 'multiline',
             handler: function(text, options, domElement) {
             }
         });
-    }
+        expect(testGimmick.handlers.length).toBe(1);
+    });
 
-    it('should be able to register a handler with a trigger name') {
+    it('should be able to register a handler with a trigger name', function() {
         testGimmick = new MDwiki.Core.NewGimmick('myGimmick');
         testGimmick.addHandler({
-            trigger: 'nondefaulttrigger'
+            trigger: 'nondefaulttrigger',
             type: 'multiline',
             handler: function(text, options, domElement) {
             }
         });
-    }
+        expect(testGimmick.handlers.length).toBe(1);
+    });
 });
