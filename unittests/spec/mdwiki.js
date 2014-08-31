@@ -10,7 +10,7 @@ describe('Gimmickloader', function() {
 */
     beforeEach(function() {
         loadFixtures('gimmick.html');
-        testGimmick = new MDwiki.Core.NewGimmick();
+        testGimmick = new MDwiki.Core.NewGimmick('myGimmick');
     });
 
     it('should load the gimmick fixture html skeleton', function() {
@@ -23,11 +23,15 @@ describe('Gimmickloader', function() {
             expect(text).toBe('This is a text');
         };
         var $mlg = $('#multiline-gimmick');
-        testGimmick.handlers.push(myCallback);
 
         var loader = new MDwiki.Core.GimmickLoader();
-        loader.getMultilineGimmicks($mlg);
-        expect($mlg.length).toBe(1);
+        var gimmicks = loader.getMultilineGimmicks($mlg);
+        expect(gimmicks.length).toBe(1);
+        var first_match = gimmicks[0];
+        expect(first_match.trigger).toBe('somegimmick');
+        expect(first_match.text).toBe('This is a text');
+        // TODO find out how to equal-test dom nodes
+        //expect(first_match.domElement).toBe($mlg[0]);
     });
 
 /*

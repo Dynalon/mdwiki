@@ -103,15 +103,18 @@ module MDwiki.Core {
     }
 
     export class NewGimmick extends Module {
-        Handlers: IMultilineGimmickCallback[] = []
-        init () {}
-        addHandler(type: string, options: any) {
-            if (!options.namespace)
-                options.namespace = "gimmick";
-            if (!options.loadStage)
-                options.loadStage = "gimmick";
-
-            //var handler = new GimmickHandler();
+        name: string;
+        handlers: any[] = []
+        init () {
+        }
+        constructor(name: string) {
+            super();
+            this.name = name;
+        }
+        addHandler(handlerDescription: any) {
+            if (!handlerDescription.loadStage)
+                handlerDescription.loadStage = "gimmick";
+            this.handlers.push(handlerDescription);
         }
     }
 
@@ -243,9 +246,29 @@ module MDwiki.Core {
             return activeLinkTriggers;
         }
 
+        // builds a list of gimmick triggers that are required for this page
         getMultilineGimmicks($parent: JQuery) {
             var $verbatim = $parent.find("pre > code");
-            debugger;
+            var multiline_gimmicks: any[] = [];
+
+            // check for multiline gimmick
+            $.each($verbatim, (i, e) => {
+                var raw_trigger = $(e).attr('class');
+                var isMultilineGimmick = raw_trigger && raw_trigger.startsWith("gimmick:");
+                if (!isMultilineGimmick)
+                    return;
+
+                var verbatim_text = $(e).text().trim();
+                var trigger = raw_trigger.split(':')[1];
+                // TODO create a known object of this
+                multiline_gimmicks.push({
+                    domElement: e,
+                    trigger: trigger,
+                    options: {},
+                    text: verbatim_text
+                });
+            });
+            return multiline_gimmicks;
         }
     }
 }
