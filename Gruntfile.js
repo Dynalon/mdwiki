@@ -251,7 +251,7 @@ module.exports = function(grunt) {
                 runInBackground: true
             },
             'unittests': {
-                root:'unittests/',
+                root:'./',
                 port: 1027,
                 host: "127.0.0.1",
                 cache: 0,
