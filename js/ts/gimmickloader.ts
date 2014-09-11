@@ -32,6 +32,7 @@ module MDwiki.Core {
         ($links: any, options: any, trigger: string): void;
     }
 
+
     export interface IMultilineGimmickCallback {
         (trigger: string, content: string, options: any, domElement: any): void;
     }
@@ -180,13 +181,22 @@ module MDwiki.Core {
            this.registeredModules.push(mod);
         }
         registerGimmick(gmck: Gimmick) {
-           this.gimmicks.push(gmck);
+          // this.gimmicks.push(gmck);
         }
-
         registerBuiltInGimmicks() {
            var themechooser = new ThemeChooserGimmick();
            this.registerGimmick(themechooser);
         }
+        // TODO make private
+        /*
+        getGimmickHandler(type: string, trigger: string) {
+            var gmcks = this.gimmicks.filter(g => g.type == type);
+            return gmcks.filter(g => {
+                var handlers = g.Handlers.filter(h => h.trigger == trigger);
+                return handlers.length > 0;
+            })[0];
+        }
+        */
 
         initGimmicks($parent?: JQuery) {
             if (!$parent) $parent = $(document);
@@ -207,6 +217,10 @@ module MDwiki.Core {
 
         loadGimmicks($parent?: JQuery) {
             if (!$parent) $parent = $(document);
+
+            // multiline gimmicks
+            var mlgs = this.getRequiredMultilineGimmicks($parent);
+
             var $gimmick_links = $parent.find('a:icontains(gimmick:)');
             $gimmick_links.map((i,e) => {
                 var $link = $(e);
@@ -231,7 +245,8 @@ module MDwiki.Core {
             var handler = gimmick.Handlers.filter(h => h.trigger == trigger)[0];
             return handler;
         }
-        private findActiveLinkTrigger($parent?: JQuery) {
+        // TODO make private
+        findActiveLinkTrigger($parent?: JQuery) {
             if (!$parent) $parent = $(document);
 
             // log.debug('Scanning for required gimmick links: ' + JSON.stringify(activeLinkTriggers));
@@ -246,8 +261,8 @@ module MDwiki.Core {
             return activeLinkTriggers;
         }
 
-        // builds a list of gimmick triggers that are required for this page
-        getMultilineGimmicks($parent: JQuery) {
+        // TODO make private
+        getRequiredMultilineGimmicks($parent: JQuery) {
             var $verbatim = $parent.find("pre > code");
             var multiline_gimmicks: any[] = [];
 

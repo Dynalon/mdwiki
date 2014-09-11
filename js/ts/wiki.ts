@@ -9,7 +9,6 @@ module MDwiki.Core {
         public gimmicks: GimmickLoader = new GimmickLoader();
 
         constructor() {
-            debugger;
             var stage_names = (['init','load','transform','ready','skel_ready',
                 'bootstrap', 'pregimmick', 'gimmick', 'postgimmick', 'all_ready',
                 'final_tests'

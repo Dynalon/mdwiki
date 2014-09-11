@@ -19,7 +19,12 @@ declare var MDwikiEnableDebug: any;
             return $.md.wiki.stages.getStage (name);
         }
 
-        if (!registerDomReady) return;
+        if (!registerDomReady) {
+            $.md.wiki.gimmicks = {};
+            $.md.wiki.gimmicks.registerModule = function() {};
+            $.md.wiki.gimmicks.registerGimmick = function() {};
+            return;
+        }
 
         $(document).ready(function () {
 

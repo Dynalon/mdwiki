@@ -65,7 +65,7 @@
         });
     };
 
-    //$.initMDwiki(undefined, false);
+    $.initMDwiki(undefined, false);
 
 
 }(jQuery));

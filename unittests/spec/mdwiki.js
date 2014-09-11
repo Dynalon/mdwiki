@@ -18,20 +18,13 @@ describe('Gimmickloader', function() {
         expect(d.length).toBe(1);
     });
 
-    it('should load find the text of a mulitline gimmick', function() {
-        var myCallback = function(trigger, text, options, domElement) {
-            expect(text).toBe('This is a text');
-        };
-        var $mlg = $('#multiline-gimmick');
 
+    it('should pass the code DOM element in a multiline gimmick', function() {
+        var code_element = $('#multiline-gimmick').find('code');
+        var myCallback = function(trigger, text, options, domElement) {
+            expect(domElement).toEqual(code_element);
+        };
         var loader = new MDwiki.Core.GimmickLoader();
-        var gimmicks = loader.getMultilineGimmicks($mlg);
-        expect(gimmicks.length).toBe(1);
-        var first_match = gimmicks[0];
-        expect(first_match.trigger).toBe('somegimmick');
-        expect(first_match.text).toBe('This is a text');
-        // TODO find out how to equal-test dom nodes
-        //expect(first_match.domElement).toBe($mlg[0]);
     });
 
 /*
