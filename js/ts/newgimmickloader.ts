@@ -43,14 +43,15 @@ module MDwiki.Gimmick {
     export class GimmickParser {
         domElement: JQuery;
         multilineGimmicks : MultilineGimmickReference[] = [];
-        singlelineGimmicks: any[] = [];
+        singlelineGimmicks: SinglelineGimmickReference[] = [];
         linkGimmicks: any[] = [];
         constructor(domElement: any) {
             this.domElement = $(domElement);
         }
         parse() {
-            this.multilineGimmicks = this.getRequiredMultilineGimmicks();
-            this.singlelineGimmicks = this.getRequiredSinglelineGimmicks();
+            this.multilineGimmicks = this.getMultilineGimmicks();
+            this.singlelineGimmicks = this.getSinglelineGimmicks();
+            this.linkGimmicks = this.getLinkGimmicks();
         }
 
         // magic string: gimmick:somegimmck({foo: 'bar'})
@@ -91,7 +92,7 @@ module MDwiki.Gimmick {
             return { options: args, trigger: trigger };
         }
 
-        private getRequiredSinglelineGimmicks(): SinglelineGimmickReference[] {
+        private getSinglelineGimmicks(): SinglelineGimmickReference[] {
             var $verbatim = this.domElement.find("code:not(pre > code)");
             var singlelineGimmicks = [];
             $.each($verbatim, (i,e) => {
@@ -107,7 +108,7 @@ module MDwiki.Gimmick {
             return singlelineGimmicks;
         }
 
-        private getRequiredMultilineGimmicks(): MultilineGimmickReference[] {
+        private getMultilineGimmicks(): MultilineGimmickReference[] {
             var $verbatim = this.domElement.find("pre > code");
             var multiline_gimmicks: MultilineGimmickReference[] = [];
 
