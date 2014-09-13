@@ -81,38 +81,45 @@ describe('GimmickParser', function() {
     });
     describe('link gimmick', function() {
         it('should find a link gimmick', function() {
-            var $lg = $('link-gimmick-simpleoptions');
+            var $lg = $('#link-gimmick-simpleoptions');
             var parser = new MDwiki.Gimmick.GimmickParser($lg);
             parser.parse();
             expect(parser.linkGimmicks.length).toBe(1);
         });
         it('should be able to retrieve the trigger of a link gimmick', function() {
-            var $lg = $('link-gimmick-simpleoptions');
+            var $lg = $('#link-gimmick-simpleoptions');
             var parser = new MDwiki.Gimmick.GimmickParser($lg);
             parser.parse();
             var first_match = parser.linkGimmicks[0];
             expect(first_match.trigger).toBe('somegimmick');
         });
         it('should be able to retrieve the href-text of a link gimmick', function() {
-            var $lg = $('link-gimmick-simpleoptions');
+            var $lg = $('#link-gimmick-simpleoptions');
             var parser = new MDwiki.Gimmick.GimmickParser($lg);
             parser.parse();
             var first_match = parser.linkGimmicks[0];
             expect(first_match.text).toBe('This is a text.');
         });
         it('should be able to retrieve the options of a link gimmick', function() {
-            var $lg = $('link-gimmick-simpleoptions');
+            var $lg = $('#link-gimmick-simpleoptions');
             var parser = new MDwiki.Gimmick.GimmickParser($lg);
             parser.parse();
             var first_match = parser.linkGimmicks[0];
             expect(first_match.options.param1).toBe('foo');
         });
         it('should set the options to null if no options are specified', function() {
-            var $lg = $('link-gimmick-simpleoptions');
+            var $lg = $('#link-gimmick-nooptions');
             var parser = new MDwiki.Gimmick.GimmickParser($lg);
             parser.parse();
             var first_match = parser.linkGimmicks[0];
             expect(first_match.options).toBeNull();
+        });
+        it('should not treat a regular link as link gimmick', function() {
+            var $lg = $('#link-gimmick-with-regular-link');
+            var parser = new MDwiki.Gimmick.GimmickParser($lg);
+            parser.parse();
+            expect(parser.linkGimmicks.length).toBe(1);
+            expect(parser.linkGimmicks[0].text).toBe('This is a text.');
         });
     });
 });
