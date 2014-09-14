@@ -8,6 +8,9 @@ module MDwiki.Gimmick {
     export interface ISinglelineGimmickCallback {
         (trigger: string, content: string, options: any, domElement: any): void;
     }
+    export interface ILinkGimmickHandler {
+        (trigger: string, options: any, domElement:any)
+    }
 
     export class GimmickHandler {
     }
