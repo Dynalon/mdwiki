@@ -30,20 +30,15 @@ You can sign up with GitHub at <http://www.github.com/signup>.
 
 ### Step 2: Fork mdwiki-seed
 
-We have set up a [minimal example MDwiki installation](https://github.com/exalted/mdwiki-seed) that you can use as a starting point. Included is the latest MDwiki release and some example Markdown that is easy to understand.  Follow the link and click the "fork" button to get your own copy.
+We have set up a [minimal example MDwiki installation](https://github.com/exalted/mdwiki-seed) that you can use as a starting point. Included is the latest MDwiki release and some example Markdown that is easy to understand.  Follow the link and click the "fork" button to get your own copy. Call it something like <MyProject>-wiki.
 
-Now you should be able to see an index page at http://username.github.io/mymdwiki/mdwiki.html#!index.md, where username is your Github account name.  It may take up to ten minutes for this to be available.
+Now you should be able to see an index page at http://<username>.github.io/<MyProject>-wiki/#!index.md, where username is your Github account name.  It may take up to ten minutes for this to be available.
 
-### Step 3: Edit your forked version of MDwiki seed
-Clone your fork and make some changes.  For instance, you may wish to
+### Step 3: See MDwiki-seed README.md for more detail
 
-    git mv mdwiki.html index.html
-    
-as this will allow you to omit mdwiki.html from the URLs for your pages.
+The mdwiki-seed readme that you just forked includes more detail on how to customize the new fork of mdwiki.
 
-### Step 4: Push changes back
-
-### Step 5: Setup your own domain
+Enjoy!
 
 ### Additional notes
 
