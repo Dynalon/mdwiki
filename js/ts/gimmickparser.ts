@@ -20,6 +20,10 @@ module MDwiki.Gimmick {
         text: string;
     }
 
+    /**
+    Parses HTML for the presence of gimmicks, collects the required data and
+    stores them internally.
+    */
     export class GimmickParser {
         domElement: JQuery;
         multilineGimmicks : MultilineGimmickReference[] = [];
@@ -74,15 +78,15 @@ module MDwiki.Gimmick {
 
         private getLinkGimmicks(): LinkGimmickReference[] {
             var linkGimmicks = [];
-            var $verbatim = this.domElement.find("a");
-            $.each($verbatim, (i, a) => {
-                var $a = $(a);
-                var href = $a.attr('href');
+            var $domLinks = this.domElement.find("a");
+            $.each($domLinks, (i, link) => {
+                var $link = $(link);
+                var href = $link.attr('href');
                 var opt = this.extractOptionsFromMagicString(href);
                 if (opt === null) return;
 
                 var lg = new LinkGimmickReference();
-                lg.text = $a.text();
+                lg.text = $link.text();
                 lg.options = opt.options;
                 lg.trigger = opt.trigger;
                 linkGimmicks.push(lg);

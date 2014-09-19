@@ -12,7 +12,7 @@ describe('GimmickParser', function() {
     });
 
     // finding checks
-    it('should not treat a singleline gimmick as a mulitline gimmick', function() {
+    it('should not treat a singleline gimmick as a multiline gimmick', function() {
         var $fixture = $('#multiline-gimmick, #singleline-gimmick-simpleoptions');
         var parser = new MDwiki.Gimmick.GimmickParser($fixture);
         parser.parse();
