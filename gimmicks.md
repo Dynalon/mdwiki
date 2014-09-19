@@ -212,13 +212,23 @@ To enable math for all sites, put the above link into the `navigation.md` file. 
 
 Note: The MathJax script is very large and loads some more dependencies like fonts. Using the math gimmick might result in slow page loads.
 
-You can then add math formulas by putting them between to `$$` signs and use LateX syntax:
+### Math inserted to new paragraph  
+
+You can add math formulas by putting them between to `$$` signs and use LateX syntax:
 
     $$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
 
 $$ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
 
-More examples:
+### Inline equations
+
+Inline equations can be inserted by surrounding them with the delimiters `\\(` and `\\)`:
+
+    Diameter \\( d \\) of a circle given area \\( A \\) can by obtained via \\(d=\sqrt{\frac{4A}{\pi}}\\)
+
+Will show as: Diameter \\( d \\) of a circle given area \\( A \\) can by obtained via \\(d=\sqrt{\frac{4A}{\pi}}\\)
+
+### Some examples
 
 $$ \frac{\partial \phi}{\partial x} \vert_b = \frac{1}{\Delta x/2}(\phi_0-\phi_b) $$
 
