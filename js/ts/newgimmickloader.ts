@@ -26,10 +26,11 @@ module MDwiki.Gimmick {
         constructor(name: string) {
             this.name = name;
         }
-        addHandler(handlerDescription: any) {
-            if (!handlerDescription.loadStage)
-                handlerDescription.loadStage = "gimmick";
-            this.handlers.push(handlerDescription);
+        addHandler(handler: any) {
+            if (!handler.trigger)
+                handler.trigger = this.name;
+                
+            this.handlers.push(handler);
         }
     }
 
