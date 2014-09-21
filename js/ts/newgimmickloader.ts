@@ -14,8 +14,16 @@ module MDwiki.Gimmick {
 
     export class GimmickHandler {
         callback: any;
-        loadStage:string = 'gimmick';
+        loadStage: string = 'gimmick';
         kind: string = 'link';
+        trigger: string;
+
+        constructor(kind?: string, callback?: Function) {
+            if (kind)
+                this.kind = kind;
+            if (callback)
+                this.callback = callback; 
+        }
     }
 
     export class Gimmick {
@@ -29,7 +37,7 @@ module MDwiki.Gimmick {
         addHandler(handler: any) {
             if (!handler.trigger)
                 handler.trigger = this.name;
-                
+
             this.handlers.push(handler);
         }
     }

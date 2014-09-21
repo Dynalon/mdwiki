@@ -1,3 +1,21 @@
+describe('GimmickHandler', function() {
+    // although tests seem useless/reduntant, we keep them in place
+    // to make sure our API exposed to users doesn't change
+    it('should have sane default values ', function() {
+        var handler = new MDwiki.Gimmick.GimmickHandler();
+        expect(handler.loadStage).toBe('gimmick');
+        expect(handler.kind).toBe('link');
+        expect(handler.callback).toBeUndefined();
+        expect(handler.trigger).toBeUndefined();
+    });
+    it('should populate from the constructor', function() {
+        var sampleFunction = function() {};
+        var handler = new MDwiki.Gimmick.GimmickHandler('singleline', sampleFunction);
+        expect(handler.kind).toBe('singleline');
+        expect(handler.callback).toBe(sampleFunction);
+    });
+});
+
 describe('Gimmick', function() {
 
     beforeEach(function() {
