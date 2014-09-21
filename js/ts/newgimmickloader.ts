@@ -13,11 +13,14 @@ module MDwiki.Gimmick {
     }
 
     export class GimmickHandler {
+        callback: any;
+        loadStage:string = 'gimmick';
+        kind: string = 'link';
     }
 
     export class Gimmick {
         name: string;
-        handlers: any[] = []
+        private handlers: GimmickHandler[] = [];
         init () {
         }
         constructor(name: string) {
