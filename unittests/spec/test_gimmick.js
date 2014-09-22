@@ -31,7 +31,7 @@ describe('Gimmick', function() {
         handler.kind = 'singleline';
         handler.trigger = 'math';
 
-        var gmck = new MDwiki.Gimmick.Gimmick();
+        var gmck = new MDwiki.Gimmick.Gimmick('somename');
         gmck.addHandler(handler);
 
         expect(gmck.handlers.length).toBe(1);

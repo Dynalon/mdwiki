@@ -28,10 +28,13 @@ module MDwiki.Gimmick {
 
     export class Gimmick {
         name: string;
-        private handlers: GimmickHandler[] = [];
+        handlers: GimmickHandler[] = [];
         init () {
         }
         constructor(name: string) {
+            if (arguments.length == 0) {
+                throw "name argument is required for the Gimmick constructor";
+            }
             this.name = name;
         }
         addHandler(handler: any) {
@@ -43,7 +46,23 @@ module MDwiki.Gimmick {
     }
 
     export class GimmickLoader {
-        private gimmicks: Gimmick[] = [];
+        private globalGimmickRegistry: Gimmick[] = [];
 
+        registerGimmick(gmck: Gimmick) {
+            this.globalGimmickRegistry.push(gmck);
+        }
+
+        // TODO write test
+        selectHandler(trigger: string, kind: string): Function[] {
+            var matching_trigger_and_kind = [];
+
+            this.globalGimmickRegistry.forEach(gmck => {
+                gmck.handlers.forEach(handler => {
+                    if (handler.trigger == trigger)
+                    matching_trigger_and_kind.push(handler);
+                });
+            });
+            return matching_trigger_and_kind;
+        }
     }
 }
