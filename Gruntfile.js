@@ -258,7 +258,7 @@ module.exports = function(grunt) {
                 showDir : true,
                 autoIndex: true,
                 defaultExt: "html",
-                runInBackground: false
+                runInBackground: true
             }
         }
     });
@@ -273,7 +273,7 @@ module.exports = function(grunt) {
         createIndex(grunt, 'debug');
     });
     grunt.registerTask('debug', [ 'jshint', 'typescript', 'less:dev', 'concat:dev', 'index_debug' ]);
-    grunt.registerTask('devel', [ 'debug', 'server', 'reload', 'watch' ]);
+    grunt.registerTask('devel', [ 'debug', 'server', 'unittests', 'reload', 'watch' ]);
     grunt.registerTask('unittests', [ 'copy:unittests', 'http-server:unittests' ]);
 
     grunt.registerTask('server', [ 'http-server:dev' ]);
