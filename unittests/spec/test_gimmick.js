@@ -45,7 +45,7 @@ describe('Gimmick', function() {
 
         expect(gmck.handlers[0].trigger).toBe('somename');
     });
-    it('should use the handlers trigger instead of the default one if it is given', function() {
+    it('should use the handler`s trigger name instead of the default one if it is given', function() {
         var handler = new MDwiki.Gimmick.GimmickHandler();
         handler.callback = function() {};
         handler.trigger = 'sometrigger';
@@ -54,5 +54,19 @@ describe('Gimmick', function() {
         gmck.addHandler(handler);
 
         expect(gmck.handlers[0].trigger).toBe('sometrigger');
+    });
+    it('should throw an exception if the constructor argument `name` is missing', function() {
+        // TODO
+    });
+    it('should allow a handler to optionally passed to the constructor', function() {
+        var handler = new MDwiki.Gimmick.GimmickHandler();
+        handler.callback = function() {};
+        var gmck = new MDwiki.Gimmick.Gimmick('somename', handler);
+        expect(gmck.handlers.length).toBe(1);
+
+        // now check that we can also create a gimmick without adding a handler
+        // in the constructor
+        gmck = new MDwiki.Gimmick.Gimmick('othername');
+        expect(gmck.handlers.length).toBe(0);
     });
 });

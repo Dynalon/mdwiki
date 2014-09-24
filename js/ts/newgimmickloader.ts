@@ -31,11 +31,15 @@ module MDwiki.Gimmick {
         handlers: GimmickHandler[] = [];
         init () {
         }
-        constructor(name: string) {
+        // TODO test passing of 2nd paramter
+        constructor(name: string, handler?: Function) {
             if (arguments.length == 0) {
                 throw "name argument is required for the Gimmick constructor";
             }
             this.name = name;
+
+            if (handler)
+                this.addHandler(handler);
         }
         addHandler(handler: any) {
             if (!handler.trigger)
@@ -52,8 +56,7 @@ module MDwiki.Gimmick {
             this.globalGimmickRegistry.push(gmck);
         }
 
-        // TODO write test
-        selectHandler(trigger: string, kind: string): Function[] {
+        selectHandler(kind: string, trigger: string): Function[] {
             var matching_trigger_and_kind = [];
 
             this.globalGimmickRegistry.forEach(gmck => {
