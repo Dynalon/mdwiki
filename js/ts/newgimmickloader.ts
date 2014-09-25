@@ -53,9 +53,14 @@ module MDwiki.Gimmick {
         private globalGimmickRegistry: Gimmick[] = [];
 
         registerGimmick(gmck: Gimmick) {
+            var already_registered = this.globalGimmickRegistry.some(g => g.name == gmck.name);
+            if (already_registered)
+                throw "A gimmick by that name is already registered";
+
             this.globalGimmickRegistry.push(gmck);
         }
 
+        // TODO API_SEALING make private
         selectHandler(kind: string, trigger: string): Function[] {
             var matching_trigger_and_kind = [];
 
@@ -67,5 +72,10 @@ module MDwiki.Gimmick {
             });
             return matching_trigger_and_kind;
         }
+
+        initializeGimmick(kind: string, trigger: string) {
+            var gimmick
+        }
+
     }
 }

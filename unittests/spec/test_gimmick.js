@@ -56,7 +56,9 @@ describe('Gimmick', function() {
         expect(gmck.handlers[0].trigger).toBe('sometrigger');
     });
     it('should throw an exception if the constructor argument `name` is missing', function() {
-        // TODO
+        expect(function() {
+            new MDwiki.Gimmick.Gimmick();
+        }).toThrow();
     });
     it('should allow a handler to optionally passed to the constructor', function() {
         var handler = new MDwiki.Gimmick.GimmickHandler();

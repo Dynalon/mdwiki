@@ -9,8 +9,9 @@ describe('GimmickLoader', function() {
         var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
         var handler = new MDwiki.Gimmick.GimmickHandler('multiline', function() {});
         gmck.addHandler(handler);
-        loader.registerGimmick(gmck);
-        // TODO add expection - i.e. does not throw an error
+        expect(function() {
+            loader.registerGimmick(gmck);
+        }).not.toThrow();
     });
 
     it('should be able to select all gimmicks that fit a kind and trigger', function() {
@@ -24,5 +25,13 @@ describe('GimmickLoader', function() {
         var handlers = loader.selectHandler('multiline', 'somegimmick');
         expect(handlers.length).toBe(1);
         expect(handlers[0]).toBe(handler);
+    });
+
+    it('should throw an error if a gimmick with same name is already registered', function() {
+        var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
+        loader.registerGimmick(gmck);
+        expect(function() {
+            loader.registerGimmick(gmck);
+        }).toThrow();
     });
 });
