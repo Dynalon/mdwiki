@@ -61,20 +61,39 @@ module MDwiki.Gimmick {
         }
 
         // TODO API_SEALING make private
-        selectHandler(kind: string, trigger: string): Function[] {
-            var matching_trigger_and_kind = [];
+        selectHandler(kind: string, trigger: string): Function {
+            var matching_trigger_and_kind;
 
             this.globalGimmickRegistry.forEach(gmck => {
                 gmck.handlers.forEach(handler => {
                     if (handler.trigger == trigger)
-                    matching_trigger_and_kind.push(handler);
+                        matching_trigger_and_kind = handler;
                 });
             });
-            return matching_trigger_and_kind;
+
+            if (!matching_trigger_and_kind)
+                return null;
+            else
+                return matching_trigger_and_kind;
         }
 
-        initializeGimmick(kind: string, trigger: string) {
-            var gimmick
+        private findGimmick(name:string): Gimmick {
+            var found = this.globalGimmickRegistry.filter(gmck => {
+                return gmck.name == name;
+            });
+            if (found.length == 0)
+                return null
+            else
+                return found[0];
+        }
+
+        initializeGimmick(name: string) {
+            var gmck = this.findGimmick(name);
+
+            if (gmck == null)
+                return;
+
+            gmck.init();
         }
 
     }
