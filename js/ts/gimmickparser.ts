@@ -26,16 +26,16 @@ module MDwiki.Gimmick {
     */
     export class GimmickParser {
         domElement: JQuery;
-        multilineGimmicks : MultilineGimmickReference[] = [];
-        singlelineGimmicks: SinglelineGimmickReference[] = [];
-        linkGimmicks: any[] = [];
+        multilineReferences: MultilineGimmickReference[] = [];
+        singlelineReferences: SinglelineGimmickReference[] = [];
+        linkReferences: any[] = [];
         constructor(domElement: any) {
             this.domElement = $(domElement);
         }
         parse() {
-            this.multilineGimmicks = this.getMultilineGimmicks();
-            this.singlelineGimmicks = this.getSinglelineGimmicks();
-            this.linkGimmicks = this.getLinkGimmicks();
+            this.multilineReferences = this.getMultilineGimmicks();
+            this.singlelineReferences = this.getSinglelineGimmicks();
+            this.linkReferences = this.getLinkGimmicks();
         }
 
         // magic string: gimmick:somegimmck({foo: 'bar'})
