@@ -26,6 +26,17 @@ describe('GimmickLoader', function() {
         expect(selected_handler).toBe(handler);
         expect(selected_handler).toBe(handler);
     });
+    it('should not select a handler that fits the trigger but not the kind', function() {
+        var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
+        var callback = function() {};
+        var handler = new MDwiki.Gimmick.GimmickHandler('singleline');
+        handler.callback = callback;
+        gmck.addHandler(handler);
+        loader.registerGimmick(gmck);
+
+        var selected_handler = loader.selectHandler('multiline', 'somegimmick');
+        expect(selected_handler).toBeNull();
+    });
 
     it('should throw an error if a gimmick with same name is already registered', function() {
         var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');

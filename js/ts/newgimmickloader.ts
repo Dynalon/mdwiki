@@ -66,7 +66,7 @@ module MDwiki.Gimmick {
 
             this.globalGimmickRegistry.forEach(gmck => {
                 gmck.handlers.forEach(handler => {
-                    if (handler.trigger == trigger)
+                    if (handler.trigger == trigger && handler.kind == kind)
                         matching_trigger_and_kind = handler;
                 });
             });
@@ -77,7 +77,7 @@ module MDwiki.Gimmick {
                 return matching_trigger_and_kind;
         }
 
-        private findGimmick(name:string): Gimmick {
+        private findGimmick(name: string): Gimmick {
             var found = this.globalGimmickRegistry.filter(gmck => {
                 return gmck.name == name;
             });
