@@ -5,13 +5,22 @@ describe('GimmickLoader', function() {
         loader = new MDwiki.Gimmick.GimmickLoader();
     });
 
-    it('should be able for a gimmick to register', function() {
-        var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
-        var handler = new MDwiki.Gimmick.GimmickHandler('multiline', function() {});
-        gmck.addHandler(handler);
-        expect(function() {
+    describe('Gimmick registration', function() {
+        it('should be able for a gimmick to register', function() {
+            var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
+            var handler = new MDwiki.Gimmick.GimmickHandler('multiline', function() {});
+            gmck.addHandler(handler);
+            expect(function() {
+                loader.registerGimmick(gmck);
+            }).not.toThrow();
+        });
+        it('should throw an error if a gimmick with same name is already registered', function() {
+            var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
             loader.registerGimmick(gmck);
-        }).not.toThrow();
+            expect(function() {
+                loader.registerGimmick(gmck);
+            }).toThrow();
+        });
     });
 
     describe('Handler selection', function() {
@@ -42,13 +51,32 @@ describe('GimmickLoader', function() {
         });
     });
 
-    it('should throw an error if a gimmick with same name is already registered', function() {
-        var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
-        loader.registerGimmick(gmck);
-        expect(function() {
+    describe('Gimmick execution', function() {
+        beforeEach(function() {
+
+        });
+
+        it('should execute a single line gimmick', function() {
+            var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
+            var callback = function(trigger, options, domElement) {
+                expect(trigger).toBe('somegimmick');
+            };
+            var handler = new MDwiki.Gimmick.GimmickHandler('singleline');
+            handler.callback = callback;
+            gmck.addHandler(handler);
             loader.registerGimmick(gmck);
-        }).toThrow();
+
+
+            var ref = new MDwiki.Gimmick.SinglelineGimmickReference();
+            ref.trigger = 'somegimmick';
+            ref.domElement = $("TODO");
+            ref.options = {};
+
+            loader.runSinglelineGimmicks([ref]);
+        });
+
     });
+
 
     it('can initialize a registered gimmick', function() {
         var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');

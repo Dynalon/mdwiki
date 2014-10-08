@@ -6,7 +6,7 @@ module MDwiki.Gimmick {
         (trigger: string, content: string, options: any, domElement: any): void;
     }
     export interface ISinglelineGimmickCallback {
-        (trigger: string, content: string, options: any, domElement: any): void;
+        (trigger: string, options: any, domElement: any): void;
     }
     export interface ILinkGimmickHandler {
         (trigger: string, options: any, domElement:any)
@@ -17,6 +17,10 @@ module MDwiki.Gimmick {
         loadStage: string = 'gimmick';
         kind: string = 'link';
         trigger: string;
+
+        // reference to the gimmick the handler belongs,
+        // INTERNAL
+        gimmick: Gimmick;
 
         constructor(kind?: string, callback?: Function) {
             if (kind)
@@ -45,7 +49,16 @@ module MDwiki.Gimmick {
             if (!handler.trigger)
                 handler.trigger = this.name;
 
+            handler.gimmick = this;
             this.handlers.push(handler);
+        }
+        findHandler(kind: string, trigger: string) {
+            var match = null;
+            this.handlers.forEach(handler => {
+                if (handler.trigger == trigger && handler.kind == kind)
+                    match = handler;
+            });
+            return match;
         }
     }
 
@@ -61,20 +74,16 @@ module MDwiki.Gimmick {
         }
 
         // TODO API_SEALING make private
-        selectHandler(kind: string, trigger: string): Function {
-            var matching_trigger_and_kind;
+        selectHandler(kind: string, trigger: string): GimmickHandler {
+            var matching_trigger_and_kind = null;
 
             this.globalGimmickRegistry.forEach(gmck => {
-                gmck.handlers.forEach(handler => {
-                    if (handler.trigger == trigger && handler.kind == kind)
-                        matching_trigger_and_kind = handler;
-                });
+                var handler = gmck.findHandler(kind, trigger);
+                if (handler != null)
+                    matching_trigger_and_kind = handler;
             });
 
-            if (!matching_trigger_and_kind)
-                return null;
-            else
-                return matching_trigger_and_kind;
+            return matching_trigger_and_kind;
         }
 
         private findGimmick(name: string): Gimmick {
@@ -94,6 +103,16 @@ module MDwiki.Gimmick {
                 return;
 
             gmck.init();
+        }
+
+        runSinglelineGimmicks(references: SinglelineGimmickReference[]) {
+            references.forEach(ref => {
+                this.runSinglelineGimmick(ref);
+            });
+        }
+        runSinglelineGimmick(ref: SinglelineGimmickReference) {
+            var handler = this.selectHandler('singleline', ref.trigger);
+            handler.callback(ref.trigger, ref.options, ref.domElement);
         }
 
     }
