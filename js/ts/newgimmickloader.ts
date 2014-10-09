@@ -13,7 +13,7 @@ module MDwiki.Gimmick {
     }
 
     export class GimmickHandler {
-        callback: any;
+        callback: Function;
         loadStage: string = 'gimmick';
         kind: string = 'link';
         trigger: string;
@@ -22,7 +22,6 @@ module MDwiki.Gimmick {
         public get gimmick (): Gimmick {
             return this.gimmickReference;
         }
-        // INTERNAL
         gimmickReference: Gimmick;
 
         constructor(kind?: string, callback?: Function) {
@@ -39,7 +38,7 @@ module MDwiki.Gimmick {
         init () {
         }
         // TODO test passing of 2nd paramter
-        constructor(name: string, handler?: Function) {
+        constructor(name: string, handler?: GimmickHandler) {
             if (arguments.length == 0) {
                 throw "name argument is required for the Gimmick constructor";
             }
@@ -48,7 +47,7 @@ module MDwiki.Gimmick {
             if (handler)
                 this.addHandler(handler);
         }
-        addHandler(handler: any) {
+        addHandler(handler: GimmickHandler) {
             if (!handler.trigger)
                 handler.trigger = this.name;
 
@@ -73,16 +72,7 @@ module MDwiki.Gimmick {
             this.domElement = domElement || $(document);
         }
 
-        registerGimmick(gmck: Gimmick) {
-            var already_registered = this.globalGimmickRegistry.some(g => g.name == gmck.name);
-            if (already_registered)
-                throw "A gimmick by that name is already registered";
-
-            this.globalGimmickRegistry.push(gmck);
-        }
-
-        // TODO API_SEALING make private
-        selectHandler(kind: string, trigger: string): GimmickHandler {
+        private selectHandler(kind: string, trigger: string): GimmickHandler {
             var matching_trigger_and_kind = null;
 
             this.globalGimmickRegistry.forEach(gmck => {
@@ -104,6 +94,14 @@ module MDwiki.Gimmick {
                 return found[0];
         }
 
+        registerGimmick(gmck: Gimmick) {
+            var already_registered = this.globalGimmickRegistry.some(g => g.name == gmck.name);
+            if (already_registered)
+                throw "A gimmick by that name is already registered";
+
+            this.globalGimmickRegistry.push(gmck);
+        }
+
         initializeGimmick(name: string) {
             var gmck = this.findGimmick(name);
 
@@ -118,7 +116,7 @@ module MDwiki.Gimmick {
                 this.runSinglelineGimmick(ref);
             });
         }
-        runSinglelineGimmick(ref: SinglelineGimmickReference) {
+        private runSinglelineGimmick(ref: SinglelineGimmickReference) {
             var handler = this.selectHandler('singleline', ref.trigger);
             handler.callback(ref.trigger, ref.options, ref.domElement);
         }
