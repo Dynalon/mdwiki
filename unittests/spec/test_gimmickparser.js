@@ -1,5 +1,5 @@
 describe('GimmickParser', function() {
-
+    'use strict';
     beforeEach(function() {
         loadFixtures('gimmick.html');
     });

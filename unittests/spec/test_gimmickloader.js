@@ -1,5 +1,5 @@
 describe('GimmickLoader', function() {
-
+    'use strict';
     var loader;
     beforeEach(function() {
         loader = new MDwiki.Gimmick.GimmickLoader();
@@ -83,6 +83,7 @@ describe('GimmickLoader', function() {
 
     // TODO move into spereate integration tests file
     describe('GimmickParser integration', function () {
+        var gmck;
         beforeEach(function() {
             gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
             loadFixtures('gimmick.html');

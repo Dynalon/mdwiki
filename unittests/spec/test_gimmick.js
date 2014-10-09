@@ -1,4 +1,5 @@
 describe('GimmickHandler', function() {
+    'use strict';
     // although tests seem useless/reduntant, we keep them in place
     // to make sure our API exposed to users doesn't change
     it('should have sane default values ', function() {
@@ -75,5 +76,6 @@ describe('Gimmick', function() {
         var handler = new MDwiki.Gimmick.GimmickHandler();
         var gmck = new MDwiki.Gimmick.Gimmick('somename', handler);
         expect(handler.gimmick).toBe(gmck);
+
     });
 });
