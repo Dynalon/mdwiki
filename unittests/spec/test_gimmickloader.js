@@ -52,29 +52,32 @@ describe('GimmickLoader', function() {
     });
 
     describe('Gimmick execution', function() {
+        var gmck;
         beforeEach(function() {
-
+            gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
         });
 
         it('should execute a single line gimmick', function() {
-            var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
+            var dummy_dom_element;
+            var ref;
             var callback = function(trigger, options, domElement) {
                 expect(trigger).toBe('somegimmick');
+                expect(domElement).toBe(dummy_dom_element);
+                expect(options).toBe(ref.options);
             };
             var handler = new MDwiki.Gimmick.GimmickHandler('singleline');
             handler.callback = callback;
             gmck.addHandler(handler);
             loader.registerGimmick(gmck);
 
-
-            var ref = new MDwiki.Gimmick.SinglelineGimmickReference();
+            ref = new MDwiki.Gimmick.SinglelineGimmickReference();
+            dummy_dom_element = $("<div/>");
             ref.trigger = 'somegimmick';
-            ref.domElement = $("TODO");
+            ref.domElement = dummy_dom_element;
             ref.options = {};
 
             loader.runSinglelineGimmicks([ref]);
         });
-
     });
 
 

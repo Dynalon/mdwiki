@@ -71,4 +71,9 @@ describe('Gimmick', function() {
         gmck = new MDwiki.Gimmick.Gimmick('othername');
         expect(gmck.handlers.length).toBe(0);
     });
+    it('should set a reference to an added handler back to the gimmick', function() {
+        var handler = new MDwiki.Gimmick.GimmickHandler();
+        var gmck = new MDwiki.Gimmick.Gimmick('somename', handler);
+        expect(handler.gimmick).toBe(gmck);
+    });
 });
