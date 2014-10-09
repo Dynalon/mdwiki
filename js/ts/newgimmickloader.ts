@@ -122,6 +122,5 @@ module MDwiki.Gimmick {
             var handler = this.selectHandler('singleline', ref.trigger);
             handler.callback(ref.trigger, ref.options, ref.domElement);
         }
-
     }
 }
