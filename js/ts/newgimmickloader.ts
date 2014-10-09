@@ -19,8 +19,11 @@ module MDwiki.Gimmick {
         trigger: string;
 
         // reference to the gimmick the handler belongs,
+        public get gimmick (): Gimmick {
+            return this.gimmickReference;
+        }
         // INTERNAL
-        gimmick: Gimmick;
+        gimmickReference: Gimmick;
 
         constructor(kind?: string, callback?: Function) {
             if (kind)
