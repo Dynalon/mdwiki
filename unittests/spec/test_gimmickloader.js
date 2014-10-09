@@ -55,6 +55,7 @@ describe('GimmickLoader', function() {
         var gmck;
         beforeEach(function() {
             gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
+            loadFixtures('gimmick.html');
         });
 
         it('should execute a single line gimmick', function() {
@@ -79,6 +80,26 @@ describe('GimmickLoader', function() {
             loader.runSinglelineGimmicks([ref]);
         });
     });
+
+    // TODO move into spereate integration tests file
+    describe('GimmickParser integration', function () {
+        it('should execute singleline gimmicks', function() {
+            var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
+            var handler = new MDwiki.Gimmick.GimmickHandler();
+            handler.callback = function(trigger, options, domElement) {
+                expect(trigger).toBe('somegimmick');
+            };
+            gmck.addHandler(handler);
+            loader = new MDwiki.Gimmick.GimmickLoader();
+            loader.registerGimmick(gmck);
+
+            var $slg = $('#singleline-gimmick-nooptions');
+            var parser = new MDwiki.Gimmick.GimmickParser($slg);
+            parser.parse();
+            loader.runSinglelineGimmicks(parser.singlelineReferences);
+        });
+    });
+
 
 
     it('can initialize a registered gimmick', function() {

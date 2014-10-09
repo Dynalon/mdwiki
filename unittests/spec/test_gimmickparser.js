@@ -1,17 +1,9 @@
 describe('GimmickParser', function() {
 
-/*
-    testGimmick.addHandler('multiline', {
-        namepsace: 'g',
-        trigger: 'somegimmick',
-        callback: myCallback
-    });
-*/
     beforeEach(function() {
         loadFixtures('gimmick.html');
     });
 
-    // finding checks
     it('should not treat a singleline gimmick as a multiline gimmick', function() {
         var $fixture = $('#multiline-gimmick, #singleline-gimmick-simpleoptions');
         var parser = new MDwiki.Gimmick.GimmickParser($fixture);

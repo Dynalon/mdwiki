@@ -52,7 +52,7 @@ module MDwiki.Gimmick {
             if (!handler.trigger)
                 handler.trigger = this.name;
 
-            handler.gimmick = this;
+            handler.gimmickReference = this;
             this.handlers.push(handler);
         }
         findHandler(kind: string, trigger: string) {
@@ -67,6 +67,11 @@ module MDwiki.Gimmick {
 
     export class GimmickLoader {
         private globalGimmickRegistry: Gimmick[] = [];
+        private domElement: JQuery;
+
+        constructor (domElement) {
+            this.domElement = domElement || $(document);
+        }
 
         registerGimmick(gmck: Gimmick) {
             var already_registered = this.globalGimmickRegistry.some(g => g.name == gmck.name);
