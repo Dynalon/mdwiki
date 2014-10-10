@@ -13,3 +13,4 @@ typings/
 unittests/lib/
 .DS_Store
 .AppleDouble
+.idea/
