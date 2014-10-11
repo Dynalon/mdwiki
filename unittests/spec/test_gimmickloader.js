@@ -81,52 +81,6 @@ describe('GimmickLoader', function() {
         });
     });
 
-    // TODO move into spereate integration tests file
-    describe('GimmickParser integration', function () {
-        var gmck;
-        beforeEach(function() {
-            gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
-            loadFixtures('gimmick.html');
-        });
-
-        function setupGimmick(callbackFn) {
-            var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
-            var handler = new MDwiki.Gimmick.GimmickHandler('singleline');
-            handler.callback = callbackFn;
-            gmck.addHandler(handler);
-            loader = new MDwiki.Gimmick.GimmickLoader();
-            loader.registerGimmick(gmck);
-            return gmck;
-        }
-        it('should execute singleline gimmicks', function() {
-            var callback = function(trigger, options, domElement) {
-                expect(trigger).toBe('somegimmick');
-            };
-            setupGimmick(callback);
-
-            var $slg = $('#singleline-gimmick-simpleoptions');
-            var parser = new MDwiki.Gimmick.GimmickParser($slg);
-            parser.parse();
-            loader.runSinglelineGimmicks(parser.singlelineReferences);
-        });
-
-        it('should initialize a gimmick prior to calling it', function() {
-            var init_called = false;
-            var callback = function(trigger, options, domElement) {
-                expect(init_called).toBe(true);
-            };
-            var gmck = setupGimmick(callback);
-            gmck.init = function() {
-                init_called = true;
-            };
-            var $slg = $('#singleline-gimmick-nooptions');
-            var parser = new MDwiki.Gimmick.GimmickParser($slg);
-            parser.parse();
-            loader.initializeGimmick('somegimmick');
-            loader.runSinglelineGimmicks(parser.singlelineReferences);
-        });
-    });
-
     it('can initialize a registered gimmick', function() {
         var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
         var wasCalled = false;

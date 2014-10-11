@@ -120,5 +120,15 @@ module MDwiki.Gimmick {
             var handler = this.selectHandler('singleline', ref.trigger);
             handler.callback(ref.trigger, ref.options, ref.domElement);
         }
+        runMultilineGimmicks(references: MultilineGimmickReference[]) {
+            references.forEach(ref => {
+                this.runMultilineGimmick(ref);
+            });
+        }
+        private runMultilineGimmick(ref: MultilineGimmickReference) {
+            var handler = this.selectHandler('multiline', ref.trigger);
+            // TODO trim whitespace & retrieve content
+            handler.callback(ref.trigger, ref.text, ref.options, ref.domElement);
+        }
     }
 }
