@@ -31,18 +31,31 @@ describe('GimmickLoader/GimmickParser integration', function () {
 
     it('should execute a multiline gimmick', function() {
         var $mlg = $('#multiline-gimmick');
-        var callback = function(trigger, content, options, domElement) {
+        var callback = function(trigger, text, options, domElement) {
             expect(trigger).toBe('somegimmick');
             // TODO find assertion that checks for nonempty string
-            expect(content).not.toBe(undefined);
-            expect(content).not.toBe(null);
-            expect(content).not.toBe('');
+            expect(text).not.toBe(undefined);
+            expect(text).not.toBe(null);
+            expect(text).not.toBe('');
             expect(domElement[0]).toBe($mlg.find('code')[0]);
         };
         setupGimmick(callback, 'multiline');
         var parser = new MDwiki.Gimmick.GimmickParser($mlg);
         parser.parse();
         loader.runMultilineGimmicks(parser.multilineReferences);
+    });
+
+    it('should execute a link gimmick', function() {
+        var $lg = $('#link-gimmick-simpleoptions');
+        var callback = function(trigger, text, options, domElement) {
+            expect(trigger).toBe('somegimmick');
+            expect(text).toBe('This is a text.');
+            expect(domElement[0]).toBe($lg.find('a')[0]);
+        };
+        setupGimmick(callback, 'link');
+        var parser = new MDwiki.Gimmick.GimmickParser($lg);
+        parser.parse();
+        loader.runLinkGimmicks(parser.linkReferences);
     });
 
     it('should initialize a gimmick prior to calling it', function() {

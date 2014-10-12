@@ -9,7 +9,7 @@ module MDwiki.Gimmick {
         (trigger: string, options: any, domElement: any): void;
     }
     export interface ILinkGimmickHandler {
-        (trigger: string, options: any, domElement:any)
+        (trigger: string, text: string, options: any, domElement:any)
     }
 
     export class GimmickHandler {
@@ -128,6 +128,15 @@ module MDwiki.Gimmick {
         private runMultilineGimmick(ref: MultilineGimmickReference) {
             var handler = this.selectHandler('multiline', ref.trigger);
             // TODO trim whitespace & retrieve content
+            handler.callback(ref.trigger, ref.text, ref.options, ref.domElement);
+        }
+        runLinkGimmicks(references: LinkGimmickReference[]) {
+            references.forEach(ref => {
+                this.runLinkGimmick(ref);
+            });
+        }
+        private runLinkGimmick(ref: LinkGimmickReference) {
+            var handler = <GimmickHandler> this.selectHandler('link', ref.trigger);
             handler.callback(ref.trigger, ref.text, ref.options, ref.domElement);
         }
     }
