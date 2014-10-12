@@ -77,6 +77,9 @@ describe('GimmickParser', function() {
             var parser = new MDwiki.Gimmick.GimmickParser($lg);
             parser.parse();
             expect(parser.linkReferences.length).toBe(1);
+            var ref = parser.linkReferences[0];
+            expect(ref.text).toBe("This is a text.");
+            expect(ref.domElement[0]).toBe($lg.find('a')[0]);
         });
         it('should be able to retrieve the trigger of a link gimmick', function() {
             var $lg = $('#link-gimmick-simpleoptions');

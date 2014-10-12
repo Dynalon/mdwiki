@@ -89,6 +89,7 @@ module MDwiki.Gimmick {
                 lg.text = $link.text();
                 lg.options = opt.options;
                 lg.trigger = opt.trigger;
+                lg.domElement = $(link);
                 linkGimmicks.push(lg);
             });
             return linkGimmicks;
