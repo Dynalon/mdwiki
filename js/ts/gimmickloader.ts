@@ -12,7 +12,7 @@ interface String {
 }
 
 module MDwiki.Core {
-    export class ScriptResource {
+     class ScriptResource {
         constructor (
             public url: string,
             public loadstage: string = 'skel_ready',
@@ -20,7 +20,7 @@ module MDwiki.Core {
         ) { }
     }
 
-    export class CssResource {
+     class CssResource {
         constructor (
             public url: string,
             public finishstage: string = 'gimmick'
@@ -28,15 +28,15 @@ module MDwiki.Core {
     }
 
     // TODO rename to ILinkGimimckCallback
-    export interface IGimmickCallback {
+     interface IGimmickCallback {
         ($links: any, options: any, trigger: string): void;
     }
 
 
-    export interface IMultilineGimmickCallback {
+     interface IMultilineGimmickCallback {
         (trigger: string, content: string, options: any, domElement: any): void;
     }
-    export interface ISinglelineGimmickCallback {
+     interface ISinglelineGimmickCallback {
         (trigger: string, content: string, options: any, domElement: any): void;
     }
 
@@ -50,7 +50,7 @@ module MDwiki.Core {
         ) { }
     }
 
-    export class GimmickHandler {
+     class GimmickHandler {
         constructor(
             public trigger: string,
             public handler: IGimmickCallback,
@@ -58,7 +58,7 @@ module MDwiki.Core {
         ) {}
     }
 
-    export class Module {
+     class Module {
         init() { }
 
         private registerScriptResource (res: ScriptResource) {
@@ -92,7 +92,7 @@ module MDwiki.Core {
         }
     }
 
-    export class Gimmick extends Module {
+     class Gimmick extends Module {
         // property with public get and private set
         Handlers: GimmickHandler[] = [];
         // only gets called if any of the gimmick's trigger are active
@@ -103,7 +103,7 @@ module MDwiki.Core {
         }
     }
 
-    export class NewGimmick extends Module {
+     class NewGimmick extends Module {
         name: string;
         handlers: any[] = []
         init () {
@@ -164,7 +164,7 @@ module MDwiki.Core {
     }
 
 
-    export class GimmickLoader {
+     class GimmickLoader {
         // all available gimmicks
         private registeredModules: Module[] = [];
         // all really required (existing on page) gimmicks
@@ -184,8 +184,8 @@ module MDwiki.Core {
           // this.gimmicks.push(gmck);
         }
         registerBuiltInGimmicks() {
-           var themechooser = new ThemeChooserGimmick();
-           this.registerGimmick(themechooser);
+           //var themechooser = new ThemeChooserGimmick();
+           //this.registerGimmick(themechooser);
         }
         // TODO make private
         /*

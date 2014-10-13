@@ -1,12 +1,12 @@
 ///<reference path="../../typings/tsd.d.ts" />
 declare var marked: any;
 import Logger = MDwiki.Util.Logger;
-
+import Gimmick = MDwiki.Gimmick;
 module MDwiki.Core {
 
     export class Wiki {
         public stages: StageChain = new StageChain();
-        public gimmicks: GimmickLoader = new GimmickLoader();
+        public gimmicks: Gimmick.GimmickLoader = new Gimmick.GimmickLoader($(document));
 
         constructor() {
             var stage_names = (['init','load','transform','ready','skel_ready',
@@ -122,9 +122,20 @@ module MDwiki.Core {
 
         private registerGimmickLoad() {
             $.md.stage('ready').subscribe((done: DoneCallback) => {
-                this.gimmicks.initModules();
-                this.gimmicks.initGimmicks();
-                this.gimmicks.loadGimmicks();
+                var parser = new Gimmick.GimmickParser(document);
+                parser.parse();
+                parser.singlelineReferences.forEach((ref) => {
+                    this.gimmicks.initializeGimmick(ref.trigger);
+                });
+                parser.multilineReferences.forEach((ref) => {
+                    this.gimmicks.initializeGimmick(ref.trigger);
+                });
+                parser.linkReferences.forEach((ref) => {
+                    this.gimmicks.initializeGimmick(ref.trigger);
+                });
+                this.gimmicks.runSinglelineGimmicks(parser.singlelineReferences);
+                this.gimmicks.runMultilineGimmicks(parser.multilineReferences);
+                this.gimmicks.runLinkGimmicks(parser.linkReferences);
                 done();
             });
 

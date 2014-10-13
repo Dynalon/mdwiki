@@ -81,7 +81,7 @@ module MDwiki.Core {
             return $('<link rel="stylesheet" type="text/css">').attr('href', url);
         }
     }
-
+/*
     export class ThemeChooserGimmick extends Gimmick {
         constructor() {
             super();
@@ -106,7 +106,7 @@ module MDwiki.Core {
 
         }
     };
-
+*/
     var set_theme = function($links, opt, text, tc: ThemeChooser) {
         opt.name = opt.name || text;
         $links.each(function (i, link) {

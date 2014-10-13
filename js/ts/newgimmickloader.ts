@@ -89,7 +89,7 @@ module MDwiki.Gimmick {
                 return gmck.name == name;
             });
             if (found.length == 0)
-                return null
+                return null;
             else
                 return found[0];
         }
