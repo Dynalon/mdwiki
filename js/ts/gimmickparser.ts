@@ -78,18 +78,18 @@ module MDwiki.Gimmick {
 
         private getLinkGimmicks(): LinkGimmickReference[] {
             var linkGimmicks = [];
-            var $domLinks = this.domElement.find("a");
+            var $domLinks =  this.domElement.find("a:icontains(gimmick:)");
             $.each($domLinks, (i, link) => {
                 var $link = $(link);
-                var href = $link.attr('href');
-                var opt = this.extractOptionsFromMagicString(href);
+                var text = $link.text();
+                var opt = this.extractOptionsFromMagicString(text);
                 if (opt === null) return;
 
                 var lg = new LinkGimmickReference();
-                lg.text = $link.text();
+                lg.text = $link.attr('href');
                 lg.options = opt.options;
                 lg.trigger = opt.trigger;
-                lg.domElement = $(link);
+                lg.domElement = $link;
                 linkGimmicks.push(lg);
             });
             return linkGimmicks;
