@@ -70,6 +70,15 @@ describe('GimmickParser', function() {
             var first_match = parser.singlelineReferences[0];
             expect(first_match.options).toBeNull();
         });
+        it('should be able to extract the content text', function() {
+            var $slg= $('#embedded-gimmick-with-whitespace');
+            var parser = new MDwiki.Gimmick.GimmickParser($slg);
+            parser.parse();
+            expect(parser.singlelineReferences.length).toBe(1);
+            var first_match = parser.singlelineReferences[0];
+            expect(first_match.text).toBe("This is an important note");
+        });
+
     });
     describe('link gimmick', function() {
         it('should find a link gimmick', function() {

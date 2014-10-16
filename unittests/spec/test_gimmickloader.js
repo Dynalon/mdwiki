@@ -61,7 +61,7 @@ describe('GimmickLoader', function() {
         it('should execute a single line gimmick', function() {
             var dummy_dom_element;
             var ref;
-            var callback = function(trigger, options, domElement) {
+            var callback = function(trigger, content, options, domElement) {
                 expect(trigger).toBe('somegimmick');
                 expect(domElement).toBe(dummy_dom_element);
                 expect(options).toBe(ref.options);

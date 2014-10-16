@@ -10,6 +10,7 @@ module MDwiki.Gimmick {
     }
     export class SinglelineGimmickReference {
         trigger: string;
+        text: string;
         domElement: JQuery;
         options: any;
     }
@@ -40,7 +41,7 @@ module MDwiki.Gimmick {
 
         // magic string: gimmick:somegimmck({foo: 'bar'})
         private extractOptionsFromMagicString(s: string): any {
-            var r = /gimmick\s?:\s*([^(\s]*)\s*\(?\s*{?(.*)\s*}?\)?/i;
+            var r = /gimmick\s?:\s*([^(\s]*)\s*\(?\s*{?(.*)\s*}?\)?(.*)/i;
             var matches = r.exec(s);
             if (matches === null || matches[1] === undefined) {
                 return null;
@@ -73,7 +74,8 @@ module MDwiki.Gimmick {
                     $.error('error parsing argument of gimmick: ' + s + ' giving error: ' + err);
                 }
             }
-            return { options: args, trigger: trigger };
+            var additionalText = matches[3];
+            return { options: args, trigger: trigger, additionalText: additionalText };
         }
 
         private getLinkGimmicks(): LinkGimmickReference[] {
@@ -106,6 +108,7 @@ module MDwiki.Gimmick {
                 var opt = this.extractOptionsFromMagicString(gimmickstring);
                 slg.trigger = opt.trigger;
                 slg.options = opt.options;
+                slg.text = opt.additionalText;
                 singlelineGimmicks.push(slg);
             });
             return singlelineGimmicks;

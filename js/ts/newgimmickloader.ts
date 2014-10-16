@@ -6,7 +6,7 @@ module MDwiki.Gimmick {
         (trigger: string, content: string, options: any, domElement: any): void;
     }
     export interface ISinglelineGimmickCallback {
-        (trigger: string, options: any, domElement: any): void;
+        (trigger: string, content: string, options: any, domElement: any): void;
     }
     export interface ILinkGimmickHandler {
         (trigger: string, text: string, options: any, domElement:any)
@@ -118,7 +118,7 @@ module MDwiki.Gimmick {
         }
         private runSinglelineGimmick(ref: SinglelineGimmickReference) {
             var handler = this.selectHandler('singleline', ref.trigger);
-            handler.callback(ref.trigger, ref.options, ref.domElement);
+            handler.callback(ref.trigger, ref.text, ref.options, ref.domElement);
         }
         runMultilineGimmicks(references: MultilineGimmickReference[]) {
             references.forEach(ref => {
