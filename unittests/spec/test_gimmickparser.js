@@ -78,6 +78,14 @@ describe('GimmickParser', function() {
             var first_match = parser.singlelineReferences[0];
             expect(first_match.text).toBe("This is an important note");
         });
+        it('should be able to extract the content text from a oneliner', function() {
+            var $slg= $('#embedded-gimmick-oneliner');
+            var parser = new MDwiki.Gimmick.GimmickParser($slg);
+            parser.parse();
+            expect(parser.singlelineReferences.length).toBe(1);
+            var first_match = parser.singlelineReferences[0];
+            expect(first_match.text).toBe("This is an important note");
+        });
 
     });
     describe('link gimmick', function() {

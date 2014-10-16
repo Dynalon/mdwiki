@@ -41,8 +41,15 @@ module MDwiki.Gimmick {
 
         // magic string: gimmick:somegimmck({foo: 'bar'})
         private extractOptionsFromMagicString(s: string): any {
-            var r = /gimmick\s?:\s*([^(\s]*)\s*\(?\s*{?(.*)\s*}?\)?(.*)/i;
+            // HACK TODO we find any additional text
+            var r = /gimmick\s?:\s*([^(\s]*)\s*\(?\s*{?(.*)\s*}?\)?\s*?_?(.*)/i;
             var matches = r.exec(s);
+
+            var additionalText;
+            if (matches && matches[3])
+                additionalText = matches[3];
+
+
             if (matches === null || matches[1] === undefined) {
                 return null;
             }
@@ -71,10 +78,10 @@ module MDwiki.Gimmick {
                     /*jshint -W061 */
                     args = eval(params);
                 } catch (err) {
+                    debugger;
                     $.error('error parsing argument of gimmick: ' + s + ' giving error: ' + err);
                 }
             }
-            var additionalText = matches[3];
             return { options: args, trigger: trigger, additionalText: additionalText };
         }
 
@@ -106,6 +113,7 @@ module MDwiki.Gimmick {
                 slg.domElement = $(e);
                 var gimmickstring = $(e).text();
                 var opt = this.extractOptionsFromMagicString(gimmickstring);
+                if (!opt) return;
                 slg.trigger = opt.trigger;
                 slg.options = opt.options;
                 slg.text = opt.additionalText;
