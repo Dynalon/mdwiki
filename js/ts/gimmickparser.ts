@@ -41,14 +41,12 @@ module MDwiki.Gimmick {
 
         // magic string: gimmick:somegimmck({foo: 'bar'})
         private extractOptionsFromMagicString(s: string): any {
-            // HACK TODO we find any additional text
-            var r = /gimmick\s?:\s*([^(\s]*)\s*\(?\s*{?(.*)\s*}?\)?\s*?_?(.*)/i;
-            var matches = r.exec(s);
-
-            var additionalText;
-            if (matches && matches[3])
-                additionalText = matches[3];
-
+            // we split the string at the FIRST closing parens: ) 
+            // anything right of that is considered additional text
+            var gimmick_string = s.split(')', 1)[0];
+            var additionalText = $.trim(s.split(")").slice(1).join(")"));
+            var r = /gimmick\s?:\s*([^(\s]*)\s*\(?\s*{?(.*)\s*}?\)?/i;
+            var matches = r.exec(gimmick_string);
 
             if (matches === null || matches[1] === undefined) {
                 return null;

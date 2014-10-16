@@ -68,6 +68,7 @@ describe('GimmickParser', function() {
             var parser = new MDwiki.Gimmick.GimmickParser($slg);
             parser.parse();
             var first_match = parser.singlelineReferences[0];
+            expect(first_match).not.toBe(undefined);
             expect(first_match.options).toBeNull();
         });
         it('should be able to extract the content text', function() {
