@@ -7,8 +7,10 @@ module MDwiki.Core {
     export class Wiki {
         public stages: StageChain = new StageChain();
         public gimmicks: Gimmick.GimmickLoader = new Gimmick.GimmickLoader($(document));
+        private domElement: JQuery;
 
-        constructor() {
+        constructor(domElement?: any) {
+            this.domElement = $(domElement || document);
             var stage_names = (['init','load','transform','ready','skel_ready',
                 'bootstrap', 'pregimmick', 'gimmick', 'postgimmick', 'all_ready',
                 'final_tests'
@@ -121,8 +123,8 @@ module MDwiki.Core {
         }
 
         private registerGimmickLoad() {
+            var parser = new Gimmick.GimmickParser(this.domElement);
             $.md.stage('ready').subscribe((done: DoneCallback) => {
-                var parser = new Gimmick.GimmickParser(document);
                 parser.parse();
                 parser.singlelineReferences.forEach((ref) => {
                     this.gimmicks.initializeGimmick(ref.trigger);
@@ -133,12 +135,14 @@ module MDwiki.Core {
                 parser.linkReferences.forEach((ref) => {
                     this.gimmicks.initializeGimmick(ref.trigger);
                 });
+                done();
+            });
+            $.md.stage('gimmick').subscribe((done: DoneCallback) => {
                 this.gimmicks.runSinglelineGimmicks(parser.singlelineReferences);
                 this.gimmicks.runMultilineGimmicks(parser.multilineReferences);
                 this.gimmicks.runLinkGimmicks(parser.linkReferences);
                 done();
             });
-
         }
         private registerBuildNavigation(navMD: string) {
             $.md.stage('transform').subscribe(function(done) {
