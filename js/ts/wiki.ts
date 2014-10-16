@@ -2,6 +2,7 @@
 declare var marked: any;
 import Logger = MDwiki.Util.Logger;
 import Gimmick = MDwiki.Gimmick;
+import Links = MDwiki.Links;
 module MDwiki.Core {
 
     export class Wiki {
@@ -54,11 +55,9 @@ module MDwiki.Core {
 
             $.md.stage('bootstrap').subscribe(function(done){
                 $.mdbootstrap('bootstrapify');
-                $.md.processPageLinks($('#md-content'), $.md.baseUrl);
+                Links.LinkRewriter.processPageLinks($('#md-content'), $.md.baseUrl);
                 done();
             });
-
-            // register process page links (have to be done after gimmicks)
         }
 
         private transformMarkdown(markdown: string) {
@@ -165,7 +164,7 @@ module MDwiki.Core {
             });
 
             $.md.stage('bootstrap').subscribe(function(done) {
-                $.md.processPageLinks($('#md-menu'));
+                Links.LinkRewriter.processPageLinks($('#md-menu'));
                 done();
             });
 
