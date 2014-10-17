@@ -31,13 +31,31 @@ module MDwiki.Gimmick {
                 this.callback = callback; 
         }
     }
+    export class ScriptResource {
+        constructor (
+            public url: string,
+            public loadstage: string = 'pregimmick',
+            public finishstage: string = 'gimmick'
+        ) { }
+    }
 
     export class Gimmick {
         name: string;
         handlers: GimmickHandler[] = [];
-        init () {
+
+        private initFunctions = $.Callbacks();
+
+        // should be called by the implementor to register init functions
+        initFunction (initFn: Function) {
+            this.initFunctions.add(initFn);
         }
-        // TODO test passing of 2nd paramter
+
+        // should only be called internall by MDwiki to trigger initialization
+        init(stageLoader) {
+            this.initFunctions.fire(stageLoader);
+        }
+
+        // TODO create a test passing of 2nd paramter
         constructor(name: string, handler?: GimmickHandler) {
             if (arguments.length == 0) {
                 throw "name argument is required for the Gimmick constructor";
@@ -61,6 +79,33 @@ module MDwiki.Gimmick {
                     match = handler;
             });
             return match;
+        }
+        registerScriptResource (res: ScriptResource) {
+            var loadDone = $.Deferred();
+
+            // load the script
+            $.md.stage(res.loadstage).subscribe(done => {
+                if (res.url.startsWith('//') || res.url.startsWith('http')) {
+                    $.getScript(res.url, () => loadDone.resolve());
+                } else {
+                    // inline script that we directly insert
+                    // jQuery does some magic when inserting inline scripts, so better
+                    // use vanilla JS. See:
+                    // http://stackoverflow.com/questions/610995/jquery-cant-append-script-element
+                    // scripts always need to go directly into the DOM
+                    var script = document.createElement('script');
+                    script.type = 'text/javascript';
+                    script.text = res.url;
+                    document.body.appendChild(script);
+                    loadDone.resolve();
+                }
+                done();
+            });
+
+            // wait for the script to be fully loaded
+            $.md.stage(res.finishstage).subscribe(done => {
+                loadDone.done(() => done());
+            });
         }
     }
 
@@ -108,7 +153,7 @@ module MDwiki.Gimmick {
             if (gmck == null)
                 return;
 
-            gmck.init();
+            gmck.init($.md.stage);
         }
 
         runSinglelineGimmicks(references: SinglelineGimmickReference[]) {

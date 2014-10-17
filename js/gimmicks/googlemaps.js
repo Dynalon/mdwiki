@@ -10,8 +10,8 @@ function googlemapsReady() {
     //'use strict';
     var scripturl = 'http://maps.google.com/maps/api/js?sensor=false&callback=googlemapsReady';
 
-    function googlemaps($links, opt, text) {
-        var $maps_links = $links;
+    function googlemaps(trigger, text, options, domElement) {
+        var $maps_links = $(domElement);
         var counter = (new Date()).getTime ();
         return $maps_links.each(function(i,e) {
             var $link = $(e);
@@ -21,7 +21,7 @@ function googlemapsReady() {
                 scrollwheel: false,
                 maptype: 'roadmap'
             };
-            var options = $.extend({}, default_options, opt);
+            var options = $.extend({}, default_options, options);
             if (options.address === undefined) {
                 options.address = $link.attr ('href');
             }
@@ -68,22 +68,23 @@ function googlemapsReady() {
         });
     }
 
-    var googleMapsGimmick = new MDwiki.Core.Gimmick();
-    googleMapsGimmick.init = function() {
+    var googleMapsGimmick = new MDwiki.Gimmick.Gimmick('googlemaps');
+    googleMapsGimmick.initFunction(function(stageLoader) {
         googlemapsLoadDone = $.Deferred();
 
         // googleMapsGimmick.subscribeGimmick('googlemaps', googlemaps);
         // load the googlemaps js from the google server
-        var script = new MDwiki.Core.ScriptResource (scripturl, 'skel_ready', 'bootstrap');
+        var script = new MDwiki.Gimmick.ScriptResource (scripturl);
         googleMapsGimmick.registerScriptResource(script);
 
-        $.md.stage('bootstrap').subscribe(function(done) {
+        stageLoader('pregimmick').subscribe(function(done) {
             // defer the pregimmick phase until the google script fully loaded
             googlemapsLoadDone.done(function() {
                 done();
             });
         });
-    };
-    googleMapsGimmick.addHandler('googlemaps', googlemaps);
+    });
+    var handler = new MDwiki.Gimmick.GimmickHandler('link', googlemaps);
+    googleMapsGimmick.addHandler(handler);
     $.md.wiki.gimmicks.registerGimmick(googleMapsGimmick);
 }(jQuery));
