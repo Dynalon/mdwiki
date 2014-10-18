@@ -26,6 +26,7 @@
         "google": true,
         "hljs": true,
         "MDwiki": true,
-        "L": true
+        "L": true,
+        "Hogan": true
     }
 }
