@@ -12,7 +12,7 @@ module MDwiki.Core {
 
         constructor(domElement?: any) {
             this.domElement = $(domElement || document);
-            var stage_names = (['init','load','transform','ready','skel_ready',
+            var stage_names = (['init','load','transform','post_transform', 'ready','skel_ready',
                 'bootstrap', 'pregimmick', 'gimmick', 'postgimmick', 'all_ready',
                 'final_tests'
             ]);
@@ -123,7 +123,7 @@ module MDwiki.Core {
 
         private registerGimmickLoad() {
             var parser = new Gimmick.GimmickParser(this.domElement);
-            $.md.stage('ready').subscribe((done: DoneCallback) => {
+            $.md.stage('post_transform').subscribe((done: DoneCallback) => {
                 parser.parse();
                 parser.singlelineReferences.forEach((ref) => {
                     this.gimmicks.initializeGimmick(ref.trigger);
@@ -134,12 +134,19 @@ module MDwiki.Core {
                 parser.linkReferences.forEach((ref) => {
                     this.gimmicks.initializeGimmick(ref.trigger);
                 });
-                done();
-            });
-            $.md.stage('gimmick').subscribe((done: DoneCallback) => {
-                this.gimmicks.runSinglelineGimmicks(parser.singlelineReferences);
-                this.gimmicks.runMultilineGimmicks(parser.multilineReferences);
-                this.gimmicks.runLinkGimmicks(parser.linkReferences);
+
+                parser.singlelineReferences.forEach(ref => {
+                    var handler = this.gimmicks.selectHandler('singleline', ref.trigger);
+                    $.md.stage(handler.loadStage).subscribe(done => handler.callback(ref, done));
+                });
+                parser.multilineReferences.forEach(ref => {
+                    var handler = this.gimmicks.selectHandler('multiline', ref.trigger);
+                    $.md.stage(handler.loadStage).subscribe(done => handler.callback(ref, done));
+                });
+                parser.linkReferences.forEach(ref => {
+                    var handler = this.gimmicks.selectHandler('link', ref.trigger);
+                    $.md.stage(handler.loadStage).subscribe(done => handler.callback(ref, done));
+                });
                 done();
             });
         }

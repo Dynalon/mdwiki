@@ -2,37 +2,38 @@
 
     var templateGimmick = new MDwiki.Gimmick.Gimmick('template');
     var templateHandler = new MDwiki.Gimmick.GimmickHandler('singleline');
+    templateHandler.loadStage = 'ready';
 
-    templateHandler.callback = function(trigger, text, options, domElement) {
-        if (options.load) {
-            var isMarkdown = options.type === 'markdown' || false;
-            var ending = '.html';
-            if (isMarkdown) ending = '.md';
+    templateHandler.callback = function(ref, done) {
+        var options = ref.options;
+        var view = options.view;
+        var model = options.model;
+        if (! (model && view)) return;
 
-            var view = options.load + ending;
-            var model = options.load + '.json';
-            var view_dfd = $.get(view);
-            var model_dfd = $.get(model);
-            $.when(view_dfd, model_dfd).then(function(viewresult, modelresult) {
-                var viewdata = viewresult[0];
-                var modeldata = modelresult[0];
-                var template = Hogan.compile(viewdata);
-                var html = template.render(modeldata);
-                if (isMarkdown)
-                    html = marked(html);
-                var $p = $('<p/>');
-                $p.html(html);
-                $(domElement).replaceWith($p);
-            });
-        } else {
-            // TODO try/catch and output error msg
-            if (!options || !options.data) return;
-            var template = Hogan.compile(text);
-            var html = template.render(JSON.parse(options.data));
-            var $p = $('<p/>');
-            $p.html(html);
-            $(domElement).replaceWith($p);
-        }
+        var isMarkdown = options.view.endsWith('.md') || options.view.endsWith ('.mdt') ||
+            options.view.endsWith('.mdown');
+
+        // TODO proper url expansion
+        var view_dfd = $.get(view);
+        var model_dfd = $.get(model);
+
+        $.when(view_dfd, model_dfd).then(function(viewresult, modelresult) {
+            var viewdata = viewresult[0];
+            var modeldata = modelresult[0];
+            var template = Hogan.compile(viewdata);
+            var output = template.render(modeldata);
+            var new_elements;
+            if (isMarkdown) {
+                var html = marked(output);
+                // the markdown parser will create a <p> that we don't want
+                new_elements = $(html).children();
+            } else {
+                new_elements = $(output);
+            }
+            $(ref.domElement).after(new_elements);
+            $(ref.domElement).remove();
+            done();
+        });
     };
 
     templateGimmick.addHandler(templateHandler);

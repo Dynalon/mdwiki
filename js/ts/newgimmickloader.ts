@@ -1,4 +1,14 @@
 ///<reference path="../../typings/tsd.d.ts" />
+interface JQueryStatic {
+    md: any;
+    mdbootstrap: any;
+    toptext: () => string;
+}
+
+interface String {
+    startsWith: (x: any) => any;
+    endsWith: (x: any) => any;
+}
 
 module MDwiki.Gimmick {
 
@@ -117,7 +127,7 @@ module MDwiki.Gimmick {
             this.domElement = domElement || $(document);
         }
 
-        private selectHandler(kind: string, trigger: string): GimmickHandler {
+        selectHandler(kind: string, trigger: string): GimmickHandler {
             var matching_trigger_and_kind = null;
 
             this.globalGimmickRegistry.forEach(gmck => {
@@ -154,35 +164,6 @@ module MDwiki.Gimmick {
                 return;
 
             gmck.init($.md.stage);
-        }
-
-        runSinglelineGimmicks(references: SinglelineGimmickReference[]) {
-            references.forEach(ref => {
-                this.runSinglelineGimmick(ref);
-            });
-        }
-        private runSinglelineGimmick(ref: SinglelineGimmickReference) {
-            var handler = this.selectHandler('singleline', ref.trigger);
-            handler.callback(ref.trigger, ref.text, ref.options, ref.domElement);
-        }
-        runMultilineGimmicks(references: MultilineGimmickReference[]) {
-            references.forEach(ref => {
-                this.runMultilineGimmick(ref);
-            });
-        }
-        private runMultilineGimmick(ref: MultilineGimmickReference) {
-            var handler = this.selectHandler('multiline', ref.trigger);
-            // TODO trim whitespace & retrieve content
-            handler.callback(ref.trigger, ref.text, ref.options, ref.domElement);
-        }
-        runLinkGimmicks(references: LinkGimmickReference[]) {
-            references.forEach(ref => {
-                this.runLinkGimmick(ref);
-            });
-        }
-        private runLinkGimmick(ref: LinkGimmickReference) {
-            var handler = <GimmickHandler> this.selectHandler('link', ref.trigger);
-            handler.callback(ref.trigger, ref.text, ref.options, ref.domElement);
         }
     }
 }

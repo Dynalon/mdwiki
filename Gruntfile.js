@@ -39,8 +39,9 @@ module.exports = function(grunt) {
             'js/gimmicker.js',
 
             // gimmicks
-            'js/gimmicks/googlemaps.js'
+            'js/gimmicks/templating.js'
             /*
+             'js/gimmicks/googlemaps.js',
              'js/gimmicks/alerts.js',
             'js/gimmicks/colorbox.js',
             // 'js/gimmicks/carousel.js',
@@ -69,8 +70,9 @@ module.exports = function(grunt) {
             'bower_components/jquery/jquery.min.js',
             'extlib/js/jquery.colorbox.min.js',
             'extlib/js/prism.js',
+            'extlib/js/hogan-3.0.1.js',
             'bower_components/bootstrap/js/affix.js',
-            'bower_components/bootstrap/js/dropdown.js'
+            'bower_components/bootstrap/js/dropdown.js',
         ],
         // for debug builds use unminified versions:
         unminifiedCssFiles: [
@@ -81,7 +83,8 @@ module.exports = function(grunt) {
             'bower_components/bootstrap/js/affix.js',
             'bower_components/bootstrap/js/dropdown.js',
             'extlib/js/prism.js',
-            'extlib/js/jquery.colorbox.js'
+            'extlib/js/jquery.colorbox.js',
+            'extlib/js/hogan-3.0.1.js'
         ],
 
         typescript: {
@@ -172,7 +175,8 @@ module.exports = function(grunt) {
                     console: true,
                     MDwiki: true,
                     Prism: true,
-                    alert: true
+                    alert: true,
+                    Hogan: true
                 }
             },
             /*gruntfile: {
