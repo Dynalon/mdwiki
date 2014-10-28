@@ -157,13 +157,47 @@ module MDwiki.Gimmick {
             this.globalGimmickRegistry.push(gmck);
         }
 
-        initializeGimmick(name: string) {
+        initializeGimmick(name: string, doneCallback: Function<void>) {
             var gmck = this.findGimmick(name);
 
             if (gmck == null)
                 return;
 
             gmck.init($.md.stage);
+        }
+        initializeGimmicks(parser: GimmickParser, stages: StageChain) {
+            parser.singlelineReferences.forEach((ref) => {
+                stages.getStage('ready').subscribe(done => {
+                    this.gimmicks.initializeGimmick(ref.trigger);
+                });
+            });
+            parser.multilineReferences.forEach((ref) => {
+                this.gimmicks.initializeGimmick(ref.trigger);
+            });
+            parser.linkReferences.forEach((ref) => {
+                this.gimmicks.initializeGimmick(ref.trigger);
+            });
+        }
+
+        subscribeGimmickExecution(parser: GimmickParser, stageChain: MDwiki.Stages.StageChain) {
+            parser.singlelineReferences.forEach(ref => {
+                var handler = this.selectHandler('singleline', ref.trigger);
+                stageChain.getStage(handler.loadStage).subscribe(done => {
+                    handler.callback(ref, done);
+                });
+            });
+            parser.multilineReferences.forEach(ref => {
+                var handler = this.selectHandler('multiline', ref.trigger);
+                stageChain.getStage(handler.loadStage).subscribe(done => {
+                    handler.callback(ref, done);
+                });
+            });
+            parser.linkReferences.forEach(ref => {
+                var handler = this.selectHandler('link', ref.trigger);
+                stageChain.getStage(handler.loadStage).subscribe(done => {
+                    handler.callback(ref, done);
+                });
+            });
         }
     }
 }

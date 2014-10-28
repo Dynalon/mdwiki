@@ -58,6 +58,7 @@ describe('GimmickLoader', function() {
             loadFixtures('gimmick.html');
         });
 
+        /*
         it('should execute a single line gimmick', function() {
             var dummy_dom_element;
             var ref;
@@ -79,6 +80,7 @@ describe('GimmickLoader', function() {
 
             loader.runSinglelineGimmicks([ref]);
         });
+        */
     });
 
     it('can initialize a registered gimmick', function() {

@@ -6,14 +6,14 @@ module MDwiki.Core {
         (): void;
     }
     export interface SubscribedFunc {
-        (cb : DoneCallback): void;
+        (cb:DoneCallback): void;
     }
 
     export class Resource {
-        constructor (public url: string, public dataType: string = 'text')
-        {
+        constructor(public url:string, public dataType:string = 'text') {
         }
-        static fetch(url: string, dataType: string = 'text') {
+
+        static fetch(url:string, dataType:string = 'text') {
             var jqxhr = $.ajax({
                 url: url,
                 dataType: dataType
@@ -21,7 +21,10 @@ module MDwiki.Core {
             return jqxhr;
         }
     }
+}
 
+import SubscribedFunc = MDwiki.Core.SubscribedFunc;
+module MDwiki.Stages {
 
     export class StageChain
     {
@@ -75,7 +78,6 @@ module MDwiki.Core {
             if (this.started)
                 throw 'Stage already started';
 
-            // TODO check func signature for sanity
             this.subscribedFuncs.push(fn);
         }
 

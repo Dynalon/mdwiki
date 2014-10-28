@@ -3,10 +3,13 @@ declare var marked: any;
 import Logger = MDwiki.Util.Logger;
 import Gimmick = MDwiki.Gimmick;
 import Links = MDwiki.Links;
+import StageChain = MDwiki.Stages.StageChain;
+import Stage = MDwiki.Stages.Stage;
+
 module MDwiki.Core {
 
     export class Wiki {
-        public stages: StageChain = new StageChain();
+        public stages: StageChain = new MDwiki.Stages.StageChain();
         public gimmicks: Gimmick.GimmickLoader = new Gimmick.GimmickLoader($(document));
         private domElement: JQuery;
 
@@ -125,28 +128,10 @@ module MDwiki.Core {
             var parser = new Gimmick.GimmickParser(this.domElement);
             $.md.stage('post_transform').subscribe((done: DoneCallback) => {
                 parser.parse();
-                parser.singlelineReferences.forEach((ref) => {
-                    this.gimmicks.initializeGimmick(ref.trigger);
-                });
-                parser.multilineReferences.forEach((ref) => {
-                    this.gimmicks.initializeGimmick(ref.trigger);
-                });
-                parser.linkReferences.forEach((ref) => {
-                    this.gimmicks.initializeGimmick(ref.trigger);
-                });
+                this.gimmicks.initializeGimmicks(parser, this.stages);
 
-                parser.singlelineReferences.forEach(ref => {
-                    var handler = this.gimmicks.selectHandler('singleline', ref.trigger);
-                    $.md.stage(handler.loadStage).subscribe(done => handler.callback(ref, done));
-                });
-                parser.multilineReferences.forEach(ref => {
-                    var handler = this.gimmicks.selectHandler('multiline', ref.trigger);
-                    $.md.stage(handler.loadStage).subscribe(done => handler.callback(ref, done));
-                });
-                parser.linkReferences.forEach(ref => {
-                    var handler = this.gimmicks.selectHandler('link', ref.trigger);
-                    $.md.stage(handler.loadStage).subscribe(done => handler.callback(ref, done));
-                });
+                this.gimmicks.subscribeGimmickExecution(parser, this.stages);
+
                 done();
             });
         }

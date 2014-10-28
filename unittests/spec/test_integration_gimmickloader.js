@@ -7,6 +7,8 @@ describe('GimmickLoader/GimmickParser integration', function () {
         loadFixtures('gimmick.html');
     });
 
+
+    /*
     function setupGimmick(callbackFn, kind) {
         kind = kind || 'singleline';
         var gmck = new MDwiki.Gimmick.Gimmick('somegimmick');
@@ -73,4 +75,5 @@ describe('GimmickLoader/GimmickParser integration', function () {
         loader.initializeGimmick('somegimmick');
         loader.runSinglelineGimmicks(parser.singlelineReferences);
     });
+    */
 });
