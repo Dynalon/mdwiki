@@ -1,28 +1,8 @@
 (function($) {
 
-    // new gimmick API
-    var handler = new MDwiki.Gimmick.GimmickHandler('singleline');
-    handler.callback = function(a, b, domElement) {
-        domElement.replaceWith("<h1>SINGLELINE!</h1>");
-    };
-    var handler2 = new MDwiki.Gimmick.GimmickHandler('multiline');
-    handler2.callback = function(a, b, domElement) {
-        domElement.replaceWith("<h1>MULTILINE!</h1>");
-    };
-    var handler3 = new MDwiki.Gimmick.GimmickHandler('link');
-    handler3.callback = function(a, b, c, domElement) {
-        domElement.replaceWith("<h1>LINK!</h1>");
-    };
-
-    var gmck = new MDwiki.Gimmick.Gimmick('foobar', handler);
-    gmck.addHandler(handler2);
-    gmck.addHandler(handler3);
-
-    $.md.wiki.gimmicks.registerGimmick(gmck);
-
     //'use strict';
     var alertsGimmick = new MDwiki.Gimmick.Gimmick('alert');
-    var alertHandler = new MDwiki.Gimmick.GimmickHandler('link');
+    var alertHandler = new MDwiki.Gimmick.GimmickHandler('singleline');
     alertHandler.callback = function(trigger, text, options, domElement) {
         var type = get_alert_type(text);
         if (type === null) return;
