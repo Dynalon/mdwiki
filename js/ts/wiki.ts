@@ -2,6 +2,7 @@
 declare var marked: any;
 import Logger = MDwiki.Util.Logger;
 import Gimmick = MDwiki.Gimmick;
+import GimmickLoader = MDwiki.Gimmick.GimmickLoader;
 import Links = MDwiki.Links;
 import StageChain = MDwiki.Stages.StageChain;
 import Stage = MDwiki.Stages.Stage;
@@ -9,11 +10,13 @@ import Stage = MDwiki.Stages.Stage;
 module MDwiki.Core {
 
     export class Wiki {
-        public stages: StageChain = new MDwiki.Stages.StageChain();
-        public gimmicks: Gimmick.GimmickLoader = new Gimmick.GimmickLoader($(document));
+        public stages: StageChain;
+        public gimmicks: GimmickLoader;
         private domElement: JQuery;
 
-        constructor(domElement?: any) {
+        constructor(gimmickLoader: GimmickLoader, domElement?: any) {
+            this.stages = new StageChain();
+            this.gimmicks = gimmickLoader;
             this.domElement = $(domElement || document);
             var stage_names = (['init','load','transform','post_transform', 'ready','skel_ready',
                 'bootstrap', 'pregimmick', 'gimmick', 'postgimmick', 'all_ready',
@@ -51,8 +54,9 @@ module MDwiki.Core {
             });
         }
         private registerPageTransformation() {
-            $.md.stage('ready').subscribe(function(done) {
-                $.md('createBasicSkeleton');
+            $.md.stage('ready').subscribe((done) => {
+                var page_skeleton = new MDwiki.Legacy.PageSkeleton(this.stages, $.md.config);
+                page_skeleton.createBasicSkeleton();
                 done();
             });
 

@@ -88,7 +88,7 @@ describe('GimmickLoader', function() {
         var wasCalled = false;
         gmck.init = function() { wasCalled = true; };
         loader.registerGimmick(gmck);
-        loader.initializeGimmick('somegimmick');
+        loader.initializeGimmick('somegimmick', () => true);
         expect(wasCalled).toBe(true);
     });
 });

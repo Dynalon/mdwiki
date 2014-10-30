@@ -1,5 +1,4 @@
 (function($, Hogan) {
-
     var templateGimmick = new MDwiki.Gimmick.Gimmick('template');
     var templateHandler = new MDwiki.Gimmick.GimmickHandler('singleline');
     templateHandler.loadStage = 'ready';
@@ -16,7 +15,7 @@
         // TODO proper url expansion
         var view_dfd = $.get(view);
         var model_dfd = $.get(model);
-
+        // TODO error handling and call done() when model/view couldnt be loaded or parsed etc.
         $.when(view_dfd, model_dfd).then(function(viewresult, modelresult) {
             var viewdata = viewresult[0];
             var modeldata = modelresult[0];

@@ -123,7 +123,7 @@ module MDwiki.Gimmick {
         private globalGimmickRegistry: Gimmick[] = [];
         private domElement: JQuery;
 
-        constructor (domElement) {
+        constructor (domElement?) {
             this.domElement = domElement || $(document);
         }
 
@@ -163,19 +163,25 @@ module MDwiki.Gimmick {
             if (gmck == null)
                 return;
 
+            // TODO the callback must be passed down
             gmck.init($.md.stage);
+            doneCallback();
         }
         initializeGimmicks(parser: GimmickParser, stages: StageChain) {
             parser.singlelineReferences.forEach((ref) => {
                 stages.getStage('ready').subscribe(done => {
-                    this.initializeGimmick(ref.trigger, () => false);
+                    this.initializeGimmick(ref.trigger, done);
                 });
             });
             parser.multilineReferences.forEach((ref) => {
-                this.initializeGimmick(ref.trigger, () => false);
+                stages.getStage('ready').subscribe(done => {
+                    this.initializeGimmick(ref.trigger, done);
+                });
             });
             parser.linkReferences.forEach((ref) => {
-                this.initializeGimmick(ref.trigger, () => false);
+                stages.getStage('ready').subscribe(done => {
+                    this.initializeGimmick(ref.trigger, done);
+                });
             });
         }
 
