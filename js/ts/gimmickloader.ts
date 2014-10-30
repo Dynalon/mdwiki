@@ -157,7 +157,7 @@ module MDwiki.Gimmick {
             this.globalGimmickRegistry.push(gmck);
         }
 
-        initializeGimmick(name: string, doneCallback: Function<void>) {
+        initializeGimmick(name: string, doneCallback: Function) {
             var gmck = this.findGimmick(name);
 
             if (gmck == null)
@@ -168,14 +168,14 @@ module MDwiki.Gimmick {
         initializeGimmicks(parser: GimmickParser, stages: StageChain) {
             parser.singlelineReferences.forEach((ref) => {
                 stages.getStage('ready').subscribe(done => {
-                    this.gimmicks.initializeGimmick(ref.trigger);
+                    this.initializeGimmick(ref.trigger, () => false);
                 });
             });
             parser.multilineReferences.forEach((ref) => {
-                this.gimmicks.initializeGimmick(ref.trigger);
+                this.initializeGimmick(ref.trigger, () => false);
             });
             parser.linkReferences.forEach((ref) => {
-                this.gimmicks.initializeGimmick(ref.trigger);
+                this.initializeGimmick(ref.trigger, () => false);
             });
         }
 
