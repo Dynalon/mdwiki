@@ -1,3 +1,4 @@
+///<reference path="../../typings/tsd.d.ts" />
 declare var $: JQueryStatic;
 
 module MDwiki.Legacy {

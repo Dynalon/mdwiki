@@ -1,8 +1,8 @@
 ///<reference path="../../typings/tsd.d.ts" />
 interface JQueryStatic {
     md: any;
-    mdbootstrap: any;
     toptext: () => string;
+    affix: (any) => any;
 }
 
 interface String {

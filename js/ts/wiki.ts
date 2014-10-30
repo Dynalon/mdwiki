@@ -60,8 +60,9 @@ module MDwiki.Core {
                 done();
             });
 
-            $.md.stage('bootstrap').subscribe(function(done){
-                $.mdbootstrap('bootstrapify');
+            $.md.stage('bootstrap').subscribe((done) => {
+                var bootstrapper = new MDwiki.Legacy.Bootstrap(this.stages);
+                bootstrapper.bootstrapify();
                 Links.LinkRewriter.processPageLinks($('#md-content'), $.md.baseUrl);
                 done();
             });
