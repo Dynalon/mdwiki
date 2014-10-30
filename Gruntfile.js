@@ -28,15 +28,11 @@ module.exports = function(grunt) {
         ownJsFiles: [
             'js/marked.js',
             'js/init.js',
-            'js/logging.js',
-            'js/modules.js',
             'ts_compiled/mdwiki_ts.js',
             'js/main.js',
-            'js/stage.js',
             'js/util.js',
             'js/basic_skeleton.js',
             'js/bootstrap.js',
-            'js/gimmicker.js',
 
             // gimmicks
             'js/gimmicks/templating.js'
