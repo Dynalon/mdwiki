@@ -1,4 +1,6 @@
 ///<reference path="../../typings/tsd.d.ts" />
+///<reference path="utils.ts" />
+
 declare var marked: any;
 import Logger = MDwiki.Util.Logger;
 import Gimmick = MDwiki.Gimmick;
@@ -6,23 +8,33 @@ import GimmickLoader = MDwiki.Gimmick.GimmickLoader;
 import Links = MDwiki.Links;
 import StageChain = MDwiki.Stages.StageChain;
 import Stage = MDwiki.Stages.Stage;
+import dummyutil = MDwiki.Utils.Url;
 
 module MDwiki.Core {
+
+    var defaultConfig = {
+        title:  null,
+        lineBreaks: 'gfm',
+        additionalFooterText: '',
+        anchorCharacter: '&para;',
+        pageMenu: {
+            disable: false,
+            returnAnchor: "[top]",
+            useHeadings: "h2"
+        },
+        parseHeader: false
+    };
 
     export class Wiki {
         public stages: StageChain;
         public gimmicks: GimmickLoader;
         private domElement: JQuery;
+        private config: any = defaultConfig;
 
-        constructor(gimmickLoader: GimmickLoader, domElement?: any) {
-            this.stages = new StageChain();
+        constructor(gimmickLoader: GimmickLoader, stages: StageChain, domElement?: any) {
+            this.stages = stages;
             this.gimmicks = gimmickLoader;
             this.domElement = $(domElement || document);
-            var stage_names = (['init','load','transform','post_transform', 'ready','skel_ready',
-                'bootstrap', 'pregimmick', 'gimmick', 'postgimmick', 'all_ready',
-                'final_tests'
-            ]);
-            stage_names.map(n => this.stages.append (new Stage(n)));
         }
 
         run() {
@@ -38,30 +50,29 @@ module MDwiki.Core {
             this.stages.run();
         }
         private registerFetchConfigAndNavigation() {
-            var self = this;
             // fetch config.json
-            $.md.stage('init').subscribe(done => {
+            this.stages.getStage('init').subscribe(done => {
                 var dfd1 = Resource.fetch('config.json');
                 var dfd2 = Resource.fetch('navigation.md');
-                dfd1.done(function(config) {
-                    dfd2.done(function(nav) {
+                dfd1.done(config => {
+                    dfd2.done(nav => {
                         var data_json = JSON.parse(config);
-                        $.md.config = $.extend($.md.config, data_json);
-                        self.registerBuildNavigation(nav);
+                        this.config = $.extend(this.config, data_json);
+                        this.registerBuildNavigation(nav);
                         done();
                     });
                 });
             });
         }
         private registerPageTransformation() {
-            $.md.stage('ready').subscribe((done) => {
-                var page_skeleton = new MDwiki.Legacy.PageSkeleton(this.stages, $.md.config);
+            this.stages.getStage('ready').subscribe((done) => {
+                var page_skeleton = new MDwiki.Legacy.PageSkeleton(this.stages, this.config);
                 page_skeleton.createBasicSkeleton();
                 done();
             });
 
-            $.md.stage('bootstrap').subscribe((done) => {
-                var bootstrapper = new MDwiki.Legacy.Bootstrap(this.stages);
+            this.stages.getStage('bootstrap').subscribe((done) => {
+                var bootstrapper = new MDwiki.Legacy.Bootstrap(this.stages, this.config);
                 bootstrapper.bootstrapify();
                 Links.LinkRewriter.processPageLinks($('#md-content'), $.md.baseUrl);
                 done();
@@ -74,9 +85,9 @@ module MDwiki.Core {
                 tables: true,
                 breaks: true
             };
-            if ($.md.config.lineBreaks === 'original')
+            if (this.config.lineBreaks === 'original')
                 options.breaks = false;
-            else if ($.md.config.lineBreaks === 'gfm')
+            else if (this.config.lineBreaks === 'gfm')
                 options.breaks = true;
 
             marked.setOptions(options);
@@ -87,7 +98,7 @@ module MDwiki.Core {
         }
 
         private registerClearContent() {
-            $.md.stage('init').subscribe(function(done) {
+            this.stages.getStage('init').subscribe(function(done) {
                 $('#md-all').empty();
                 var skel ='<div id="md-body"><div id="md-title"></div><div id="md-menu">'+
                     '</div><div id="md-content"></div></div>';
@@ -97,7 +108,7 @@ module MDwiki.Core {
         }
         private registerFetchMarkdown() {
             var md = '';
-            $.md.stage('init').subscribe(function(done) {
+            this.stages.getStage('init').subscribe(function(done) {
                 var ajaxReq = {
                     url: $.md.mainHref,
                     dataType: 'text'
@@ -114,14 +125,14 @@ module MDwiki.Core {
             });
 
             // find baseUrl
-            $.md.stage('transform').subscribe(function(done) {
+            this.stages.getStage('transform').subscribe(function(done) {
                 var len = $.md.mainHref.lastIndexOf('/');
                 var baseUrl = $.md.mainHref.substring(0, len+1);
                 $.md.baseUrl = baseUrl;
                 done();
             });
 
-            $.md.stage('transform').subscribe(done => {
+            this.stages.getStage('transform').subscribe(done => {
                 var uglyHtml = this.transformMarkdown(md);
                 $('#md-content').html(uglyHtml);
                 md = '';
@@ -131,17 +142,17 @@ module MDwiki.Core {
 
         private registerGimmickLoad() {
             var parser = new Gimmick.GimmickParser(this.domElement);
-            $.md.stage('post_transform').subscribe((done: DoneCallback) => {
+            this.stages.getStage('post_transform').subscribe((done: DoneCallback) => {
                 parser.parse();
-                this.gimmicks.initializeGimmicks(parser, this.stages);
+                this.gimmicks.initializeGimmicks(parser);
 
-                this.gimmicks.subscribeGimmickExecution(parser, this.stages);
+                this.gimmicks.subscribeGimmickExecution(parser);
 
                 done();
             });
         }
         private registerBuildNavigation(navMD: string) {
-            $.md.stage('transform').subscribe(function(done) {
+            this.stages.getStage('transform').subscribe(function(done) {
                 if (navMD === '') {
                     var log = $.md.getLogger();
                     log.info('no navgiation.md found, not using a navbar');
@@ -160,12 +171,12 @@ module MDwiki.Core {
                 done();
             });
 
-            $.md.stage('bootstrap').subscribe(function(done) {
+            this.stages.getStage('bootstrap').subscribe(function(done) {
                 Links.LinkRewriter.processPageLinks($('#md-menu'));
                 done();
             });
 
-            $.md.stage('postgimmick').subscribe(function(done) {
+            this.stages.getStage('postgimmick').subscribe(function(done) {
                 // hide if has no links
                 done();
             });
@@ -174,7 +185,7 @@ module MDwiki.Core {
         private registerFinalTasks () {
 
             // wire the stages up
-            $.md.stage('all_ready').finished().done(function() {
+            this.stages.getStage('all_ready').finished().done(function() {
                 $('html').removeClass('md-hidden-load');
 
                 // phantomjs hook when we are done
@@ -182,9 +193,9 @@ module MDwiki.Core {
                     window['callPhantom']({});
                 }
 
-                //$.md.stage('final_tests').start();
+                //this.stages.getStage('final_tests').start();
             });
-            $.md.stage('final_tests').finished().done(function() {
+            this.stages.getStage('final_tests').finished().done(function() {
 
                 // required by dalekjs so we can wait the element to appear
                 $('body').append('<span id="start-tests"></span>');

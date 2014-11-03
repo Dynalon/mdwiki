@@ -15,13 +15,11 @@ declare var MDwikiEnableDebug: any;
     $.initMDwiki = function (name: string, registerDomReady: boolean = true) {
 
         // this is the main object graph composition root
-        var gimmickLoader = new GimmickLoader();
-        var wiki  = new MDwiki.Core.Wiki(gimmickLoader);
+        var stageChain = new StageChain();
+        var gimmickLoader = new GimmickLoader(stageChain);
+        var wiki  = new MDwiki.Core.Wiki(gimmickLoader, stageChain);
 
         $.md.wiki = wiki;
-        $.md.stage = function(name) {
-            return $.md.wiki.stages.getStage (name);
-        }
 
         if (!registerDomReady) {
             $.md.wiki.gimmicks = {};

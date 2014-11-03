@@ -44,21 +44,21 @@ module MDwiki.Links {
                     // in-page link
                     link.click(function (ev) {
                         ev.preventDefault();
-                        $.md.scrollToInPageAnchor(href);
+                        console.log("inpage anchors not yet implemented");
                     });
                 }
 
-                if (!$.md.util.isRelativeUrl(href))
+                if (!MDwiki.Utils.Url.isRelativeUrl(href))
                     return;
 
-                if (isImage && !$.md.util.isRelativePath(href))
+                if (isImage && !MDwiki.Utils.Url.isRelativePath(href))
                     return;
 
-                if (!isImage && $.md.util.isGimmickLink(link))
+                if (!isImage && MDwiki.Utils.Url.isGimmickLink(link))
                     return;
 
                 function build_link(url) {
-                    if ($.md.util.hasMarkdownFileExtension(url))
+                    if (MDwiki.Utils.Url.hasMarkdownFileExtension(url))
                         return '#!' + url;
                     else
                         return url;
@@ -67,7 +67,7 @@ module MDwiki.Links {
                 var newHref = baseUrl + href;
                 if (isImage)
                     link.attr(hrefAttribute, newHref);
-                else if ($.md.util.isRelativePath(href))
+                else if (MDwiki.Utils.Url.isRelativePath(href))
                     link.attr(hrefAttribute, build_link(newHref));
                 else
                     link.attr(hrefAttribute, build_link(href));

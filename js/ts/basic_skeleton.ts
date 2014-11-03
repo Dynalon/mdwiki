@@ -1,6 +1,7 @@
 ///<reference path="../../typings/tsd.d.ts" />
 declare var $: JQueryStatic;
 
+
 module MDwiki.Legacy {
 
     export class PageSkeleton {
@@ -184,7 +185,7 @@ module MDwiki.Legacy {
                 var mouse_entered = false;
                 $heading.mouseenter(function () {
                     mouse_entered = true;
-                    $.md.util.wait(300).then(function () {
+                    MDwiki.Utils.Util.wait(300).then(function () {
                         if (!mouse_entered) return;
                         $pilcrow.fadeIn(200);
                     });
@@ -238,7 +239,7 @@ module MDwiki.Legacy {
                 var $heading = $(this);
                 $heading.addClass('md-inpage-anchor');
                 var text = $heading.clone().children('.anchor-highlight').remove().end().text();
-                var href = $.md.util.getInpageAnchorHref(text);
+                var href = MDwiki.Utils.Util.getInpageAnchorHref(text);
                 addPilcrow($heading, href);
 
                 //add jumplink to table of contents

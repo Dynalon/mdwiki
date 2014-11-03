@@ -1,4 +1,5 @@
 ///<reference path="../../typings/tsd.d.ts" />
+
 interface JQueryStatic {
     md: any;
     toptext: () => string;
@@ -52,6 +53,8 @@ module MDwiki.Gimmick {
     export class Gimmick {
         name: string;
         handlers: GimmickHandler[] = [];
+        // set by the gimmickloader when registering a gimmick
+        stages: StageChain;
 
         private initFunctions = $.Callbacks();
 
@@ -94,7 +97,7 @@ module MDwiki.Gimmick {
             var loadDone = $.Deferred();
 
             // load the script
-            $.md.stage(res.loadstage).subscribe(done => {
+            this.stages.getStage(res.loadstage).subscribe(done => {
                 if (res.url.startsWith('//') || res.url.startsWith('http')) {
                     $.getScript(res.url, () => loadDone.resolve());
                 } else {
@@ -113,7 +116,7 @@ module MDwiki.Gimmick {
             });
 
             // wait for the script to be fully loaded
-            $.md.stage(res.finishstage).subscribe(done => {
+            this.stages.getStage(res.finishstage).subscribe(done => {
                 loadDone.done(() => done());
             });
         }
@@ -122,9 +125,11 @@ module MDwiki.Gimmick {
     export class GimmickLoader {
         private globalGimmickRegistry: Gimmick[] = [];
         private domElement: JQuery;
+        private stages: StageChain;
 
-        constructor (domElement?) {
+        constructor (stageChain, domElement?) {
             this.domElement = domElement || $(document);
+            this.stages = stageChain;
         }
 
         selectHandler(kind: string, trigger: string): GimmickHandler {
@@ -164,43 +169,43 @@ module MDwiki.Gimmick {
                 return;
 
             // TODO the callback must be passed down
-            gmck.init($.md.stage);
+            gmck.init(this.stages);
             doneCallback();
         }
-        initializeGimmicks(parser: GimmickParser, stages: StageChain) {
+        initializeGimmicks(parser: GimmickParser) {
             parser.singlelineReferences.forEach((ref) => {
-                stages.getStage('ready').subscribe(done => {
+                this.stages.getStage('ready').subscribe(done => {
                     this.initializeGimmick(ref.trigger, done);
                 });
             });
             parser.multilineReferences.forEach((ref) => {
-                stages.getStage('ready').subscribe(done => {
+                this.stages.getStage('ready').subscribe(done => {
                     this.initializeGimmick(ref.trigger, done);
                 });
             });
             parser.linkReferences.forEach((ref) => {
-                stages.getStage('ready').subscribe(done => {
+                this.stages.getStage('ready').subscribe(done => {
                     this.initializeGimmick(ref.trigger, done);
                 });
             });
         }
 
-        subscribeGimmickExecution(parser: GimmickParser, stageChain: MDwiki.Stages.StageChain) {
+        subscribeGimmickExecution(parser: GimmickParser) {
             parser.singlelineReferences.forEach(ref => {
                 var handler = this.selectHandler('singleline', ref.trigger);
-                stageChain.getStage(handler.loadStage).subscribe(done => {
+                this.stages.getStage(handler.loadStage).subscribe(done => {
                     handler.callback(ref, done);
                 });
             });
             parser.multilineReferences.forEach(ref => {
                 var handler = this.selectHandler('multiline', ref.trigger);
-                stageChain.getStage(handler.loadStage).subscribe(done => {
+                this.stages.getStage(handler.loadStage).subscribe(done => {
                     handler.callback(ref, done);
                 });
             });
             parser.linkReferences.forEach(ref => {
                 var handler = this.selectHandler('link', ref.trigger);
-                stageChain.getStage(handler.loadStage).subscribe(done => {
+                this.stages.getStage(handler.loadStage).subscribe(done => {
                     handler.callback(ref, done);
                 });
             });

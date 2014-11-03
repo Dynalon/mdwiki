@@ -28,8 +28,19 @@ module MDwiki.Stages {
 
     export class StageChain
     {
+        private defaultStageNames = ['init','load','transform','post_transform', 'ready','skel_ready',
+        'bootstrap', 'pregimmick', 'gimmick', 'postgimmick', 'all_ready',
+        'final_tests'
+        ];
+
         private stages: Stage[] = [];
 
+        constructor(stageNames?: string[]) {
+            if (!stageNames)
+                stageNames = this.defaultStageNames;
+
+            stageNames.map(n => this.append (new Stage(n)));
+        }
         reset() {
             var new_stages: Stage[] = [];
             for (var i = 0; i < this.stages.length; i++) {

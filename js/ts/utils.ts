@@ -85,7 +85,7 @@ module MDwiki.Utils {
                     dfd.resolve();
                     return;
                 } else {
-                    $.md.util.wait(interval).always(function () {
+                    Util.wait(interval).always(function () {
                         recursive_repeat(interval, predicate, maxRepeats - 1);
                     });
                 }
