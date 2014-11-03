@@ -1,13 +1,23 @@
 ///<reference path="../../typings/tsd.d.ts" />
+///<reference path="utils.ts" />
+///<reference path="template.ts" />
+
 declare var $: JQueryStatic;
+declare var Hogan: any;
+
+import util = MDwiki.Utils.Util;
+import Template = MDwiki.Templating.Template;
+
 module MDwiki.Legacy {
 
     export class Bootstrap {
         private events = [];
         private stages: StageChain;
+        private config: any;
 
-        constructor(stages: StageChain) {
+        constructor(stages: StageChain, config: any) {
             this.stages = stages;
+            this.config = config;
         }
         public bootstrapify() {
             this.parseHeader();
@@ -21,7 +31,7 @@ module MDwiki.Legacy {
 
             // external content should run after gimmicks were run
             this.stages.getStage('pregimmick').subscribe((done) => {
-                if ($.md.config.useSideMenu !== false) {
+                if (this.config.useSideMenu !== false) {
                     this.createPageContentMenu();
                 }
                 this.addFooter();
@@ -43,7 +53,7 @@ module MDwiki.Legacy {
             $(document).trigger(ev);
         }
         private parseHeader() {
-            if ($.md.config.parseHeader) {
+            if (this.config.parseHeader) {
                 var parsedHeaders:any = {};
                 var header = $('#md-content > pre:first-child');
                 header.hide();
@@ -129,7 +139,7 @@ module MDwiki.Legacy {
             // the height AFTER it has completely loaded.
             var navbar_height = 0;
 
-            var dfd1 = $.md.util.repeatUntil(40, function() {
+            var dfd1 = util.repeatUntil(40, function() {
                 navbar_height = $('#md-main-navbar').height();
                 return (navbar_height > 35) && (navbar_height < 481);
             }, 25);
@@ -138,7 +148,7 @@ module MDwiki.Legacy {
                 navbar_height = $('#md-main-navbar').height();
                 this.set_offset_to_navbar();
                 // now bootstrap changes this maybe after a while, again watch for changes
-                var dfd2 = $.md.util.repeatUntil(20, function () {
+                var dfd2 = util.repeatUntil(20, function () {
                     return navbar_height !== $('#md-main-navbar').height();
                 }, 25);
                 dfd2.done(() => {
@@ -146,7 +156,7 @@ module MDwiki.Legacy {
                     this.set_offset_to_navbar();
                 });
                 // and finally, for real slow computers, make sure it is changed if changin very late
-                $.md.util.wait(2000).done(() => {
+                util.wait(2000).done(() => {
                     this.set_offset_to_navbar();
                 });
             });
@@ -228,7 +238,7 @@ module MDwiki.Legacy {
 
         private createPageContentMenu () {
             // assemble the menu
-            var $headings = $('#md-content').find($.md.config.pageMenu.useHeadings);
+            var $headings = $('#md-content').find(this.config.pageMenu.useHeadings);
 
             $headings.children().remove();
 
@@ -290,13 +300,13 @@ module MDwiki.Legacy {
                 var $heading = $(heading);
                 var $a = $('<a class="list-group-item" />');
                 $a.addClass(className);
-                $a.attr('href', $.md.util.getInpageAnchorHref($heading.toptext()));
+                $a.attr('href', util.getInpageAnchorHref($heading.toptext()));
                 $a.click(function(ev) {
                     ev.preventDefault();
 
                     var $this = $(this);
-                    var anchortext = $.md.util.getInpageAnchorText($this.toptext());
-                    $.md.scrollToInPageAnchor(anchortext);
+                    var anchortext = util.getInpageAnchorText($this.toptext());
+                    //$.md.scrollToInPageAnchor(anchortext);
                 });
                 $a.text($heading.toptext());
                 return $a;
@@ -314,11 +324,6 @@ module MDwiki.Legacy {
                 recalc_width();
                 this.check_offset_to_navbar();
             });
-            $.md.stage('postgimmick').subscribe(function (done) {
-                done();
-            });
-
-            //menu.css('width','100%');
             $('#md-left-column').append(affixDiv);
 
         }
@@ -340,14 +345,6 @@ module MDwiki.Legacy {
             $('#md-title').addClass('col-md-12');
             $('#md-content').addClass('col-md-12');
 
-        }
-        private pullRightBumper (){
-     /*     $("span.bumper").each (function () {
-                $this = $(this);
-                $this.prev().addClass ("pull-right");
-            });
-            $('span.bumper').addClass ('pull-right');
-    */
         }
 
         private changeHeading() {
@@ -477,22 +474,12 @@ module MDwiki.Legacy {
         // note: the footer is part of the GPLv3 legal information
         // and may not be removed or hidden to comply with licensing conditions.
         private addFooter() {
-            var navbar = '';
-            navbar += '<hr><div class="scontainer">';
-            navbar +=   '<div class="pull-right md-copyright-footer"> ';
-            navbar +=     '<span id="md-footer-additional"></span>';
-            navbar +=     'Website generated with <a href="http://www.mdwiki.info">MDwiki</a> ';
-            navbar +=     '&copy; Timo D&ouml;rr and contributors. ';
-            navbar +=   '</div>';
-            navbar += '</div>';
-            var $navbar = $(navbar);
-            $navbar.css('position', 'relative');
-            $navbar.css('margin-top', '1em');
-            $('#md-all').append ($navbar);
+            var footer_template = new Template("template-footer");
+            var $rendered = footer_template.insertAfter($('#md-all'));
         }
 
         private addAdditionalFooterText () {
-            var text = $.md.config.additionalFooterText;
+            var text = this.config.additionalFooterText;
             if (text) {
                 $('.md-copyright-footer #md-footer-additional').html(text);
             }
