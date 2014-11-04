@@ -90,26 +90,8 @@ module MDwiki.Legacy {
             // menusrc += '<ul id="md-menu-ul" class="nav navbar-nav">';
             // menusrc += '</ul></div>';
 
-            var navbar = '';
-            navbar += '<div id="md-main-navbar" class="navbar navbar-default navbar-fixed-top" role="navigation">';
-            navbar +=   '<div class="navbar-header">';
-            navbar +=     '<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">';
-            navbar +=       '<span class="sr-only">Toggle navigation</span>';
-            navbar +=       '<span class="icon-bar"></span>';
-            navbar +=       '<span class="icon-bar"></span>';
-            navbar +=       '<span class="icon-bar"></span>';
-            navbar +=     '</button>';
-            navbar +=     '<a class="navbar-brand" href="#"></a>';
-            navbar +=   '</div>';
-
-            navbar +=   '<div class="collapse navbar-collapse navbar-ex1-collapse">';
-            navbar +=     '<ul class="nav navbar-nav" />';
-            navbar +=     '<ul class="nav navbar-nav navbar-right" />';
-            navbar +=   '</div>';
-            navbar += '</div>';
-            var $navbar = $(navbar);
-
-            $navbar.appendTo('#md-menu');
+            var navbar = new Template("template-navbar-main");
+            navbar.appendTo('#md-menu');
             // .eq(0) becase we dont want navbar-right to be appended to
             $('#md-menu ul.nav').eq(0).append($menuContent);
 

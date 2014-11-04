@@ -34,9 +34,9 @@ module MDwiki.Templating {
             return $(node).replaceWith($(this.renderedTemplate));
         }
 
-        append (node: any) {
+        appendTo (node: any) {
             this.assertTemplateIsReady();
-            return $(node).append($(this.renderedTemplate));
+            return $(node).appendTo($(this.renderedTemplate));
         }
 
         insertAfter (node: any) {
