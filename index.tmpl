@@ -90,6 +90,11 @@
 %>
 </head>
 <body>
+
+    <!-- BEGIN Templates -->
+    <%= grunt.config('templatesString') %>
+    <!-- END Templates -->
+
     <noscript>
         This website requires Javascript to be enabled. Please turn on Javascript
         and reload the page.
@@ -98,35 +103,4 @@
     <div id="md-all">
     </div>
 </body>
-
-<script type="text/html" id="template-footer">
-<hr>
-<div style="position: relative; margin-top: 1em;">
-    <div class="pull-right md-copyright-footer">
-        <span id="md-footer-additional"></span>
-        Website generated with <a href="http://www.mdwiki.info">MDwiki</a>
-        &copy; Timo D&ouml;rr and contributors.
-    </div>
-</div>
-</script>
-
-<script type="text/html" id="template-navbar-main">
-<div id="md-main-navbar" class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#"></a>
-    </div>
-
-    <div class="collapse navbar-collapse navbar-ex1-collapse">
-        <ul class="nav navbar-nav" />;
-        <ul class="nav navbar-nav navbar-right" />
-    </div>
-</div>
-</script>
-
 </html>

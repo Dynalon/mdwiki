@@ -13,7 +13,11 @@ module MDwiki.Templating {
 
         constructor(path?: string) {
             if (path) {
-                this.view = $("#" + path).html();
+                if (!path.startsWith('/'))
+                    path = '/' + path;
+                var elem = document.getElementById(path);
+                //TODO check that elem is a script and handle errors if elem not found etc.
+                this.view = $(elem).html();
             }
         }
 

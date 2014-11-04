@@ -90,7 +90,7 @@ module MDwiki.Legacy {
             // menusrc += '<ul id="md-menu-ul" class="nav navbar-nav">';
             // menusrc += '</ul></div>';
 
-            var navbar = new Template("template-navbar-main");
+            var navbar = new Template("/templates/navigation/navbar");
             navbar.appendTo('#md-menu');
             // .eq(0) becase we dont want navbar-right to be appended to
             $('#md-menu ul.nav').eq(0).append($menuContent);
@@ -456,7 +456,7 @@ module MDwiki.Legacy {
         // note: the footer is part of the GPLv3 legal information
         // and may not be removed or hidden to comply with licensing conditions.
         private addFooter() {
-            var footer_template = new Template("template-footer");
+            var footer_template = new Template("templates/layout/footer");
             var $rendered = footer_template.insertAfter($('#md-all'));
         }
 

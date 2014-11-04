@@ -3,6 +3,9 @@ var createIndex = function (grunt, taskname) {
     var conf = grunt.config('index')[taskname],
         tmpl = grunt.file.read(conf.template);
 
+    var templatesString = grunt.file.read('tmp/templates.html');
+    grunt.config.set('templatesString', templatesString);
+
     // register the task name in global scope so we can access it in the .tmpl file
     grunt.config.set('currentTask', {name: taskname});
 
@@ -265,16 +268,30 @@ module.exports = function(grunt) {
         }
     });
 
+    /*** CUSTOM CODED TASKS ***/
     grunt.registerTask('index', 'Generate mdwiki.html, inline all scripts', function() {
         createIndex(grunt, 'release');
     });
-    grunt.registerTask('release', [ 'jshint', 'typescript', 'less:min', 'concat:dev', 'uglify:dist', 'index' ]);
 
     /* Debug is basically the releaes version but without any minifing */
     grunt.registerTask('index_debug', 'Generate mdwiki-debug.html, inline all scripts unminified', function() {
         createIndex(grunt, 'debug');
     });
-    grunt.registerTask('debug', [ 'jshint', 'typescript', 'less:dev', 'concat:dev', 'index_debug' ]);
+
+    grunt.registerTask('assembleTemplates', 'Adds a script tag with id to each template', function() {
+        var templateString = '';
+        grunt.file.recurse('templates/', function(abspath, rootdir, subdir, filename){
+            var intro = '<script type="text/html" id="/' + rootdir.replace('/','') + '/' + subdir.replace('/','') + '/' + filename.replace('.html','') + '">\n';
+            var content = grunt.file.read(abspath);
+            var outro = '</script>\n';
+            templateString += intro + content + outro;
+        });
+        grunt.file.write('tmp/templates.html', templateString);
+    });
+
+    /*** NAMED TASKS ***/
+    grunt.registerTask('release', [ 'jshint', 'typescript', 'less:min', 'assembleTemplates', 'concat:dev', 'uglify:dist', 'index' ]);
+    grunt.registerTask('debug', [ 'jshint', 'typescript', 'less:dev', 'assembleTemplates', 'concat:dev',  'index_debug' ]);
     grunt.registerTask('devel', [ 'debug', 'server', 'unittests', 'reload', 'watch' ]);
     grunt.registerTask('unittests', [ 'copy:unittests', 'http-server:unittests' ]);
 
