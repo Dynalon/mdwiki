@@ -14,15 +14,18 @@ module MDwiki.Templating {
         constructor(path?: string) {
             if (path) {
                 if (!path.startsWith('/'))
-                    path = '/' + path;
+                    path = '/templates/' + path;
                 var elem = document.getElementById(path);
-                //TODO check that elem is a script and handle errors if elem not found etc.
+                if (!elem)
+                    throw "Template view with path " + path + " could not be found";
                 this.view = $(elem).html();
             }
         }
 
         render () {
             // TODO allow precompiled templates
+            if (!this.view || !this.model)
+                throw ("Model and/or View cannot be undefined/null");
             var compiledTemplate = Hogan.compile(this.view);
             this.renderedTemplate = compiledTemplate.render(this.model);
             return this.renderedTemplate;
