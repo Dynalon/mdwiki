@@ -5,11 +5,11 @@ declare var $: JQueryStatic;
 module MDwiki.Legacy {
 
     export class PageSkeleton {
-        stages:StageChain;
         config: any;
+        domElement: JQuery;
 
-        constructor(stages:StageChain, config: any) {
-            this.stages = stages;
+        constructor(config: any, domElement: Node) {
+            this.domElement = $(domElement);
             this.config = config;
         }
 
@@ -27,31 +27,34 @@ module MDwiki.Legacy {
         // set the page title to the browser document title, optionally picking
         // the first h1 element as title if no title is given
         private setPageTitle() {
-            var $pageTitle;
-            if (this.config.title)
-                $('title').text(this.config.title);
-
-            $pageTitle = $('#md-content h1').eq(0);
+            var title = this.config.title;
+            var $pageTitle = this.domElement.find('h1').eq(0);
             if ($.trim($pageTitle.toptext()).length > 0) {
-                $('#md-title').prepend($pageTitle);
-                var title = $pageTitle.toptext();
+                this.domElement.find('#md-title').prepend($pageTitle);
+                title = $pageTitle.toptext();
                 // document.title = title;
             } else {
-                $('#md-title').remove();
+                this.domElement.find('#md-title').remove();
             }
         }
 
         private wrapParagraphText() {
             // TODO is this true for marked.js?
 
+            var para = {
+                intro: [],
+                outro: [],
+                content: "",
+                float: 'none'
+            };
             // markdown gives us sometime paragraph that contain child tags (like img),
             // but the containing text is not wrapped. Make sure to wrap the text in the
             // paragraph into a <div>
-
+            var self = this;
             // this also moves ANY child tags to the front of the paragraph!
-            $('#md-content p').each(() => {
+            this.domElement.find('p').each(function() {
                 var $p = $(this);
-                // nothing to do for paragraphs without text
+                // nothing to do for paragraphs without text (still needed?)
                 if ($.trim($p.text()).length === 0) {
                     // make sure no whitespace are in the p and then exit
                     //$p.text ('');
@@ -70,20 +73,21 @@ module MDwiki.Legacy {
                     // else
                     return false;
                 });
-                var floatClass = this.getFloatClass($p);
-                $p.wrapInner('<div class="md-text" />');
+                // images & hyperlinked images within a paragraph always go first/last of the paragraph
+                // so we apply the corresponding float classes
+                para.float = self.getFloatClass($p);
+                //$p.wrapInner('<div class="md-text" />');
 
-                // if there are no children, we are done
-                if (children.length === 0) {
-                    return;
-                }
-                // move the children out of the wrapped div into the original p
                 children.prependTo($p);
+                para.content = $p.html();
+                var templ = new Template('layout/paragraph');
+                templ.model = para;
+                templ.replace($p);
+                // move the children out of the wrapped div into the original p
 
                 // at this point, we now have a paragraph that holds text AND images
                 // we mark that paragraph to be a floating environment
                 // TODO determine floatenv left/right
-                $p.addClass('md-floatenv').addClass(floatClass);
             });
         }
 
@@ -93,7 +97,7 @@ module MDwiki.Legacy {
 
             // remove a leading <br> from floatclasses, that happen to
             // get insertet after an image
-            $('.md-floatenv').find('.md-text').each(function () {
+            this.domElement.find('.md-floatenv').find('.md-text').each(function () {
                 var $first = $(this).find('*').eq(0);
                 if ($first.is('br')) {
                     $first.remove();
@@ -101,7 +105,7 @@ module MDwiki.Legacy {
             });
 
             // remove any breaks from image groups
-            $('.md-image-group').find('br').remove();
+            this.domElement.find('.md-image-group').find('br').remove();
         }
 
         private getFloatClass(par) {
@@ -139,7 +143,7 @@ module MDwiki.Legacy {
         // images are put in the same image group as long as there is
         // not separating paragraph between them
         private groupImages() {
-            var par = $('p img').parents('p');
+            var par = this.domElement.find('p img').parents('p');
             // add an .md-image-group class to the p
             par.addClass('md-image-group');
         }
@@ -148,9 +152,10 @@ module MDwiki.Legacy {
         // needed since we scale down images via css and want them to be accessible
         // in original format
         private linkImagesToSelf() {
+            var self = this;
             function selectNonLinkedImages() {
                 // only select images that do not have a non-empty parent link
-                $images = $('img').filter(function (index) {
+                $images = self.domElement.find('img').filter(function (index) {
                     var $parent_link = $(this).parents('a').eq(0);
                     if ($parent_link.length === 0) return true;
                     var attr = $parent_link.attr('href');
@@ -222,10 +227,10 @@ module MDwiki.Legacy {
                     return;
 
                 var $jumpLink = $('<a class="visible-xs visible-sm jumplink" href="#md-page-menu">' + c + '</a>');
-                $jumpLink.click(function (ev) {
+                $jumpLink.click((ev) => {
                     ev.preventDefault();
 
-                    $('body').scrollTop($('#md-page-menu').position().top);
+                    this.domElement.find('body').scrollTop(this.domElement.find('#md-page-menu').position().top);
                 });
 
                 if ($heading.parents('#md-menu').length === 0) {
@@ -235,7 +240,7 @@ module MDwiki.Legacy {
 
             // adds a page inline anchor to each h1,h2,h3,h4,h5,h6 element
             // which can be accessed by the headings text
-            $('h1,h2,h3,h4,h5,h6').not('#md-title h1').each(function () {
+            this.domElement.find('h1,h2,h3,h4,h5,h6').not('#md-title h1').each(function () {
                 var $heading = $(this);
                 $heading.addClass('md-inpage-anchor');
                 var text = $heading.clone().children('.anchor-highlight').remove().end().text();

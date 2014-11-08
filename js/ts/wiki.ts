@@ -66,7 +66,7 @@ module MDwiki.Core {
         }
         private registerPageTransformation() {
             this.stages.getStage('ready').subscribe((done) => {
-                var page_skeleton = new MDwiki.Legacy.PageSkeleton(this.stages, this.config);
+                var page_skeleton = new MDwiki.Legacy.PageSkeleton(this.config, document);
                 page_skeleton.createBasicSkeleton();
                 done();
             });
