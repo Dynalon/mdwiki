@@ -11,6 +11,16 @@
   <script type="text/javascript" src="/unittests/lib/jasmine-2.0.2/jasmine-html.js"></script>
   <script type="text/javascript" src="/unittests/lib/jasmine-2.0.2/boot.js"></script>
   <script type="text/javascript" src="/unittests/lib/jquery.min.js"></script>
+  <script type="text/javascript" src="/extlib/js/hogan-3.0.1.js"></script>
+
+  <script type="text/javascript">
+    // load the templates into the document
+        $.get('/tmp/templates.html').done(function(res) {
+          var $div = $('<div></div>');
+          $div.appendTo('body');
+          $div.html(res);
+        });
+  </script>
 
   <script type="text/javascript" src="/unittests/lib/jasmine-jquery.js"></script>
   <script type="text/javascript">
@@ -27,6 +37,7 @@
   <script type="text/javascript" src="spec/test_gimmickparser.js"></script>
   <script type="text/javascript" src="spec/test_gimmick.js"></script>
   <script type="text/javascript" src="spec/test_gimmickloader.js"></script>
+  <script type="text/javascript" src="spec/test_basicskeleton.js"></script>
   <script type="text/javascript" src="spec/test_integration_gimmickloader.js"></script>
 
 </head>
