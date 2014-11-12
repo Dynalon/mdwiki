@@ -17,7 +17,7 @@
     "grunt-shell": "~0.4.0",
     "load-grunt-tasks": "~0.4.0",
     "tsd": "~0.5.7",
-    "typescript": "^1.1.0-1"
+    "typescript": "~1.3.0"
   },
   "engines": {
     "node": "~0.10.0"
