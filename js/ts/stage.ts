@@ -58,6 +58,7 @@ module MDwiki.Stages {
                 return;
             }
             var last = this.stages[len-1];
+            // each stage triggers the next one when finished
             last.finished().done(() => s.start());
             this.stages.push(s);
         }
@@ -72,42 +73,64 @@ module MDwiki.Stages {
 
     export class Stage
     {
-        private started: boolean = false;
-        private subscribedFuncs: SubscribedFunc[] = [];
-        public name: string;
-
-        private allFinishedDfd: any = $.Deferred();
-        public finished(): any {
-            return this.allFinishedDfd;
+        private allFinishedDfd: JQueryDeferred<void> = $.Deferred<void>();
+        private get isFinished() {
+            return this.allFinishedDfd.state() !== 'pending';
         }
+
+        /**
+         * @description Hook to allow a function to execute after a stage has finished
+         * @returns {JQueryPromise<void>}
+         */
+        public finished() {
+            return this.allFinishedDfd.promise();
+        }
+
+        private started = false;
+        private numOutstanding = 0;
+        private subscribedFuncs: SubscribedFunc[] = [];
+
+        // a stage shouldn't carry a name - the StageChain should map to names
+        public name: string;
 
         constructor(name: string) {
             this.name = name;
         }
 
+        /**
+         * @description Adds a function that is to be called once the stage starts. Functions are processed in the order
+         * they were added.
+         * @param fn - The function to be called.
+         */
         subscribe (fn: SubscribedFunc) : void {
-            if (this.started)
-                throw 'Stage already started';
+            if (this.isFinished)
+                throw 'Stage already finished, cannot subscribe';
 
+            this.numOutstanding++;
             this.subscribedFuncs.push(fn);
         }
 
+        /**
+         * @description starts the stage, running all subscribed callbacks.
+         */
         start() {
             console.dir ("running stage " + this.name);
             this.started = true;
-            var num_outstanding = this.subscribedFuncs.length;
 
-            if (num_outstanding == 0) {
+            if (this.numOutstanding == 0) {
                 this.allFinishedDfd.resolve();
                 return;
             }
 
-            this.subscribedFuncs.map(subbedFn => {
+            var start_index = 0;
+            while(this.numOutstanding > 0) {
+                var subbedFn = this.subscribedFuncs[start_index++];
                 var doneCallback = () => {
-                    --num_outstanding || this.allFinishedDfd.resolve();
+                    --this.numOutstanding;
                 };
                 subbedFn(doneCallback);
-            });
+            }
+            this.allFinishedDfd.resolve();
         }
     }
 }
