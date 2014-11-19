@@ -1,4 +1,4 @@
-Use with Google Drive
+Host with Google Drive
 ================
 
 About
