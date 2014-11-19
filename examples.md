@@ -22,7 +22,8 @@ This is a lose collection of websites that are known to be realized with MDwiki.
 [ccfcoop.ca](http://ccfcoop.ca/)             | Community Food co-op
 [help.caleydo.org](http://help.caleydo.org/) | Software documentation for biomolecular visualization project
 [fooirc.com](http://fooirc.com/)             | A windows IRC Client
-[khannover.de](http://khannover.de/)             | Private website
+[khannover.de](http://khannover.de/)         | Private website
+[jda.rocks](https://jda.rocks/)              | Private development website
 
 [mdwikisrc]: https://github.com/Dynalon/mdwiki/tree/gh-pages
 
