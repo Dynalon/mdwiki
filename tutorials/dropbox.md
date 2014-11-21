@@ -25,8 +25,4 @@ Intructions
 
   * For old, pro, and business Dropbox accounts, you have `Public` folder you can get a link to - this can be used for hosting. If you need a Public folder, get one [here](https://www.dropbox.com/enable_public_folder).
 
-Additional info
----------------
-
-
 [contribute]: /contribute.md
