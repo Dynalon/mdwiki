@@ -6,6 +6,8 @@ About
 
 This tutorial describes how to maintain a copy of MDwiki with [Google Drive](http://drive.google.com)
 
+Note: This tutorial is incomplete. Please help completing it for beginner users by [contributing][contribute].
+
 Intructions
 -----------
 
