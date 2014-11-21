@@ -8,6 +8,8 @@ This tutorial describes how to host a copy of MDwiki with [Dropbox](http://www.d
 
 Attention: **Free accounts made later than August 2011 will not work with this method.** Try [GitHub Pages](tutorials/github.md) or [Google Drive](tutorials/drive.md) hosting instead. Pro and Business Dropbox accounts can enable their public folder [here](https://www.dropbox.com/enable_public_folder), and still use this tutorial. 
 
+Note: This tutorial is incomplete. Please help completing it for beginner users by [contributing][contribute].
+
 Intructions
 -----------
 
