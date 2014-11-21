@@ -1,7 +1,7 @@
 Hosting on GitHub
 =================
 
-Attention: This tutorial is incomplete. Please help completing it for beginner users by [contributing][contribute].
+Note: This tutorial is incomplete. Please help us by completing it for beginner users: [Contribute][contribute].
 
 About
 ------

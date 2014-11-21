@@ -1,39 +1,30 @@
-Use with Dropbox
+Hosting with Dropbox
 ================
 
 About
 -----
 
-This tutorial describe how to maintain a copy of MDwiki with [Dropbox](http://www.dropbox.com)
+This tutorial describes how to host a copy of MDwiki with [Dropbox](http://www.dropbox.com)
 
-Attention: This tutorial is incomplete. Please help completing it for beginner users by [contributing][contribute].
+Attention: **Free accounts made later than August 2011 will not work with this method.** Try [GitHub Pages](tutorials/github.md) or [Google Drive](tutorials/drive.md) hosting instead. Pro and Business Dropbox accounts can enable their public folder [here](https://www.dropbox.com/enable_public_folder), and still use this tutorial. 
+
+Note: This tutorial is incomplete. Please help us by completing it for beginner users: [Contribute][contribute].
 
 Intructions
 -----------
 
-### Step 1: Get Dropbox account
+### Step 1: Get a Dropbox account
 
 ### Step 2: Download `mdwiki.html` to your Dropbox
 
-  * Rename to index.html if wanted
+  * Rename to index.html if you like.
 
-### Step 3: Edit
+### Step 3: Edit your Markdown files
 
-  * Use your favorite texteditor
+  * Create an index.md file and edit it. Do not edit the index.html file! Try following the [quickstart guide](quickstart.md).
 
-### Step 4: Viewing
+### Step 4: Public hosting
 
-  * Use Firefox or any other Browser that is capable of `file:///` uls
-  * If using Chrome, add cmdline flags
-  * Note that using a standalone webserver is usually better
-
-### Step 5: Public hosting
-
-  * For old Dropbox accounts, you have `Public` folder you can get a link to - this can be used for hosting
-  * Newer Dropbox (Past August 2011) sadly don't have `Public` folder and hosting with Dropbox is not possible
-
-Additional info
----------------
-
+  * For old, pro, and business Dropbox accounts, you have `Public` folder you can get a link to - this can be used for hosting. If you need a Public folder, get one [here](https://www.dropbox.com/enable_public_folder).
 
 [contribute]: /contribute.md
