@@ -246,20 +246,10 @@ module.exports = function(grunt) {
         },
         'http-server': {
             'dev': {
-                root:'dist/',
-                port: 1026,
-                host: "127.0.0.1",
-                cache: 1,
-                showDir : true,
-                autoIndex: true,
-                defaultExt: "html",
-                runInBackground: true
-            },
-            'unittests': {
                 root:'./',
-                port: 1027,
-                host: "127.0.0.1",
-                cache: 0,
+                port: 8080,
+                host: "0.0.0.0",
+                cache: 1,
                 showDir : true,
                 autoIndex: true,
                 defaultExt: "html",
@@ -293,7 +283,7 @@ module.exports = function(grunt) {
     grunt.registerTask('release', [ 'jshint', 'typescript', 'less:min', 'assembleTemplates', 'concat:dev', 'uglify:dist', 'index' ]);
     grunt.registerTask('debug', [ 'jshint', 'typescript', 'less:dev', 'assembleTemplates', 'concat:dev',  'index_debug' ]);
     grunt.registerTask('devel', [ 'debug', 'server', 'unittests', 'reload', 'watch' ]);
-    grunt.registerTask('unittests', [ 'copy:unittests', 'http-server:unittests' ]);
+    grunt.registerTask('unittests', [ 'copy:unittests' ]);
 
     grunt.registerTask('server', [ 'http-server:dev' ]);
 
