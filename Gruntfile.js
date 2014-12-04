@@ -236,6 +236,8 @@ module.exports = function(grunt) {
                 'js/*.js',
                 'js/**/*.js',
                 'js/ts/**/*.ts',
+                'unittests/**/*.js',
+                'unittests/**/*.html',
                 'index.tmpl'
             ],
             tasks: ['debug','reload' ]
