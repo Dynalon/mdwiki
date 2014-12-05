@@ -12,6 +12,7 @@ describe('BasicSkeleton', function() {
     it('should correctly transform a simple paragraph', function() {
         var section = $('#single-paragraph')[0];
         skeleton = new MDwiki.Legacy.PageSkeleton(config, section);
+        debugger;
         skeleton.createBasicSkeleton();
         var text = $.trim($(section).find('.md-text .md-paragraph-content').text());
         expect(text).toBe('This is a sentence.');
@@ -24,8 +25,7 @@ describe('BasicSkeleton', function() {
 
         var number_of_images_in_paragraph = $(section).find('p img').length;
         expect(number_of_images_in_paragraph).toBe(0);
-        var image_in_floatenv = $(section).find('.md-text .md-float-left img').length === 1;
-        debugger;
+        var image_in_floatenv = $(section).find('.md-text .md-float-right img').length === 1;
         expect(image_in_floatenv).toBeTruthy();
     });
 });

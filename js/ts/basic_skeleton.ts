@@ -41,12 +41,6 @@ module MDwiki.Legacy {
         private wrapParagraphText() {
             // TODO is this true for marked.js?
 
-            var para = {
-                intro: [],
-                outro: [],
-                content: "",
-                float: 'none'
-            };
             // markdown gives us sometime paragraph that contain child tags (like img),
             // but the containing text is not wrapped. Make sure to wrap the text in the
             // paragraph into a <div>
@@ -60,8 +54,8 @@ module MDwiki.Legacy {
                     //$p.text ('');
                     return;
                 }
-                // children elements of the p
-                var children = $p.contents().filter(function () {
+                // select images & hyperlinked images within a paragraph
+                var image_children = $p.contents().filter(function () {
                     var $child = $(this);
                     // we extract images and hyperlinks with images out of the paragraph
                     if (this.tagName === 'A' && $child.find('img').length > 0) {
@@ -75,19 +69,20 @@ module MDwiki.Legacy {
                 });
                 // images & hyperlinked images within a paragraph always go first/last of the paragraph
                 // so we apply the corresponding float classes
-                para.float = self.getFloatClass($p);
-                //$p.wrapInner('<div class="md-text" />');
 
-                children.prependTo($p);
-                para.content = $p.html();
                 var templ = new Template('layout/paragraph');
-                templ.model = para;
-                templ.replace($p);
-                // move the children out of the wrapped div into the original p
+                var $inserted_node = templ.insertAfter($p);
 
+                var floatClass = self.getFloatClass($p);
+                if (floatClass == "md-float-left")
+                    $inserted_node.find(".md-paragraph-intro").append(image_children);
+                if (floatClass == "md-float-right")
+                    $inserted_node.find(".md-paragraph-outro").append(image_children);
+
+                $inserted_node.find("p").append($p.contents());
+                $p.remove();
                 // at this point, we now have a paragraph that holds text AND images
                 // we mark that paragraph to be a floating environment
-                // TODO determine floatenv left/right
             });
         }
 

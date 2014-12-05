@@ -7,7 +7,7 @@ module MDwiki.Templating {
     export class Template {
 
         public view: string = '';
-        public model: any;
+        public model: any = {};
 
         private renderedTemplate: any;
 
@@ -24,8 +24,8 @@ module MDwiki.Templating {
 
         render () {
             // TODO allow precompiled templates
-            if (!this.view || !this.model)
-                throw ("Model and/or View cannot be undefined/null");
+            if (!this.view)
+                throw ("View cannot be undefined/null");
             var compiledTemplate = Hogan.compile(this.view);
             this.renderedTemplate = compiledTemplate.render(this.model);
             return this.renderedTemplate;
@@ -36,9 +36,16 @@ module MDwiki.Templating {
                 return this.render();
         }
 
-        replace (node: any) {
+        /**
+         *
+         * @param node - The node that will be replaced
+         * @returns {JQuery} The newly inserted node
+         */
+        replace (node: any) : JQuery {
             this.assertTemplateIsReady();
-            return $(node).replaceWith($(this.renderedTemplate));
+            var rendered_template = $(this.renderedTemplate);
+            $(node).replaceWith(rendered_template);
+            return rendered_template;
         }
 
         appendTo (node: any) {
