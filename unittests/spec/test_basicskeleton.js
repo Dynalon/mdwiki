@@ -12,7 +12,6 @@ describe('BasicSkeleton', function() {
     it('should correctly transform a simple paragraph', function() {
         var section = $('#single-paragraph')[0];
         skeleton = new MDwiki.Legacy.PageSkeleton(config, section);
-        debugger;
         skeleton.createBasicSkeleton();
         var text = $.trim($(section).find('.md-text .md-paragraph-content').text());
         expect(text).toBe('This is a sentence.');
