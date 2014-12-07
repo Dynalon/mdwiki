@@ -97,9 +97,24 @@ module MDwiki.Stages {
             this.name = name;
         }
 
+        private countdown (): void {
+            this.numOutstanding--;
+            if (this.numOutstanding == 0) {
+                this.allFinishedDfd.resolve();
+            }
+        }
+
         /**
-         * @description Adds a function that is to be called once the stage starts. Functions are processed in the order
-         * they were added.
+         * @description Adds a function that is to be called once the stage starts.
+         * No guarantee about the executing order can be given; execution order might change
+         * at any time. Functions within the same stage should thus not rely
+         * on the execution order.
+         *
+         * Important: The subscriber function is passed a "done" callback function
+         * which should be called after the subscriber function is finished. It is
+         * not allowed to add another function to the stage after the done callback
+         * was executed (but it is ok for a subscriber function to add another subscriber
+         * prior to executing the done callback).
          * @param fn - The function to be called.
          */
         subscribe (fn: SubscribedFunc) : void {
@@ -107,7 +122,10 @@ module MDwiki.Stages {
                 throw 'Stage already finished, cannot subscribe';
 
             this.numOutstanding++;
-            this.subscribedFuncs.push(fn);
+            if (this.started)
+                fn(() => this.countdown());
+            else
+                this.subscribedFuncs.push(fn);
         }
 
         /**
@@ -122,15 +140,9 @@ module MDwiki.Stages {
                 return;
             }
 
-            var start_index = 0;
-            while(this.numOutstanding > 0) {
-                var subbedFn = this.subscribedFuncs[start_index++];
-                var doneCallback = () => {
-                    --this.numOutstanding;
-                };
-                subbedFn(doneCallback);
-            }
-            this.allFinishedDfd.resolve();
+            this.subscribedFuncs.forEach(subbedFn => {
+                subbedFn(() => this.countdown());
+            });
         }
     }
 }

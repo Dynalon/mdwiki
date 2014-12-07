@@ -5,16 +5,16 @@ describe('Stages', function() {
 
         var two_test_stages = ['first', 'second']
 
-        it('should process all stages sequentially', function (jasmineDone) {
+        it('should process all stages', function (jasmineDone) {
             var stage_chain = new MDwiki.Stages.StageChain(two_test_stages);
 
             var count = 0;
             stage_chain.getStage("first").subscribe(function (done) {
-                if (count == 0) count++;
+                count++;
                 done();
             });
             stage_chain.getStage("second").subscribe(function (done) {
-                if (count == 1) count++;
+                count++;
                 done();
             });
             stage_chain.run();
@@ -47,12 +47,12 @@ describe('Stages', function() {
             var stage = new MDwiki.Stages.Stage('sample');
             var count = 0;
             stage.subscribe(function(done1) {
-                done1();
-                if (count === 0) count = 1;
+                count++;
                 stage.subscribe(function(done2) {
-                   done2();
-                   if (count === 1) count = 2;
+                    count++;
+                    done2();
                 });
+                done1();
             });
             stage.start();
             expect(count).toBe(2);
@@ -71,6 +71,12 @@ describe('Stages', function() {
             }
             expect(ok).toBeTruthy();
             expect(executed).toBeFalsy();
+        });
+        it('should execute several async methods in parallel', function() {
+            var stage = new MDwiki.Stages.Stage('sample');
+            stage.subscribe(function(done) {
+                done();
+            });
         });
     });
 });
