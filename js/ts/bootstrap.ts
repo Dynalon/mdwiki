@@ -53,28 +53,28 @@ module MDwiki.Legacy {
             $(document).trigger(ev);
         }
         private parseHeader() {
-            if (this.config.parseHeader) {
-                var parsedHeaders:any = {};
-                var header = $('#md-content > pre:first-child');
-                header.hide();
-                var headerLines = header.text().split("\n");
-                $.each(headerLines, function(n, elem:any) {
-                    elem = elem.split(':', 2);
-                    if (elem.length === 2) {
-                        parsedHeaders[elem[0].trim()] = elem[1].trim();
-                    }
-                });
-                parsedHeaders.title = parsedHeaders.title || $('#md-title h1').text();
-                if (parsedHeaders.title) {
-                    document.title = parsedHeaders.title;
-                    $('meta[name=subject]').attr('content', parsedHeaders.title);
+            if (!this.config.parseHeader)
+                return;
+            var parsedHeaders:any = {};
+            var header = $('#md-content > pre:first-child');
+            header.hide();
+            var headerLines = header.text().split("\n");
+            $.each(headerLines, function(n, elem:any) {
+                elem = elem.split(':', 2);
+                if (elem.length === 2) {
+                    parsedHeaders[elem[0].trim()] = elem[1].trim();
                 }
-                if (parsedHeaders.author) $('meta[name=author]').attr('content', parsedHeaders.author);
-                if (parsedHeaders.description) $('meta[name=description]').attr('content', parsedHeaders.description);
-                if (parsedHeaders.copyright) $('meta[name=copyright]').attr('content', parsedHeaders.copyright);
-                if (parsedHeaders.keywords) $('meta[name=keywords]').attr('content', parsedHeaders.keywords);
-                $('meta[name=generator]').attr('content', 'mdwiki');
+            });
+            parsedHeaders.title = parsedHeaders.title || $('#md-title h1').text();
+            if (parsedHeaders.title) {
+                document.title = parsedHeaders.title;
+                $('meta[name=subject]').attr('content', parsedHeaders.title);
             }
+            if (parsedHeaders.author) $('meta[name=author]').attr('content', parsedHeaders.author);
+            if (parsedHeaders.description) $('meta[name=description]').attr('content', parsedHeaders.description);
+            if (parsedHeaders.copyright) $('meta[name=copyright]').attr('content', parsedHeaders.copyright);
+            if (parsedHeaders.keywords) $('meta[name=keywords]').attr('content', parsedHeaders.keywords);
+            $('meta[name=generator]').attr('content', 'mdwiki');
         }
 
         private buildTopNav() {
@@ -89,8 +89,8 @@ module MDwiki.Legacy {
             // menusrc += '<div id="md-menu-inner" class="container">';
             // menusrc += '<ul id="md-menu-ul" class="nav navbar-nav">';
             // menusrc += '</ul></div>';
-
-            var navbar = new Template("/templates/navigation/navbar");
+    debugger;
+            var navbar = new Template("navigation/navbar");
             navbar.appendTo('#md-menu');
             // .eq(0) becase we dont want navbar-right to be appended to
             $('#md-menu ul.nav').eq(0).append($menuContent);
@@ -456,7 +456,7 @@ module MDwiki.Legacy {
         // note: the footer is part of the GPLv3 legal information
         // and may not be removed or hidden to comply with licensing conditions.
         private addFooter() {
-            var footer_template = new Template("templates/layout/footer");
+            var footer_template = new Template("layout/footer");
             var $rendered = footer_template.insertAfter($('#md-all'));
         }
 

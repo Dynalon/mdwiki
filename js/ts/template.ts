@@ -14,7 +14,8 @@ module MDwiki.Templating {
         constructor(path?: string) {
             if (path) {
                 if (!path.startsWith('/'))
-                    path = '/templates/' + path;
+                    path = '/' + path;
+                path = '/templates' + path;
                 var elem = document.getElementById(path);
                 if (!elem)
                     throw "Template view with path " + path + " could not be found";
@@ -50,7 +51,7 @@ module MDwiki.Templating {
 
         appendTo (node: any) {
             this.assertTemplateIsReady();
-            return $(node).appendTo($(this.renderedTemplate));
+            return $(this.renderedTemplate).appendTo($(node));
         }
 
         insertAfter (node: any) {
