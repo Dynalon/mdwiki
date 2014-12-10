@@ -11,6 +11,9 @@ describe('DataModels', function() {
         });
 
         it('should find the page title', function() {
+            var navElements = $("#basic-navigation").children();
+            var model = navParser.parse(navElements);
+            expect(model.pageTitle).toBe("MDwiki");
         });
 
         it('should find all top-level menu entries',function() {

@@ -6,23 +6,25 @@ module MDwiki.DataModels {
             var root = $(node);
             var navbar = new NavigationBarModel();
 
+            navbar.pageTitle = root.filter("h1").first().text() || "";
+
             // TODO fancy selector that selects only p's that aren't
             // followed by <ul>
             root.filter("p").find("a").each(function(i, e) {
-                debugger;
                 var $el = $(e);
                 var toplevelentry = new ToplevelEntry();
                 toplevelentry.title = ($el.text());
                 toplevelentry.href = ($el.attr("href"));
                 navbar.toplevelEntries.push(toplevelentry);
             });
+
             return navbar;
         }
     }
 
     export class NavigationBarModel {
         toplevelEntries: any[] = [];
-
+        pageTitle: string = "";
     }
 
     export class ToplevelEntry
