@@ -24,7 +24,6 @@
     ];
 
     prismHandler.callback = function(trigger, content, options, domElement) {
-        debugger;
     };
     function prism_highlight () {
         return;
