@@ -1,5 +1,9 @@
 (function($) {
 
+    var prismGimmick = new MDwiki.Gimmick.Gimmick('prism');
+    var prismHandler = new MDwiki.Gimmick.GimmickHandler('multiline');
+    prismHandler.loadStage = 'ready';
+
     var supportedLangs = [
         'bash',
         'c',
@@ -18,7 +22,12 @@
         'sql',
         'xml'
     ];
+
+    prismHandler.callback = function(trigger, content, options, domElement) {
+        debugger;
+    };
     function prism_highlight () {
+        return;
         // marked adds lang-ruby, lang-csharp etc to the <code> block like in GFM
         var $codeblocks = $('pre code[class^=lang-]');
         $codeblocks.each(function() {
@@ -37,12 +46,6 @@
         Prism.highlightAll();
     }
 
-    var prismGimmick = new MDwiki.Core.Module();
-    prismGimmick.init = function() {
-        $.md.stage('gimmick').subscribe(function(done) {
-            prism_highlight();
-            done();
-        });
-    };
-    $.md.wiki.gimmicks.registerModule(prismGimmick);
+    prismGimmick.addHandler(prismHandler);
+    $.md.wiki.gimmicks.registerGimmick(prismGimmick);
 }(jQuery));

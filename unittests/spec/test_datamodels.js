@@ -16,6 +16,7 @@ describe('DataModels', function() {
             expect(model.pageTitle).toBe("MDwiki");
         });
 
+
         it('should find all top-level menu entries',function() {
             var navElements = $("#basic-navigation").children();
             var model = navParser.parse(navElements);
@@ -23,6 +24,9 @@ describe('DataModels', function() {
         });
 
         it('find sublevel entries',function() {
+            var navElements = $("#basic-navigation").children();
+            var model = navParser.parse(navElements);
+            expect(model.toplevelEntries[1].childs.length).toBe(5);
         });
     });
 });
