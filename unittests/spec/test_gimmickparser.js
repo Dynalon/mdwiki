@@ -1,7 +1,7 @@
 describe('GimmickParser', function() {
     'use strict';
     beforeEach(function() {
-        loadFixtures('gimmick.html');
+        loadFixtures('rendered-markdown/gimmick.html');
     });
 
     it('should not treat a singleline gimmick as a multiline gimmick', function() {
