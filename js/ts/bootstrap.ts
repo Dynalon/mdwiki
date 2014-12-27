@@ -89,7 +89,6 @@ module MDwiki.Legacy {
             // menusrc += '<div id="md-menu-inner" class="container">';
             // menusrc += '<ul id="md-menu-ul" class="nav navbar-nav">';
             // menusrc += '</ul></div>';
-    debugger;
             var navbar = new Template("navigation/navbar");
             navbar.appendTo('#md-menu');
             // .eq(0) becase we dont want navbar-right to be appended to

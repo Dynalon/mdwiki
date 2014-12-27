@@ -76,7 +76,6 @@ module MDwiki.Gimmick {
                     /*jshint -W061 */
                     args = eval(params);
                 } catch (err) {
-                    debugger;
                     $.error('error parsing argument of gimmick: ' + s + ' giving error: ' + err);
                 }
             }
