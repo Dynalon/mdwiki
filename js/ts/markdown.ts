@@ -3,7 +3,23 @@ declare var marked: any;
 interface JQuery {
     toptext: () => string;
 }
-module Markdown {
+module MDwiki.Markdown {
+
+    export class MarkdownPostprocessing {
+        public process (dom: JQuery): void {
+            dom.find("pre > code").each((i,code) => {
+                this.removeLangPrefix($(code));
+            });
+        }
+
+        private removeLangPrefix (code: JQuery): void {
+            var klass = code.attr('class');
+            if (klass.indexOf("lang-gimmick") === 0) {
+                klass = klass.replace('lang-gimmick', 'gimmick');
+                code.attr('class', klass);
+            }
+        }
+    }
 
     export class Markdown {
         public markdownSource: string;
