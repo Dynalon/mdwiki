@@ -93,8 +93,14 @@ module MDwiki.Core {
             marked.setOptions(options);
 
             // get sample markdown
-            var uglyHtml = marked(markdown);
-            return uglyHtml;
+            var transformer = new MDwiki.Markdown.Markdown(markdown, options);
+            var html = transformer.transform();
+            var processor = new MDwiki.Markdown.MarkdownPostprocessing();
+            // TODO eliminate double conversion from/to html/jquery
+            var $dom = $("<a/>").wrapInner($(html));
+            processor.process($dom);
+            var html = $dom.html();
+            return html;
         }
 
         private registerClearContent() {
