@@ -23,10 +23,16 @@
         'xml'
     ];
 
-    prismHandler.callback = function(trigger, content, options, domElement) {
+    prismHandler.callback = function(params, done) {
+        var domElement = params.domElement;
+        var trigger = params.trigger;
+        var text = params.text;
+
+        domElement.addClass("language-csharp");
+        done();
     };
+
     function prism_highlight () {
-        return;
         // marked adds lang-ruby, lang-csharp etc to the <code> block like in GFM
         var $codeblocks = $('pre code[class^=lang-]');
         $codeblocks.each(function() {
@@ -47,4 +53,8 @@
 
     prismGimmick.addHandler(prismHandler);
     $.md.wiki.gimmicks.registerGimmick(prismGimmick);
+    $.md.wiki.stages.getStage('gimmick').subscribe(function(done) {
+        Prism.highlightAll();
+        done();
+    });
 }(jQuery));

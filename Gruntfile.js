@@ -38,7 +38,8 @@ module.exports = function(grunt) {
             'js/bootstrap.js',
 
             // gimmicks
-            'js/gimmicks/templating.js'
+            'js/gimmicks/templating.js',
+            'js/gimmicks/prism.js',
             /*
              'js/gimmicks/googlemaps.js',
              'js/gimmicks/alerts.js',
@@ -50,7 +51,6 @@ module.exports = function(grunt) {
             'js/gimmicks/forkmeongithub.js',
             'js/gimmicks/gist.js',
             'js/gimmicks/iframe.js',
-            'js/gimmicks/prism.js',
             'js/gimmicks/math.js',
             // // 'js/gimmicks/leaflet.js',
             'js/gimmicks/twitter.js',
