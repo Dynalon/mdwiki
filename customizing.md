@@ -29,18 +29,22 @@ Configuration
 
 You can create a `config.json` file in the same folder as the `mdwiki.html` file which is then used for configuration. The file has to be valid JSON. Currently these options are available:
 
-  * `useSideMenu: false` - disable the side navigation
-  * `lineBreaks: "original"` - Instead of using the [GFM] line breaks, use the original line breaking as [introduced by John Gruber][DaringFireball]:
+  * `"useSideMenu": false` - disable the side navigation
+  * `"lineBreaks": "original"` - Instead of using the [GFM] line breaks, use the original line breaking as [introduced by John Gruber][DaringFireball]:
     * line breaks in the markdown files are ignored, except if a line ends with two spaces
     * Default is `lineBreaks: "gfm"` (line breaks in markdown will create a new paragraph)
-  * `additionalFooterText: ""`
+  * `"additionalFooterText": ""`
     * Can be used to add text to the copyright footer at the bottom, like custom copyright notices.
     * Example: `additionalFooterText: "All content and images &copy; by John Doe"`
     * Default: `""` (empty string)
-  * `anchorCharacter: "&para;"`
+  * `"anchorCharacter": "&para;"`
     * The character/text displayed and used as a hyperlink when hovering over headings.
     * Unicode characters can be used in HTML notation. Example: `&#x2693;` will render as &#x2693;
     * Default: The pilcrow (paragraph) sign: &para;
+  * `"title": "ACME Industries Wiki"`
+	* Changes the title of the webpage.
+	* Default: `"MDWiki"`
+	* Note - this parameter does not change the title of your wiki in Google search results. Edit `mdwiki.html` directly to correct this. ([Issue #58](https://github.com/Dynalon/mdwiki/issues/58)) 
 
 A sample `config.json` might thus look like this:
 
