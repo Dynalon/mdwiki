@@ -24,6 +24,7 @@ This is a lose collection of websites that are known to be realized with MDwiki.
 [fooirc.com](http://fooirc.com/)             | A windows IRC Client
 [khannover.de](http://khannover.de/)         | Private website
 [jda.rocks](https://jda.rocks/)              | Private development website
+[pekkaserver.net](http://pekkaserver.net)    | Open-source COC Server
 
 [mdwikisrc]: https://github.com/Dynalon/mdwiki/tree/gh-pages
 
