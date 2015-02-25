@@ -30,9 +30,9 @@ You can sign up with GitHub at <http://www.github.com/signup>.
 
 ### Step 2: Fork mdwiki-seed
 
-We have set up a [minimal example MDwiki installation](https://github.com/exalted/mdwiki-seed) that you can use as a starting point. Included is the latest MDwiki release and some example Markdown that is easy to understand.  Follow the link and click the "fork" button to get your own copy. Call it something like <MyProject>-wiki.
+We have set up a [minimal example MDwiki installation](https://github.com/exalted/mdwiki-seed) that you can use as a starting point. Included is the latest MDwiki release and some example Markdown that is easy to understand.  Follow the link and click the "fork" button to get your own copy. Call it something like `<MyProject>-wiki`.
 
-Now you should be able to see an index page at http://<username>.github.io/<MyProject>-wiki/#!index.md, where username is your Github account name.  It may take up to ten minutes for this to be available.
+Now you should be able to see an index page at `http://<username>.github.io/<MyProject>-wiki/#!index.md`, where username is your Github account name.  It may take up to ten minutes for this to be available.
 
 ### Step 3: See MDwiki-seed README.md for more detail
 
@@ -45,4 +45,4 @@ Enjoy!
 Note: This tutorial is incomplete. Please help completing it for beginner users by [contributing][contribute].
 
 
-[contribute]: /contribute.md
+[contribute]: ../contribute/index.md
