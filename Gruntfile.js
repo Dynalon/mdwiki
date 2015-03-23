@@ -50,7 +50,8 @@ module.exports = function(grunt) {
             // 'js/gimmicks/leaflet.js',
             'js/gimmicks/themechooser.js',
             'js/gimmicks/twitter.js',
-            'js/gimmicks/youtube_embed.js'
+            'js/gimmicks/youtube_embed.js',
+            'js/gimmicks/chart.js'
         ],
 
         // files that we always inline (stuff not available on CDN)
@@ -142,7 +143,8 @@ module.exports = function(grunt) {
                     hljs: true,
                     /* leaflet.js*/
                     L: true,
-                    console: true
+                    console: true,
+                    Chart: true
                 }
             },
             /*gruntfile: {
