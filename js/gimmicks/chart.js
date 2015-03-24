@@ -28,15 +28,18 @@
             //      dataColumns: This is a array of strings that indicate each column to be plotted
             //      canvasId:    This is a ID for the given chart. Defaults to a random number
             //                   between 1-1000.
+            //      chartOptions: This is an object that is passed to chartjs to configure its
+            //                    options.
+            //      chartType:   This string is the type of chart we want to render. Bar, Line,
+            //                   or Radar. Defaults to Line.
             var default_options = {
-                canvasId: Math.floor((Math.random() * 1000) + 1)
+                chartType: 'Line',
+                canvasId: Math.floor((Math.random() * 1000) + 1),
+                chartOptions: {
+                    responsive: true
+                }
             };
             var options = $.extend ({}, default_options, opt);
-
-            //chartoptions
-            var chartOptions = {
-                responsive: true
-            };
 
             // Replace the Gimmick with the canvas that chartJS needs
             var $link = $(link);
@@ -98,11 +101,9 @@
                 });
             });
 
-            console.log(JSON.stringify(chartConfig));
             setTimeout(function(){
-                new Chart(document.getElementById(options.canvasId).getContext("2d")).Line(chartConfig, chartOptions);
+                new Chart(document.getElementById(options.canvasId).getContext("2d"))[options.chartType](chartConfig, options.chartOptions);
             }, 100);
-            //var chartReference = new Chart(document.getElementById(options.canvasId).getContext("2d")).Line(chartConfig);
 
         });
     }
