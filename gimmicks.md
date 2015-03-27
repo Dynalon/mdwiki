@@ -232,3 +232,41 @@ Preview:
 
 Disqus is always embedded at the bottom of a page, so scroll down this site to see a preview.
 
+Chart
+-----
+
+Adds a chart to the screen using data from your Markdown table.
+
+#### Options
+
+- labelColumn: This is a string that indicates which column will be used to label the data points. This String must be a direct match to your table header fro the column.
+- dataColumns: This is an array of strings that indicated the column to be plotted. This String must be a direct match to your table header fro the column.
+- canvasId: This is an ID for the generated chart. Defaults to a random number between 1-1000.
+- chartOptions: This is an object that is passed to chartjs to configure its options. Refer to chartjs for documentation on available options.
+- chartType:   This string is the type of chart render. Bar, Line, or Radar. Defaults to Line.
+
+Note: Currently only support a single table on a page. You CAN have multiple charts from the same table.
+
+    | #  | Sprint          | Points | Sum | Avg  | Note |
+    | -  | --------        |------- | --- | ---- | ---- |
+    | 1  | Sprint 1        | 6      | 6   | 6.0  | |
+    | 2  | Sprint 2        | 6      | 12  | 6.0  | |
+    | 3  | Sprint 3        | 15     | 27  | 9.0  | |
+    | 4  | Sprint 4        | 9      | 36  | 9.0  | |
+    | 5  | Sprint 5        | 6      | 42  | 8.4  | |
+    | 6  | Sprint 6        | 9      | 51  | 8.5  | |
+    
+    [gimmick:chart ({dataColumns: ['Avg'], labelColumn: "Sprint", chartType: 'Line'})]()
+
+Example:
+
+| #  | Sprint          | Points | Sum | Avg  | Note |
+| -  | --------        |------- | --- | ---- | ---- |
+| 1  | Sprint 1        | 6      | 6   | 6.0  | |
+| 2  | Sprint 2        | 6      | 12  | 6.0  | |
+| 3  | Sprint 3        | 15     | 27  | 9.0  | |
+| 4  | Sprint 4        | 9      | 36  | 9.0  | |
+| 5  | Sprint 5        | 6      | 42  | 8.4  | |
+| 6  | Sprint 6        | 9      | 51  | 8.5  | |
+
+[gimmick:chart ({dataColumns: ['Avg'], labelColumn: "Sprint", chartType: 'Line'})]()
