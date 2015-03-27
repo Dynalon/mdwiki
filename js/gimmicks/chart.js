@@ -34,7 +34,7 @@
             //                   or Radar. Defaults to Line.
             var default_options = {
                 chartType: 'Line',
-                canvasId: Math.floor((Math.random() * 1000) + 1),
+                canvasId: 'chartGimmick' + Math.floor((Math.random() * 1000) + 1),
                 chartOptions: {
                     responsive: true
                 }
@@ -43,7 +43,7 @@
 
             // Replace the Gimmick with the canvas that chartJS needs
             var $link = $(link);
-            var myHtml = $('<canvas id="' + options.canvasId + '" ></canvas>');
+            var myHtml = $('<canvas width="200" height="100" id="' + options.canvasId + '"></canvas>');
             $link.replaceWith(myHtml);
 
             // This is the object that is given to the chart frame work for rendering. It will be
@@ -101,8 +101,11 @@
                 });
             });
 
-            $.md.stages('postgimmick').subscribe(function() {
-                new Chart(document.getElementById(options.canvasId).getContext("2d"))[options.chartType](chartConfig, options.chartOptions);
+            $.md.stage('postgimmick').subscribe(function(done) {
+                setTimeout(function() {
+                    new Chart(document.getElementById(options.canvasId).getContext("2d"))[options.chartType](chartConfig, options.chartOptions);
+                });
+                done();
             });
 
         });
