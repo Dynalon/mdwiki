@@ -11,9 +11,9 @@
 
             // load the chart js
             $.md.registerScript(this, scripturl, {
-                license: 'EXCEPTION',
+                license: 'MIT',
                 loadstage: 'skel_ready',
-                finishstage: 'bootstrap'
+                finishstage: 'gimmick'
             });
         }
     };
@@ -101,9 +101,9 @@
                 });
             });
 
-            setTimeout(function(){
+            $.md.stages('postgimmick').subscribe(function() {
                 new Chart(document.getElementById(options.canvasId).getContext("2d"))[options.chartType](chartConfig, options.chartOptions);
-            }, 100);
+            });
 
         });
     }
