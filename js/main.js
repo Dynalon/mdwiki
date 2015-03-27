@@ -84,18 +84,42 @@
         var md = '';
 
         $.md.stage('init').subscribe(function(done) {
+
             var ajaxReq = {
                 url: $.md.mainHref,
                 dataType: 'text'
             };
+
+            // Request the md page
             $.ajax(ajaxReq).done(function(data) {
-                // TODO do this elsewhere
                 md = data;
                 done();
-            }).fail(function() {
+            })
+
+            // Failed to find the md page we were looking for
+            .fail(function() {
+
+                // Warn that this page wasn't found
                 var log = $.md.getLogger();
-                log.fatal('Could not get ' + $.md.mainHref);
-                done();
+                log.warn('Could not get ' + $.md.mainHref);
+
+                // Attempt to gracefully recover by displaying a user defined 404 page
+                ajaxReq.url = '404.md';
+                $.ajax(ajaxReq).done(function(data) {
+                    md = data;
+                    done();
+                })
+
+                // The user has not defined a 404.md.
+                .fail(function(data) {
+                    log.fatal('Could not get a user defined 404.md');
+
+                    // Our last attempt to provide a good user expierence by proving a hard coded
+                    // 'page not found' text.
+                    md = "# Page Not Found" ;
+
+                    done();
+                });
             });
         });
 
