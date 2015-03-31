@@ -88,8 +88,6 @@
             } else {
 
                 // Get the index of the columns that we care about for charting
-                // TODO JC Currently assumes that there is a single table on the page. Document this or
-                //         implement a way to indicate which table
                 table.find("th").each(function(index){
 
                     // This is the column that labels each data point
