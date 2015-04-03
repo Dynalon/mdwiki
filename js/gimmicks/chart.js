@@ -34,24 +34,28 @@
             //                    options.
             //      chartType:   This string is the type of chart we want to render. Bar, Line,
             //                   or Radar. Defaults to Line.
-            //      tableIndex:  This is the index of the table on the page. it defaults to the
-            //                   first table on the screen.
             var default_options = {
                 chartType: 'Line',
                 canvasId: 'chartGimmick' + Math.floor((Math.random() * 1000) + 1),
                 chartOptions: {
-                    responsive: true
+                    responsive: false
                 }
             };
             var options = $.extend ({}, default_options, opt);
 
             var $link = $(link);
 
-            var tablesOnPage = $link.parents().find("table");
-            var table;
+            var table = $link.parents().find("table").last();
+            if (table.length === 0) {
+                log.error('Chart Gimmick: No tables found on the page.');
+                $link.remove();
+                return;
+            }
 
             // Replace the Gimmick with the canvas that chartJS needs
             var myHtml = $('<canvas id="' + options.canvasId + '"></canvas>');
+            myHtml.width(options.width || '450px');
+            myHtml.height(options.height || '250px');
             $link.replaceWith(myHtml);
 
             // This is the object that is given to the chart frame work for rendering. It will be
@@ -69,85 +73,64 @@
             var labelColumnIndex = -1;
             var dataColumnIndices = [];
 
-            // If the user does not specify which table on the screen and there is more than one
-            // Lets warn them about us making an assumption.
-            if (options.tableIndex === undefined && tablesOnPage.length > 1 ) {
-                log.warn('Chart Gimmick: Multiple tables found on the page and no table index ' +
-                    'provided. Attempting to use the first table on the page.');
-                table = tablesOnPage.first();
-            }
+            // Get the index of the columns that we care about for charting
+            table.find("th").each(function(index){
 
-            else if (options.tableIndex !== undefined) {
-                table = tablesOnPage.eq(options.tableIndex);
-            }
+                // This is the column that labels each data point
+                if(this.textContent === options.labelColumn) {
+                    labelColumnIndex = index;
+                }
 
-            // If no table is found on the page then lets tell the user that there is no possibility
-            // of rendering a chart
-            if (tablesOnPage.length === 0) {
-                log.error('Chart Gimmick: No tables found on the page.');
-            } else {
-
-                // Get the index of the columns that we care about for charting
-                table.find("th").each(function(index){
-
-                    // This is the column that labels each data point
-                    if(this.textContent === options.labelColumn) {
-                        labelColumnIndex = index;
-                    }
-
-                    // Check if this is a data column
-                    else {
-                        for(var i = 0; i < options.dataColumns.length; i++) {
-                            if(this.textContent === options.dataColumns[i]) {
-                                dataColumnIndices.push(index);
-                            }
+                // Check if this is a data column
+                else {
+                    for(var i = 0; i < options.dataColumns.length; i++) {
+                        if(this.textContent === options.dataColumns[i]) {
+                            dataColumnIndices.push(index);
                         }
                     }
-                });
+                }
+            });
 
-                // Get the data
-                table.find("tr").each(function(rowIndex){
-                    $(this).find("td").each(function(colIndex){
+            // Get the data
+            table.find("tr").each(function(rowIndex){
+                $(this).find("td").each(function(colIndex){
 
-                        if(colIndex === labelColumnIndex) {
-                            chartConfig.labels.push(this.textContent);
-                        } else {
-                            for(var i = 0; i < dataColumnIndices.length; i++) {
-                                if(colIndex === dataColumnIndices[i]) {
+                    if(colIndex === labelColumnIndex) {
+                        chartConfig.labels.push(this.textContent);
+                    } else {
+                        for(var i = 0; i < dataColumnIndices.length; i++) {
+                            if(colIndex === dataColumnIndices[i]) {
 
-                                    if(chartConfig.datasets[i] === undefined) {
-                                        chartConfig.datasets[i] = {};
-                                        chartConfig.datasets[i].data = [];
-                                    }
-
-                                    chartConfig.datasets[i].data.push(this.textContent);
+                                if(chartConfig.datasets[i] === undefined) {
+                                    chartConfig.datasets[i] = {};
+                                    chartConfig.datasets[i].data = [];
                                 }
+
+                                chartConfig.datasets[i].data.push(this.textContent);
                             }
                         }
-                    });
+                    }
                 });
-            }
+            });
 
             // No Chart data found
             if (chartConfig.datasets[i] === undefined) {
                 chartAvailableToRender = false;
                 log.error('Chart Gimmick: No data was found for the chart. Make sure that there ' +
-                    'is a tables on the page. If there is more than one table on the page then it ' +
-                    'would be best practice to provide a index for which table. Check that your ' +
+                    'is a tables on the page. Check that your ' +
                     'column headers match the chart configuration.');
             }
 
-            $.md.stage('postgimmick').subscribe(function(done) {
-                if (chartAvailableToRender) {
+            if (chartAvailableToRender) {
+                var canvas = document.getElementById(options.canvasId);
+                var ctx = canvas.getContext('2d');
+                $.md.stage('postgimmick').subscribe(function(done) {
                     setTimeout(function() {
-                        new Chart(
-                            document.getElementById(options.canvasId)
-                            .getContext("2d"))[options.chartType](chartConfig, options.chartOptions);
+                        new Chart(ctx)[options.chartType](chartConfig, options.chartOptions);
                     });
-                }
-                done();
-            });
-
+                    done(); 
+                });
+            }
         });
     }
 
