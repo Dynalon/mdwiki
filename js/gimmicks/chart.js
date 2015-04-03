@@ -19,6 +19,8 @@
     };
     $.md.registerGimmick(chartGimmick);
 
+    var log = $.md.getLogger();
+
     function chart($links, opt, text) {
         return $links.each (function (i, link){
 
@@ -36,14 +38,24 @@
                 chartType: 'Line',
                 canvasId: 'chartGimmick' + Math.floor((Math.random() * 1000) + 1),
                 chartOptions: {
-                    responsive: true
+                    responsive: false
                 }
             };
             var options = $.extend ({}, default_options, opt);
 
-            // Replace the Gimmick with the canvas that chartJS needs
             var $link = $(link);
+
+            var table = $link.parents().find("table").last();
+            if (table.length === 0) {
+                log.error('Chart Gimmick: No tables found on the page.');
+                $link.remove();
+                return;
+            }
+
+            // Replace the Gimmick with the canvas that chartJS needs
             var myHtml = $('<canvas id="' + options.canvasId + '"></canvas>');
+            myHtml.width(options.width || '450px');
+            myHtml.height(options.height || '250px');
             $link.replaceWith(myHtml);
 
             // This is the object that is given to the chart frame work for rendering. It will be
@@ -53,6 +65,8 @@
                 "labels": []
             };
 
+            var chartAvailableToRender = true;
+
             // These variables hold the indices of the columns in the table we care about. They will
             // be populated as we process the table based on the options that are given in the
             // gimmick
@@ -60,9 +74,7 @@
             var dataColumnIndices = [];
 
             // Get the index of the columns that we care about for charting
-            // TODO JC Currently assumes that there is a single table on the page. Document this or
-            //         implement a way to indicate which table
-            jQuery("th").each(function(index){
+            table.find("th").each(function(index){
 
                 // This is the column that labels each data point
                 if(this.textContent === options.labelColumn) {
@@ -80,7 +92,7 @@
             });
 
             // Get the data
-            jQuery("tr").each(function(rowIndex){
+            table.find("tr").each(function(rowIndex){
                 $(this).find("td").each(function(colIndex){
 
                     if(colIndex === labelColumnIndex) {
@@ -101,13 +113,24 @@
                 });
             });
 
-            $.md.stage('postgimmick').subscribe(function(done) {
-                setTimeout(function() {
-                    new Chart(document.getElementById(options.canvasId).getContext("2d"))[options.chartType](chartConfig, options.chartOptions);
-                });
-                done();
-            });
+            // No Chart data found
+            if (chartConfig.datasets[i] === undefined) {
+                chartAvailableToRender = false;
+                log.error('Chart Gimmick: No data was found for the chart. Make sure that there ' +
+                    'is a tables on the page. Check that your ' +
+                    'column headers match the chart configuration.');
+            }
 
+            if (chartAvailableToRender) {
+                var canvas = document.getElementById(options.canvasId);
+                var ctx = canvas.getContext('2d');
+                $.md.stage('postgimmick').subscribe(function(done) {
+                    setTimeout(function() {
+                        new Chart(ctx)[options.chartType](chartConfig, options.chartOptions);
+                    });
+                    done(); 
+                });
+            }
         });
     }
 
