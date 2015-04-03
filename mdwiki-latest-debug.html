@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <!--
-   This is MDwiki v0.5.8
+   This is MDwiki v0.6.2
    (C) 2013 by Timo Dörr and contributors. This software is licensed
    under the terms of the GNU GPLv3 with additional terms applied.
    See https://github.com/Dynalon/mdwiki/blob/master/LICENSE.txt for more detail.
@@ -88,7 +88,7 @@
     }
     </style>
 
-<script type="text/javascript">var MDwikiEnableDebug = true;</script><!-- START extlib/css/highlight.github.css -->
+<!-- START extlib/css/highlight.github.css -->
 <style id="style:extlib/css/highlight.github.css">pre code{display:block;padding:.5em;color:#333;background:#f8f8ff}pre .comment,pre .template_comment,pre .diff .header,pre .javadoc{color:#998;font-style:italic}pre .keyword,pre .css .rule .keyword,pre .winutils,pre .javascript .title,pre .nginx .title,pre .subst,pre .request,pre .status{color:#333;font-weight:bold}pre .number,pre .hexcolor,pre .ruby .constant{color:#099}pre .string,pre .tag .value,pre .phpdoc,pre .tex .formula{color:#d14}pre .title,pre .id{color:#900;font-weight:bold}pre .javascript .title,pre .lisp .title,pre .clojure .title,pre .subst{font-weight:normal}pre .class .title,pre .haskell .type,pre .vhdl .literal,pre .tex .command{color:#458;font-weight:bold}pre .tag,pre .tag .title,pre .rules .property,pre .django .tag .keyword{color:#000080;font-weight:normal}pre .attribute,pre .variable,pre .lisp .body{color:#008080}pre .regexp{color:#009926}pre .class{color:#458;font-weight:bold}pre .symbol,pre .ruby .symbol .string,pre .lisp .keyword,pre .tex .special,pre .prompt{color:#990073}pre .built_in,pre .lisp .title,pre .clojure .built_in{color:#0086b3}pre .preprocessor,pre .pi,pre .doctype,pre .shebang,pre .cdata{color:#999;font-weight:bold}pre .deletion{background:#fdd}pre .addition{background:#dfd}pre .diff .change{background:#0086b3}pre .chunk{color:#aaa}</style><!-- END extlib/css/highlight.github.css -->
 <!-- START extlib/css/bootstrap-3.0.0.min.css -->
 <style id="style:extlib/css/bootstrap-3.0.0.min.css">/*!
@@ -1340,8 +1340,13 @@ if (typeof exports === 'object') {
         useSideMenu: true,
         lineBreaks: 'gfm',
         additionalFooterText: '',
-        anchorCharacter: '&para;'
+        anchorCharacter: '&para;',
+        tocAnchor: '[ &uarr; ]'
     };
+
+
+    $.md.gimmicks = [];
+    $.md.stages = [];
 
     // the location of the main markdown file we display
     $.md.mainHref = '';
@@ -1349,823 +1354,355 @@ if (typeof exports === 'object') {
     // the in-page anchor that is specified after the !
     $.md.inPageAnchor = '';
 
+
+    $.md.loglevel = {
+        TRACE: 10,
+        DEBUG: 20,
+        INFO: 30,
+        WARN: 40,
+        ERROR: 50,
+        FATAL: 60
+    };
+    // $.md.logThreshold = $.md.loglevel.DEBUG;
+    $.md.logThreshold = $.md.loglevel.WARN;
+
 }(jQuery));
 
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var MDwiki;
-(function (MDwiki) {
-    (function (Core) {
-        var ScriptResource = (function () {
-            function ScriptResource(url, loadstage, finishstage) {
-                if (typeof loadstage === "undefined") { loadstage = 'skel_ready'; }
-                if (typeof finishstage === "undefined") { finishstage = 'gimmick'; }
-                this.url = url;
-                this.loadstage = loadstage;
-                this.finishstage = finishstage;
-            }
-            return ScriptResource;
-        })();
-        Core.ScriptResource = ScriptResource;
+(function($) {
+    'use strict';
+    $.md.getLogger = function() {
 
-        var CssResource = (function () {
-            function CssResource(url, finishstage) {
-                if (typeof finishstage === "undefined") { finishstage = 'gimmick'; }
-                this.url = url;
-                this.finishstage = finishstage;
-            }
-            return CssResource;
-        })();
-        Core.CssResource = CssResource;
+        var loglevel = $.md.loglevel;
 
-        var GimmickLinkParts = (function () {
-            function GimmickLinkParts(trigger, options, href) {
-                this.trigger = trigger;
-                this.options = options;
-                this.href = href;
-            }
-            return GimmickLinkParts;
-        })();
-
-        var GimmickHandler = (function () {
-            function GimmickHandler(trigger, handler, loadstage) {
-                if (typeof loadstage === "undefined") { loadstage = 'gimmick'; }
-                this.trigger = trigger;
-                this.handler = handler;
-                this.loadstage = loadstage;
-            }
-            return GimmickHandler;
-        })();
-        Core.GimmickHandler = GimmickHandler;
-
-        var Module = (function () {
-            function Module() {
-            }
-            Module.prototype.init = function () {
-            };
-
-            Module.prototype.registerScriptResource = function (res) {
-                var loadDone = $.Deferred();
-
-                $.md.stage(res.loadstage).subscribe(function (done) {
-                    if (res.url.startsWith('//') || res.url.startsWith('http')) {
-                        $.getScript(res.url, function () {
-                            return loadDone.resolve();
-                        });
-                    } else {
-                        var script = document.createElement('script');
-                        script.type = 'text/javascript';
-                        script.text = res.url;
-                        document.body.appendChild(script);
-                        loadDone.resolve();
-                    }
-                    done();
-                });
-
-                $.md.stage(res.finishstage).subscribe(function (done) {
-                    loadDone.done(function () {
-                        return done();
-                    });
-                });
-            };
-            Module.prototype.registerCssResource = function (resource) {
-            };
-            return Module;
-        })();
-        Core.Module = Module;
-
-        var Gimmick = (function (_super) {
-            __extends(Gimmick, _super);
-            function Gimmick() {
-                _super.apply(this, arguments);
-                this.Handlers = [];
-            }
-            Gimmick.prototype.init = function () {
-            };
-            Gimmick.prototype.addHandler = function (trigger, cb, loadstage) {
-                if (typeof loadstage === "undefined") { loadstage = 'gimmick'; }
-                var handler = new GimmickHandler(trigger, cb, loadstage);
-                this.Handlers.push(handler);
-            };
-            return Gimmick;
-        })(Module);
-        Core.Gimmick = Gimmick;
-
-        function getGimmickLinkParts($link) {
-            var link_text = $.trim($link.toptext());
-
-            if (link_text.match(/gimmick:/i) === null) {
-                return null;
-            }
-            var href = $.trim($link.attr('href'));
-            var r = /gimmick\s?:\s*([^(\s]*)\s*\(?\s*{?(.*)\s*}?\)?/i;
-            var matches = r.exec(link_text);
-            if (matches === null || matches[1] === undefined) {
-                $.error('Error matching a gimmick: ' + link_text);
-                return null;
-            }
-            var trigger = matches[1].toLowerCase();
-            var args = null;
-
-            if (matches[2].toLowerCase().indexOf("gimmick") != 0) {
-                var params = $.trim(matches[2].toString());
-                if (params.charAt(params.length - 1) === ')') {
-                    params = params.substring(0, params.length - 1);
+        var log = function(logtarget) {
+            var self = this;
+            var level = loglevel[logtarget];
+            return function(msg) {
+                if ($.md.logThreshold <= level) {
+                    console.log('[' + logtarget + '] ' + msg);
                 }
+            };
+        };
 
-                if (params.charAt(params.length - 1) === '}') {
-                    params = params.substring(0, params.length - 1);
-                }
+        var logger = {};
+        logger.trace = log('TRACE');
+        logger.debug = log('DEBUG');
+        logger.info = log('INFO');
+        logger.warn = log('WARN');
+        logger.error = log('ERROR');
+        logger.fatal = log('FATAL');
 
-                params = '({' + params + '})';
-
-                var replace_quotes = new RegExp("'", 'g');
-                params = params.replace(replace_quotes, '"');
-
-                try  {
-                    args = eval(params);
-                } catch (err) {
-                    $.error('error parsing argument of gimmick: ' + link_text + 'giving error: ' + err);
-                }
-            }
-            return new GimmickLinkParts(trigger, args, href);
-        }
-
-        var GimmickLoader = (function () {
-            function GimmickLoader() {
-                this.registeredModules = [];
-                this.requiredGimmicks = [];
-                this.gimmicks = [];
-            }
-            GimmickLoader.prototype.initModules = function () {
-                this.registeredModules.map(function (m) {
-                    return m.init();
-                });
-            };
-            GimmickLoader.prototype.registerModule = function (mod) {
-                this.registeredModules.push(mod);
-            };
-            GimmickLoader.prototype.registerGimmick = function (gmck) {
-                this.gimmicks.push(gmck);
-            };
-
-            GimmickLoader.prototype.registerBuiltInGimmicks = function () {
-                var themechooser = new MDwiki.Core.ThemeChooserGimmick();
-                this.registerGimmick(themechooser);
-            };
-
-            GimmickLoader.prototype.initGimmicks = function () {
-                var _this = this;
-                this.registerBuiltInGimmicks();
-                var $gimmick_links = $('a:icontains(gimmick:)');
-                $gimmick_links.map(function (i, e) {
-                    var $link = $(e);
-                    var parts = getGimmickLinkParts($link);
-                    if (_this.requiredGimmicks.indexOf(parts.trigger) < 0)
-                        _this.requiredGimmicks.push(parts.trigger);
-                });
-                this.requiredGimmicks.map(function (trigger) {
-                    var gmck = _this.selectGimmick(trigger);
-                    gmck.init();
-                });
-            };
-
-            GimmickLoader.prototype.loadGimmicks = function () {
-                var _this = this;
-                var $gimmick_links = $('a:icontains(gimmick:)');
-                $gimmick_links.map(function (i, e) {
-                    var $link = $(e);
-                    var parts = getGimmickLinkParts($link);
-                    var handler = _this.selectGimmickHandler(parts.trigger);
-                    $.md.stage(handler.loadstage).subscribe(function (done) {
-                        handler.handler($link, parts.options, $link.attr('href'));
-                        done();
-                    });
-                });
-            };
-            GimmickLoader.prototype.selectGimmick = function (trigger) {
-                var gimmicks = this.gimmicks.filter(function (g) {
-                    var triggers = g.Handlers.map(function (h) {
-                        return h.trigger;
-                    });
-                    if (triggers.indexOf(trigger) >= 0)
-                        return true;
-                });
-                return gimmicks[0];
-            };
-            GimmickLoader.prototype.selectGimmickHandler = function (trigger) {
-                var gimmick = this.selectGimmick(trigger);
-                var handler = gimmick.Handlers.filter(function (h) {
-                    return h.trigger == trigger;
-                })[0];
-                return handler;
-            };
-            GimmickLoader.prototype.findActiveLinkTrigger = function () {
-                var activeLinkTriggers = [];
-
-                var $gimmicks = $('a:icontains(gimmick:)');
-                $gimmicks.each(function (i, e) {
-                    var parts = getGimmickLinkParts($(e));
-                    if (activeLinkTriggers.indexOf(parts.trigger) === -1)
-                        activeLinkTriggers.push(parts.trigger);
-                });
-                return activeLinkTriggers;
-            };
-            return GimmickLoader;
-        })();
-        Core.GimmickLoader = GimmickLoader;
-    })(MDwiki.Core || (MDwiki.Core = {}));
-    var Core = MDwiki.Core;
-})(MDwiki || (MDwiki = {}));
-var MDwiki;
-(function (MDwiki) {
-    (function (Util) {
-        (function (LogLevel) {
-            LogLevel[LogLevel["TRACE"] = 0] = "TRACE";
-            LogLevel[LogLevel["DEBUG"] = 1] = "DEBUG";
-            LogLevel[LogLevel["INFO"] = 2] = "INFO";
-            LogLevel[LogLevel["WARN"] = 3] = "WARN";
-            LogLevel[LogLevel["ERROR"] = 4] = "ERROR";
-            LogLevel[LogLevel["FATAL"] = 5] = "FATAL";
-        })(Util.LogLevel || (Util.LogLevel = {}));
-        var LogLevel = Util.LogLevel;
-        var Logger = (function () {
-            function Logger(level) {
-                this.logLevel = 4 /* ERROR */;
-                this.logLevel = level;
-            }
-            Logger.prototype.log = function (loglevel, msg) {
-                console.log('[' + loglevel.toUpperCase() + '] ' + msg);
-            };
-            Logger.prototype.trace = function (msg) {
-                if (this.logLevel >= 0 /* TRACE */)
-                    this.log('TRACE', msg);
-            };
-            Logger.prototype.info = function (msg) {
-                if (this.logLevel >= 2 /* INFO */)
-                    this.log('INFO', msg);
-            };
-            Logger.prototype.debug = function (msg) {
-                if (this.logLevel >= 1 /* DEBUG */)
-                    this.log('DEBUG', msg);
-            };
-            Logger.prototype.warn = function (msg) {
-                if (this.logLevel >= 3 /* WARN */)
-                    this.log('WARN', msg);
-            };
-            Logger.prototype.error = function (msg) {
-                if (this.logLevel >= 4 /* ERROR */)
-                    this.log('ERROR', msg);
-            };
-            Logger.prototype.fatal = function (msg) {
-                if (this.logLevel >= 5 /* FATAL */)
-                    this.log('FATAL', msg);
-            };
-            return Logger;
-        })();
-        Util.Logger = Logger;
-    })(MDwiki.Util || (MDwiki.Util = {}));
-    var Util = MDwiki.Util;
-})(MDwiki || (MDwiki = {}));
-(function ($) {
-    var logger;
-    if (MDwikiEnableDebug)
-        logger = new MDwiki.Util.Logger(1 /* DEBUG */);
-    else
-        logger = new MDwiki.Util.Logger(4 /* ERROR */);
-
-    $.md.getLogger = function () {
         return logger;
     };
+}(jQuery));
 
-    $.initMDwiki = function (name) {
-        $.md.wiki = new MDwiki.Core.Wiki();
-        $.md.stage = function (name) {
-            return $.md.wiki.stages.getStage(name);
+(function($) {
+    'use strict';
+    var log = $.md.getLogger();
+
+    $.Stage = function(name) {
+        var self = $.extend($.Deferred(), {});
+        self.name = name;
+        self.events = [];
+        self.started = false;
+
+        self.reset = function() {
+            self.complete = $.Deferred();
+            self.outstanding = [];
         };
+
+        self.reset();
+
+        self.subscribe = function(fn) {
+            if (self.started) {
+                $.error('Subscribing to stage which already started!');
+            }
+            self.events.push(fn);
+        };
+        self.unsubscribe = function(fn) {
+            self.events.remove(fn);
+        };
+
+        self.executeSubscribedFn = function (fn) {
+            var d = $.Deferred();
+            self.outstanding.push(d);
+
+            // display an error if our done() callback is not called
+            $.md.util.wait(2500).done(function() {
+                if(d.state() !== 'resolved') {
+                    log.fatal('Timeout reached for done callback in stage: ' + self.name +
+                        '. Did you forget a done() call in a .subscribe() ?');
+                    log.fatal('stage ' + name + ' failed running subscribed function: ' + fn );
+                }
+            });
+
+            var done = function() {
+                d.resolve();
+            };
+            fn(done);
+        };
+
+        self.run = function() {
+            self.started = true;
+            $(self.events).each(function (i,fn) {
+                self.executeSubscribedFn(fn);
+            });
+
+            // if no events are in our queue, we resolve immediately
+            if (self.outstanding.length === 0) {
+                self.resolve();
+            }
+
+            // we resolve when all our registered events have completed
+            $.when.apply($, self.outstanding)
+            .done(function() {
+                self.resolve();
+            })
+            .fail(function() {
+                self.resolve();
+            });
+        };
+
+        self.done(function() {
+            log.debug('stage ' + self.name + ' completed successfully.');
+        });
+        self.fail(function() {
+            log.debug('stage ' + self.name + ' completed with errors!');
+        });
+        return self;
     };
 }(jQuery));
-var Markdown = (function () {
-    function Markdown(markdownSource, options) {
-        if (typeof options === "undefined") { options = {}; }
-        this.defaultOptions = {
-            gfm: true,
-            tables: true,
-            breaks: true
-        };
-        this.markdownSource = markdownSource;
-        this.options = options;
-    }
-    Markdown.prototype.transform = function () {
-        marked.setOptions(this.options);
-        var uglyHtml = marked(this.markdownSource);
-        return uglyHtml;
-    };
-    return Markdown;
-})();
-
-var Navbar = (function () {
-    function Navbar(navbarMarkdown) {
-        this.navbarMarkdown = navbarMarkdown;
-        var md = new Markdown(navbarMarkdown);
-        this.uglyHtml = md.transform();
-    }
-    Navbar.prototype.render = function () {
-        var h = $('<div>' + this.uglyHtml + '</div>');
-
-        h.find('p').each(function (i, e) {
-            var el = $(e);
-            el.replaceWith(el.html());
-        });
-        $('#md-menu').append(h.html());
-    };
-    Navbar.prototype.hideIfHasNoLinks = function () {
-        var num_links = $('#md-menu a').length;
-        var has_header = $('#md-menu .navbar-brand').eq(0).toptext().trim().length > 0;
-        if (!has_header && num_links <= 1)
-            $('#md-menu').hide();
-    };
-    return Navbar;
-})();
-var MDwiki;
-(function (MDwiki) {
-    (function (Core) {
-        var Resource = (function () {
-            function Resource(url, dataType) {
-                if (typeof dataType === "undefined") { dataType = 'text'; }
-                this.url = url;
-                this.dataType = dataType;
-            }
-            Resource.fetch = function (url, dataType) {
-                if (typeof dataType === "undefined") { dataType = 'text'; }
-                var jqxhr = $.ajax({
-                    url: url,
-                    dataType: dataType
-                });
-                return jqxhr;
-            };
-            return Resource;
-        })();
-        Core.Resource = Resource;
-
-        var StageChain = (function () {
-            function StageChain() {
-                this.stages = [];
-            }
-            StageChain.prototype.reset = function () {
-                var new_stages = [];
-                for (var i = 0; i < this.stages.length; i++) {
-                    var name = this.stages[i].name;
-                    new_stages.push(new Stage(name));
-                }
-            };
-            StageChain.prototype.appendArray = function (st) {
-                var _this = this;
-                st.map(function (s) {
-                    return _this.append(s);
-                });
-            };
-            StageChain.prototype.append = function (s) {
-                var len = this.stages.length;
-                if (len == 0) {
-                    this.stages.push(s);
-                    return;
-                }
-                var last = this.stages[len - 1];
-                last.finished().done(function () {
-                    return s.start();
-                });
-                this.stages.push(s);
-            };
-            StageChain.prototype.run = function () {
-                this.stages[0].start();
-            };
-
-            StageChain.prototype.getStage = function (name) {
-                return this.stages.filter(function (s) {
-                    return s.name == name;
-                })[0];
-            };
-            return StageChain;
-        })();
-        Core.StageChain = StageChain;
-
-        var Stage = (function () {
-            function Stage(name) {
-                this.started = false;
-                this.subscribedFuncs = [];
-                this.allFinishedDfd = $.Deferred();
-                this.name = name;
-            }
-            Stage.prototype.finished = function () {
-                return this.allFinishedDfd;
-            };
-
-            Stage.prototype.subscribe = function (fn) {
-                if (this.started)
-                    throw 'Stage already started';
-
-                this.subscribedFuncs.push(fn);
-            };
-
-            Stage.prototype.start = function () {
-                var _this = this;
-                console.dir("running stage " + this.name);
-                this.started = true;
-                var num_outstanding = this.subscribedFuncs.length;
-
-                if (num_outstanding == 0) {
-                    this.allFinishedDfd.resolve();
-                    return;
-                }
-
-                this.subscribedFuncs.map(function (subbedFn) {
-                    var doneCallback = function () {
-                        --num_outstanding || _this.allFinishedDfd.resolve();
-                    };
-                    subbedFn(doneCallback);
-                });
-            };
-            return Stage;
-        })();
-        Core.Stage = Stage;
-    })(MDwiki.Core || (MDwiki.Core = {}));
-    var Core = MDwiki.Core;
-})(MDwiki || (MDwiki = {}));
-var MDwiki;
-(function (MDwiki) {
-    (function (Core) {
-        var StringUtil = (function () {
-            function StringUtil() {
-            }
-            StringUtil.startsWith = function (search, suffix) {
-                return search.slice(0, suffix.length) == suffix;
-            };
-            StringUtil.endsWith = function (search, prefix) {
-                return search.slice(search.length - prefix.length, search.length) == prefix;
-            };
-            return StringUtil;
-        })();
-
-        var Theme = (function () {
-            function Theme(name, styles, scripts) {
-                if (typeof scripts === "undefined") { scripts = []; }
-                this.name = name;
-                this.styles = styles;
-                this.scripts = scripts;
-            }
-            Theme.prototype.onLoad = function () {
-            };
-            return Theme;
-        })();
-
-        var BootswatchTheme = (function (_super) {
-            __extends(BootswatchTheme, _super);
-            function BootswatchTheme(name) {
-                _super.call(this, name, [], []);
-                this.baseUrl = '//netdna.bootstrapcdn.com/bootswatch/3.0.0/';
-                this.baseFilename = '/bootstrap.min.css';
-                this.styles = [this.url];
-            }
-            Object.defineProperty(BootswatchTheme.prototype, "url", {
-                get: function () {
-                    return this.baseUrl + this.name + this.baseFilename;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            return BootswatchTheme;
-        })(Theme);
-
-        var ThemeChooser = (function () {
-            function ThemeChooser() {
-                this.themes = [];
-                this.enableChooser = false;
-            }
-            Object.defineProperty(ThemeChooser.prototype, "themeNames", {
-                get: function () {
-                    return this.themes.map(function (t) {
-                        return t.name;
-                    });
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Object.defineProperty(ThemeChooser.prototype, "currentTheme", {
-                get: function () {
-                    var theme = window.localStorage.getItem("theme");
-                    return theme;
-                },
-                set: function (val) {
-                    if (val == '')
-                        window.localStorage.removeItem("theme");
-                    else
-                        window.localStorage.setItem("theme", val);
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            ThemeChooser.prototype.register = function (theme) {
-                this.themes.push(theme);
-            };
-            ThemeChooser.prototype.loadDefaultTheme = function () {
-                this.load(this.currentTheme);
-            };
-
-            ThemeChooser.prototype.load = function (name) {
-                var target = this.themes.filter(function (t) {
-                    return t.name == name;
-                });
-                if (target.length <= 0)
-                    return;
-                else
-                    this.applyTheme(target[0]);
-            };
-
-            ThemeChooser.prototype.applyTheme = function (theme) {
-                $('link[rel=stylesheet][href*="netdna.bootstrapcdn.com"]').remove();
-                var link_tag = this.createLinkTag(theme.styles[0]);
-                $('head').append(link_tag);
-            };
-
-            ThemeChooser.prototype.createLinkTag = function (url) {
-                return $('<link rel="stylesheet" type="text/css">').attr('href', url);
-            };
-            return ThemeChooser;
-        })();
-
-        var ThemeChooserGimmick = (function (_super) {
-            __extends(ThemeChooserGimmick, _super);
-            function ThemeChooserGimmick() {
-                _super.call(this);
-                var tc = new ThemeChooser();
-                registerDefaultThemes(tc);
-
-                $.md.stage('bootstrap').subscribe(function (done) {
-                    tc.loadDefaultTheme();
-                    done();
-                });
-
-                var build_chooser = function ($links, opt, text) {
-                    tc.enableChooser = true;
-                    themechooser($links, opt, text, tc);
-                };
-                var apply_theme = function ($links, opt, text) {
-                    set_theme($links, opt, text, tc);
-                };
-
-                this.addHandler('themechooser', build_chooser, 'skel_ready');
-                this.addHandler('theme', apply_theme);
-            }
-            return ThemeChooserGimmick;
-        })(MDwiki.Core.Gimmick);
-        Core.ThemeChooserGimmick = ThemeChooserGimmick;
-        ;
-
-        var set_theme = function ($links, opt, text, tc) {
-            opt.name = opt.name || text;
-            $links.each(function (i, link) {
-                $.md.stage('postgimmick').subscribe(function (done) {
-                    if (!tc.currentTheme || tc.currentTheme == '' || tc.enableChooser == false)
-                        tc.load(opt.name);
-                    done();
-                });
-            });
-            $links.remove();
-        };
-
-        function registerDefaultThemes(tc) {
-            var bootstrap = new Theme('bootstrap', ['netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css']);
-            tc.register(bootstrap);
-
-            var bootswatch_theme_names = [
-                'amelia', 'cerulean', 'cosmo', 'cyborg', 'flatly', 'journal',
-                'readable', 'simplex', 'slate', 'spacelab', 'united'
-            ];
-            bootswatch_theme_names.map(function (name) {
-                return tc.register(new BootswatchTheme(name));
-            });
-        }
-
-        var themechooser = function ($links, opt, text, tc) {
-            return $links.each(function (i, e) {
-                var $this = $(e);
-                var $chooser = $('<a href=""></a><ul></ul>');
-                $chooser.eq(0).text(text);
-
-                $.each(tc.themeNames, function (i, themeName) {
-                    var $li = $('<li></li>');
-                    $chooser.eq(1).append($li);
-                    var $a = $('<a/>').text(themeName).attr('href', '').click(function (ev) {
-                        ev.preventDefault();
-                        tc.currentTheme = themeName;
-                        window.location.reload();
-                    }).appendTo($li);
-                });
-
-                $chooser.eq(1).append('<li class="divider" />');
-                var $li = $('<li/>');
-                var $a_use_default = $('<a>Use default</a>');
-                $a_use_default.click(function (ev) {
-                    ev.preventDefault();
-                    tc.currentTheme = '';
-                    window.location.reload();
-                });
-                $li.append($a_use_default);
-                $chooser.eq(1).append($li);
-
-                $chooser.eq(1).append('<li class="divider" />');
-                $chooser.eq(1).append('<li><a href="http://www.bootswatch.com">Powered by Bootswatch</a></li>');
-                $this.replaceWith($chooser);
-            });
-        };
-    })(MDwiki.Core || (MDwiki.Core = {}));
-    var Core = MDwiki.Core;
-})(MDwiki || (MDwiki = {}));
-
-var Logger = MDwiki.Util.Logger;
-
-var MDwiki;
-(function (MDwiki) {
-    (function (Core) {
-        var Wiki = (function () {
-            function Wiki() {
-                var _this = this;
-                this.stages = new MDwiki.Core.StageChain();
-                this.gimmicks = new MDwiki.Core.GimmickLoader();
-                var stage_names = ([
-                    'init', 'load', 'transform', 'ready', 'skel_ready',
-                    'bootstrap', 'pregimmick', 'gimmick', 'postgimmick', 'all_ready',
-                    'final_tests'
-                ]);
-                stage_names.map(function (n) {
-                    return _this.stages.append(new MDwiki.Core.Stage(n));
-                });
-            }
-            Wiki.prototype.run = function () {
-                this.registerFetchConfigAndNavigation();
-                this.registerFetchMarkdown();
-                this.registerPageTransformation();
-                this.registerGimmickLoad();
-                this.registerClearContent();
-                this.registerFinalTasks();
-
-                this.stages.run();
-            };
-            Wiki.prototype.registerFetchConfigAndNavigation = function () {
-                var _this = this;
-                $.md.stage('init').subscribe(function (done) {
-                    $.when(MDwiki.Core.Resource.fetch('config.json'), MDwiki.Core.Resource.fetch('navigation.md')).then(function (config, nav) {
-                        var data_json = JSON.parse(config[0]);
-
-                        $.md.config = $.extend($.md.config, data_json);
-
-                        _this.registerBuildNavigation(nav[0]);
-                        done();
-                    });
-                });
-            };
-            Wiki.prototype.registerPageTransformation = function () {
-                $.md.stage('ready').subscribe(function (done) {
-                    $.md('createBasicSkeleton');
-                    done();
-                });
-
-                $.md.stage('bootstrap').subscribe(function (done) {
-                    $.mdbootstrap('bootstrapify');
-                    $.md.processPageLinks($('#md-content'), $.md.baseUrl);
-                    done();
-                });
-            };
-
-            Wiki.prototype.transformMarkdown = function (markdown) {
-                var options = {
-                    gfm: true,
-                    tables: true,
-                    breaks: true
-                };
-                if ($.md.config.lineBreaks === 'original')
-                    options.breaks = false;
-                else if ($.md.config.lineBreaks === 'gfm')
-                    options.breaks = true;
-
-                marked.setOptions(options);
-
-                var uglyHtml = marked(markdown);
-                return uglyHtml;
-            };
-
-            Wiki.prototype.registerClearContent = function () {
-                $.md.stage('init').subscribe(function (done) {
-                    $('#md-all').empty();
-                    var skel = '<div id="md-body"><div id="md-title"></div><div id="md-menu">' + '</div><div id="md-content"></div></div>';
-                    $('#md-all').prepend($(skel));
-                    done();
-                });
-            };
-            Wiki.prototype.registerFetchMarkdown = function () {
-                var _this = this;
-                var md = '';
-                $.md.stage('init').subscribe(function (done) {
-                    var ajaxReq = {
-                        url: $.md.mainHref,
-                        dataType: 'text'
-                    };
-                    $.ajax(ajaxReq).done(function (data) {
-                        md = data;
-                        done();
-                    }).fail(function () {
-                        var log = $.md.getLogger();
-                        log.fatal('Could not get ' + $.md.mainHref);
-                        done();
-                    });
-                });
-
-                $.md.stage('transform').subscribe(function (done) {
-                    var len = $.md.mainHref.lastIndexOf('/');
-                    var baseUrl = $.md.mainHref.substring(0, len + 1);
-                    $.md.baseUrl = baseUrl;
-                    done();
-                });
-
-                $.md.stage('transform').subscribe(function (done) {
-                    var uglyHtml = _this.transformMarkdown(md);
-                    $('#md-content').html(uglyHtml);
-                    md = '';
-                    done();
-                });
-            };
-
-            Wiki.prototype.registerGimmickLoad = function () {
-                var _this = this;
-                $.md.stage('ready').subscribe(function (done) {
-                    _this.gimmicks.initModules();
-                    _this.gimmicks.initGimmicks();
-                    _this.gimmicks.loadGimmicks();
-                    done();
-                });
-            };
-            Wiki.prototype.registerBuildNavigation = function (navMD) {
-                $.md.stage('transform').subscribe(function (done) {
-                    if (navMD === '') {
-                        var log = $.md.getLogger();
-                        log.info('no navgiation.md found, not using a navbar');
-                        done();
-                        return;
-                    }
-                    var navHtml = marked(navMD);
-                    var h = $('<div>' + navHtml + '</div>');
-
-                    h.find('br').remove();
-                    h.find('p').each(function (i, e) {
-                        var el = $(e);
-                        el.replaceWith(el.html());
-                    });
-                    $('#md-menu').append(h.html());
-                    done();
-                });
-
-                $.md.stage('bootstrap').subscribe(function (done) {
-                    $.md.processPageLinks($('#md-menu'));
-                    done();
-                });
-
-                $.md.stage('postgimmick').subscribe(function (done) {
-                    done();
-                });
-            };
-
-            Wiki.prototype.registerFinalTasks = function () {
-                $.md.stage('all_ready').finished().done(function () {
-                    $('html').removeClass('md-hidden-load');
-
-                    if (typeof window['callPhantom'] === 'function') {
-                        window['callPhantom']({});
-                    }
-                });
-                $.md.stage('final_tests').finished().done(function () {
-                    $('body').append('<span id="start-tests"></span>');
-                    $('#start-tests').hide();
-                });
-            };
-            return Wiki;
-        })();
-        Core.Wiki = Wiki;
-    })(MDwiki.Core || (MDwiki.Core = {}));
-    var Core = MDwiki.Core;
-})(MDwiki || (MDwiki = {}));
 
 (function($) {
     'use strict';
 
+    var log = $.md.getLogger();
+
+    function init() {
+        $.md.stages = [
+            $.Stage('init'),
+
+            // loads config, initial markdown and navigation
+            $.Stage('load'),
+
+            // will transform the markdown to html
+            $.Stage('transform'),
+
+            // HTML transformation finished
+            $.Stage('ready'),
+
+            // after we have a polished html skeleton
+            $.Stage('skel_ready'),
+
+            // will bootstrapify the skeleton
+            $.Stage('bootstrap'),
+
+            // before we run any gimmicks
+            $.Stage('pregimmick'),
+
+            // after we have bootstrapified the skeleton
+            $.Stage('gimmick'),
+
+            // postprocess
+            $.Stage('postgimmick'),
+
+            $.Stage('all_ready'),
+
+            // used for integration tests, not intended to use in MDwiki itself
+            $.Stage('final_tests')
+        ];
+
+        $.md.stage = function(name) {
+            var m = $.grep($.md.stages, function(e,i) {
+                return e.name === name;
+            });
+            if (m.length === 0) {
+                $.error('A stage by name ' + name + '  does not exist');
+            } else {
+                return m[0];
+            }
+        };
+    }
+    init();
+
+    function resetStages() {
+        var old_stages = $.md.stages;
+        $.md.stages = [];
+        $(old_stages).each(function(i,e) {
+            $.md.stages.push($.Stage(e.name));
+        });
+    }
+
+    var publicMethods = {};
+    $.md.publicMethods = $.extend ({}, $.md.publicMethods, publicMethods);
+
+    function transformMarkdown (markdown) {
+        var options = {
+            gfm: true,
+            tables: true,
+            breaks: true
+        };
+        if ($.md.config.lineBreaks === 'original')
+            options.breaks = false;
+        else if ($.md.config.lineBreaks === 'gfm')
+            options.breaks = true;
+
+        marked.setOptions(options);
+
+        // get sample markdown
+        var uglyHtml = marked(markdown);
+        return uglyHtml;
+    }
+
+    function registerFetchMarkdown() {
+
+        var md = '';
+
+        $.md.stage('init').subscribe(function(done) {
+
+            var ajaxReq = {
+                url: $.md.mainHref,
+                dataType: 'text'
+            };
+
+            // Request the md page
+            $.ajax(ajaxReq).done(function(data) {
+                md = data;
+                done();
+            })
+
+            // Failed to find the md page we were looking for
+            .fail(function() {
+
+                // Warn that this page wasn't found
+                var log = $.md.getLogger();
+                log.warn('Could not get ' + $.md.mainHref);
+
+                // Attempt to gracefully recover by displaying a user defined 404 page
+                ajaxReq.url = '404.md';
+                $.ajax(ajaxReq).done(function(data) {
+                    md = data;
+                    done();
+                })
+
+                // The user has not defined a 404.md.
+                .fail(function(data) {
+                    log.fatal('Could not get a user defined 404.md');
+
+                    // Our last attempt to provide a good user expierence by proving a hard coded
+                    // 'page not found' text.
+                    md = "# Page Not Found" ;
+
+                    done();
+                });
+            });
+        });
+
+        // find baseUrl
+        $.md.stage('transform').subscribe(function(done) {
+            var len = $.md.mainHref.lastIndexOf('/');
+            var baseUrl = $.md.mainHref.substring(0, len+1);
+            $.md.baseUrl = baseUrl;
+            done();
+        });
+
+        $.md.stage('transform').subscribe(function(done) {
+            var uglyHtml = transformMarkdown(md);
+            $('#md-content').html(uglyHtml);
+            md = '';
+            var dfd = $.Deferred();
+            loadExternalIncludes(dfd);
+            dfd.always(function () {
+                done();
+            });
+        });
+    }
+
+    // load [include](/foo/bar.md) external links
+    function loadExternalIncludes(parent_dfd) {
+
+        function findExternalIncludes () {
+            return $('a').filter (function () {
+                var href = $(this).attr('href');
+                var text = $(this).toptext();
+                var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
+                var isInclude = text === 'include';
+                var isPreview = text.startsWith('preview:');
+                return (isInclude || isPreview) && isMarkdown;
+            });
+        }
+
+        function selectPreviewElements ($jqcol, num_elements) {
+            function isTextNode(node) {
+                return node.nodeType === 3;
+            }
+            var count = 0;
+            var elements = [];
+            $jqcol.each(function (i,e) {
+                if (count < num_elements) {
+                    elements.push(e);
+                    if (!isTextNode(e)) count++;
+                }
+            });
+            return $(elements);
+        }
+
+        var external_links = findExternalIncludes ();
+        // continue execution when all external resources are fully loaded
+        var latch = $.md.util.countDownLatch (external_links.length);
+        latch.always (function () {
+            parent_dfd.resolve();
+        });
+
+        external_links.each(function (i,e) {
+            var $el = $(e);
+            var href = $el.attr('href');
+            var text = $el.toptext();
+
+            $.ajax({
+                url: href,
+                dataType: 'text'
+            })
+            .done(function (data) {
+                var $html = $(transformMarkdown(data));
+                if (text.startsWith('preview:')) {
+                    // only insert the selected number of paragraphs; default 3
+                    var num_preview_elements = parseInt(text.substring(8), 10) ||3;
+                    var $preview = selectPreviewElements ($html, num_preview_elements);
+                    $preview.last().append('<a href="' + href +'"> ...read more &#10140;</a>');
+                    $preview.insertBefore($el.parent('p').eq(0));
+                    $el.remove();
+                } else {
+                    $html.insertAfter($el.parents('p'));
+                    $el.remove();
+                }
+            }).always(function () {
+                latch.countDown();
+            });
+        });
+    }
+
+    function isSpecialLink(href) {
+        if (!href) return false;
+
+        if (href.lastIndexOf('data:') >= 0)
+            return true;
+
+        if (href.startsWith('mailto:'))
+            return true;
+
+        if (href.startsWith('file:'))
+            return true;
+
+        if (href.startsWith('ftp:'))
+            return true;
+
+        // TODO capture more special links: every non-http link with : like
+        // torrent:// etc.
+    }
+
     // modify internal links so we load them through our engine
-    $.md.processPageLinks = function (domElement, baseUrl) {
+    function processPageLinks(domElement, baseUrl) {
         var html = $(domElement);
         if (baseUrl === undefined) {
             baseUrl = '';
@@ -2192,6 +1729,9 @@ var MDwiki;
             var href = link.attr(hrefAttribute);
 
             if (href && href.lastIndexOf ('#!') >= 0)
+                return;
+
+            if (isSpecialLink(href))
                 return;
 
             if (!isImage && href.startsWith ('#') && !href.startsWith('#!')) {
@@ -2226,10 +1766,207 @@ var MDwiki;
             else
                 link.attr(hrefAttribute, build_link(href));
         });
+    }
+
+    var navMD = '';
+    $.md.NavigationDfd = $.Deferred();
+    var ajaxReq = {
+        url: 'navigation.md',
+        dataType: 'text'
     };
+    $.ajax(ajaxReq).done(function(data) {
+        navMD = data;
+        $.md.NavigationDfd.resolve();
+    }).fail(function() {
+        $.md.NavigationDfd.reject();
+    });
 
+    function registerBuildNavigation() {
 
+        $.md.stage('init').subscribe(function(done) {
+            $.md.NavigationDfd.done(function() {
+                done();
+            })
+            .fail(function() {
+                done();
+            });
+        });
 
+        $.md.stage('transform').subscribe(function(done) {
+            if (navMD === '') {
+                var log = $.md.getLogger();
+                log.info('no navgiation.md found, not using a navbar');
+                done();
+                return;
+            }
+
+            var navHtml = marked(navMD);
+            // TODO why are <script> tags from navHtml APPENDED to the jqcol?
+            var $h = $('<div>' + navHtml + '</div>');
+
+            // insert <scripts> from navigation.md into the DOM
+            $h.each(function (i,e) {
+                if (e.tagName === 'SCRIPT') {
+                    $('script').first().before(e);
+                }
+            });
+
+            // TODO .html() is evil!!!
+            var $navContent = $h.eq(0);
+            $navContent.find('p').each(function(i,e) {
+                var $el = $(e);
+                $el.replaceWith($el.html());
+            });
+            $('#md-menu').append($navContent.html());
+            done();
+        });
+
+        $.md.stage('bootstrap').subscribe(function(done) {
+            processPageLinks($('#md-menu'));
+            done();
+        });
+
+        $.md.stage('postgimmick').subscribe(function(done) {
+            var num_links = $('#md-menu a').length;
+            var has_header = $('#md-menu .navbar-brand').eq(0).toptext().trim().length > 0;
+            if (!has_header && num_links <= 1)
+                $('#md-menu').hide();
+
+            done();
+        });
+    }
+
+    $.md.ConfigDfd = $.Deferred();
+    $.ajax({url: 'config.json', dataType: 'text'}).done(function(data) {
+        try {
+            var data_json = JSON.parse(data);
+            $.md.config = $.extend($.md.config, data_json);
+            log.info('Found a valid config.json file, using configuration');
+        } catch(err) {
+            log.error('config.json was not JSON parsable: ' + err);
+        }
+        $.md.ConfigDfd.resolve();
+    }).fail(function(err, textStatus) {
+        log.error('unable to retrieve config.json: ' + textStatus);
+        $.md.ConfigDfd.reject();
+    });
+    function registerFetchConfig() {
+
+        $.md.stage('init').subscribe(function(done) {
+            // TODO 404 won't get cached, requesting it every reload is not good
+            // maybe use cookies? or disable re-loading of the page
+            //$.ajax('config.json').done(function(data){
+            $.md.ConfigDfd.done(function(){
+                done();
+            }).fail(function() {
+                var log = $.md.getLogger();
+                log.info('No config.json found, using default settings');
+                done();
+            });
+        });
+    }
+
+    function registerClearContent() {
+
+        $.md.stage('init').subscribe(function(done) {
+            $('#md-all').empty();
+            var skel ='<div id="md-body"><div id="md-title"></div><div id="md-menu">'+
+                '</div><div id="md-content"></div></div>';
+            $('#md-all').prepend($(skel));
+            done();
+        });
+
+    }
+    function loadContent(href) {
+        $.md.mainHref = href;
+
+        registerFetchMarkdown();
+        registerClearContent();
+
+        // find out which link gimmicks we need
+        $.md.stage('ready').subscribe(function(done) {
+            $.md.initializeGimmicks();
+            $.md.registerLinkGimmicks();
+            done();
+        });
+
+        // wire up the load method of the modules
+        $.each($.md.gimmicks, function(i, module) {
+            if (module.load === undefined) {
+                return;
+            }
+            $.md.stage('load').subscribe(function(done) {
+                module.load();
+                done();
+            });
+        });
+
+        $.md.stage('ready').subscribe(function(done) {
+            $.md('createBasicSkeleton');
+            done();
+        });
+
+        $.md.stage('bootstrap').subscribe(function(done){
+            $.mdbootstrap('bootstrapify');
+            processPageLinks($('#md-content'), $.md.baseUrl);
+            done();
+        });
+        runStages();
+    }
+
+    function runStages() {
+
+        // wire the stages up
+        $.md.stage('init').done(function() {
+            $.md.stage('load').run();
+        });
+        $.md.stage('load').done(function() {
+            $.md.stage('transform').run();
+        });
+        $.md.stage('transform').done(function() {
+            $.md.stage('ready').run();
+        });
+        $.md.stage('ready').done(function() {
+            $.md.stage('skel_ready').run();
+        });
+        $.md.stage('skel_ready').done(function() {
+            $.md.stage('bootstrap').run();
+        });
+        $.md.stage('bootstrap').done(function() {
+            $.md.stage('pregimmick').run();
+        });
+        $.md.stage('pregimmick').done(function() {
+            $.md.stage('gimmick').run();
+        });
+        $.md.stage('gimmick').done(function() {
+            $.md.stage('postgimmick').run();
+        });
+        $.md.stage('postgimmick').done(function() {
+            $.md.stage('all_ready').run();
+        });
+        $.md.stage('all_ready').done(function() {
+            $('html').removeClass('md-hidden-load');
+
+            // phantomjs hook when we are done
+            if (typeof window.callPhantom === 'function') {
+                window.callPhantom({});
+            }
+
+            $.md.stage('final_tests').run();
+        });
+        $.md.stage('final_tests').done(function() {
+            // reset the stages for next iteration
+            resetStages();
+
+            // required by dalekjs so we can wait the element to appear
+            $('body').append('<span id="start-tests"></span>');
+            $('#start-tests').hide();
+        });
+
+        // trigger the whole process by runing the init stage
+        $.md.stage('init').run();
+        return;
+    }
 
     function extractHashData() {
         // first char is the # or #!
@@ -2269,12 +2006,11 @@ var MDwiki;
             window.location.hash = newHashString;
     }
 
-    $.initMDwiki();
-
     $(document).ready(function () {
 
         // stage init stuff
-
+        registerFetchConfig();
+        registerBuildNavigation();
         extractHashData();
 
         appendDefaultFilenameToHash();
@@ -2283,7 +2019,7 @@ var MDwiki;
             window.location.reload(false);
         });
 
-        $.md.wiki.run();
+        loadContent($.md.mainHref);
     });
 }(jQuery));
 
@@ -2334,25 +2070,6 @@ var MDwiki;
     };
     $.md.util = $.extend ({}, $.md.util, publicMethods);
 
-    // turns hostname/path links into http://hostname/path links
-    // we need to do this because if accessed by file:///, we need a different
-    // transport scheme for external resources (like http://)
-    $.md.prepareLink = function(link, options) {
-        options = options || {};
-        var ownProtocol = window.location.protocol;
-
-        if (options.forceSSL)
-            return 'https://' + link;
-        if (options.forceHTTP)
-            return 'http://' + link;
-
-        if (ownProtocol === 'file:') {
-            return 'http://' + link;
-        }
-        // default: use the same as origin resource
-        return '//' + link;
-    };
-
     if (typeof String.prototype.startsWith !== 'function') {
         String.prototype.startsWith = function(str) {
             return this.slice(0, str.length) === str;
@@ -2389,6 +2106,27 @@ var MDwiki;
         return '#!' + href + '#' + subhash;
     };
 
+    $.md.util.repeatUntil = function (interval, predicate, maxRepeats) {
+        maxRepeats = maxRepeats || 10;
+        var dfd = $.Deferred();
+        function recursive_repeat (interval, predicate, maxRepeats) {
+            if (maxRepeats === 0) {
+                dfd.reject();
+                return;
+            }
+            if (predicate()) {
+                dfd.resolve();
+                return;
+            } else {
+                $.md.util.wait(interval).always(function () {
+                    recursive_repeat(interval, predicate, maxRepeats - 1);
+                });
+            }
+        }
+        recursive_repeat(interval, predicate, maxRepeats);
+        return dfd;
+    };
+
     // a count-down latch as in Java7.
     $.md.util.countDownLatch = function (capacity, min) {
         min = min || 0;
@@ -2403,6 +2141,331 @@ var MDwiki;
         return dfd;
     };
 
+}(jQuery));
+
+(function($) {
+    'use strict';
+
+    // PUBLIC API
+    $.md.registerGimmick = function(module) {
+        $.md.gimmicks.push(module);
+        return;
+    };
+
+    // registers a script for a gimmick, that is later dynamically loaded
+    // by the core.
+    // src may be an URL or direct javascript sourcecode. When options.callback
+    // is provided, the done() function is passed to the function and needs to
+    // be called.
+    $.md.registerScript = function(module, src, options) {
+        var scriptinfo = new ScriptInfo({
+            module: module,
+            src: src,
+            options: options
+        });
+        registeredScripts.push(scriptinfo);
+    };
+
+    // same as registerScript but for css. Note that we do not provide a
+    // callback when the load finishes
+    $.md.registerCss = function(module, url, options) {
+        var license = options.license,
+            stage = options.stage || 'skel_ready',
+            callback = options.callback;
+
+        checkLicense(license, module);
+        var tag = '<link rel="stylesheet" href="' + url + '" type="text/css"></link>';
+        $.md.stage(stage).subscribe(function(done) {
+            $('head').append(tag);
+            if (callback !== undefined) {
+                callback(done);
+            } else {
+                done();
+            }
+        });
+    };
+
+    // turns hostname/path links into http://hostname/path links
+    // we need to do this because if accessed by file:///, we need a different
+    // transport scheme for external resources (like http://)
+    $.md.prepareLink = function(link, options) {
+        options = options || {};
+        var ownProtocol = window.location.protocol;
+
+        if (options.forceSSL)
+            return 'https://' + link;
+        if (options.forceHTTP)
+            return 'http://' + link;
+
+        if (ownProtocol === 'file:') {
+            return 'http://' + link;
+        }
+        // default: use the same as origin resource
+        return '//' + link;
+    };
+
+    // associate a link trigger for a gimmick. i.e. [gimmick:foo]() then
+    // foo is the trigger and will invoke the corresponding gimmick
+    $.md.linkGimmick = function(module, trigger, callback, stage) {
+        if (stage === undefined) {
+            stage = 'gimmick';
+        }
+        var linktrigger = new LinkTrigger({
+            trigger: trigger,
+            module: module,
+            stage: stage,
+            callback: callback
+        });
+        linkTriggers.push(linktrigger);
+    };
+
+    $.md.triggerIsActive = function(trigger) {
+        if (activeLinkTriggers.indexOf(trigger) === -1) {
+            return false;
+        } else {
+            return true;
+        }
+    };
+
+    var initialized = false;
+    // TODO combine main.js and modules.js closure
+    $.md.initializeGimmicks = function() {
+        findActiveLinkTrigger();
+        runGimmicksOnce();
+        loadRequiredScripts();
+    };
+
+    // END PUBLIC API
+
+
+    var log = $.md.getLogger();
+
+    // triggers that we actually found on the page
+    // array of string
+    var activeLinkTriggers = [];
+
+
+    // array of ScriptInfo
+    var registeredScripts = [];
+    function ScriptInfo(initial) {
+        this.module = undefined;
+        this.options = {};
+
+        // can ba an URL or javascript sourcecode
+        this.src = '';
+
+        $.extend(this, initial);
+    }
+
+    // array of linkTriggers
+    var linkTriggers = [];
+    function LinkTrigger(initial) {
+        this.trigger = undefined;
+        this.module = undefined;
+        this.callback = undefined;
+
+        $.extend(this, initial);
+    }
+
+    // jQuery does some magic when inserting inline scripts, so better
+    // use vanilla JS. See:
+    // http://stackoverflow.com/questions/610995/jquery-cant-append-script-element
+    function insertInlineScript(src) {
+        // scripts always need to go directly into the DOM
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.text = src;
+        document.body.appendChild(script);
+    }
+
+    // since we are GPL, we have to be cautious what other scripts we load
+    // as delivering to the browser is considered delivering a derived work
+    var licenses = ['MIT', 'BSD', 'GPL', 'GPL2', 'GPL3', 'LGPL', 'LGPL2',
+        'APACHE2', 'PUBLICDOMAIN', 'EXCEPTION', 'OTHER'
+    ];
+    function checkLicense(license, module) {
+        if ($.inArray(license, licenses) === -1) {
+            var availLicenses = JSON.stringify(licenses);
+            log.warn('license ' + license + ' is not known.');
+            log.warn('Known licenses:' + availLicenses);
+
+        } else if (license === 'OTHER') {
+            log.warn('WARNING: Module ' + module.name + ' uses a script'+
+                ' with unknown license. This may be a GPL license violation if'+
+                ' this website is publically available!');
+        }
+    }
+
+    // will actually schedule the script load into the DOM.
+    function loadScript(scriptinfo) {
+
+        var module = scriptinfo.module,
+            src = scriptinfo.src,
+            options = scriptinfo.options;
+
+        var license = options.license || 'OTHER',
+            loadstage = options.loadstage || 'skel_ready',
+            finishstage = options.finishstage || 'pregimmick',
+            callback = options.callback;
+
+        var loadDone = $.Deferred();
+
+        checkLicense(license, module);
+        // start script loading
+        log.debug('subscribing ' + module.name + ' to start: ' + loadstage + ' end in: ' + finishstage);
+        $.md.stage(loadstage).subscribe(function(done) {
+            if (src.startsWith('//') || src.startsWith('http')) {
+                $.getScript(src, function() {
+                    if (callback !== undefined) {
+                        callback(done);
+                    } else {
+                        log.debug('module' + module.name + ' script load done: ' + src);
+                        done();
+                    }
+                    loadDone.resolve();
+                });
+            } else {
+                // inline script that we directly insert
+                insertInlineScript(src);
+                log.debug('module' + module.name + ' script inject done');
+                loadDone.resolve();
+                done();
+            }
+        });
+        // if loading is not yet finished in stage finishstage, wait
+        // for the loading to complete
+        $.md.stage(finishstage).subscribe(function(done) {
+            loadDone.done(function() {
+                done();
+            });
+        });
+    }
+
+    // finds out that kind of trigger words are acutally used on a given page
+    // this is most likely a very small subset of all available gimmicks
+    function findActiveLinkTrigger() {
+        var $gimmicks = $('a:icontains(gimmick:)');
+        $gimmicks.each(function(i,e) {
+            var parts = getGimmickLinkParts($(e));
+            if (activeLinkTriggers.indexOf(parts.trigger) === -1) {
+                activeLinkTriggers.push(parts.trigger);
+            }
+        });
+        log.debug('Scanning for required gimmick links: ' + JSON.stringify(activeLinkTriggers));
+    }
+
+    function loadRequiredScripts() {
+        // find each module responsible for the link trigger
+        $.each(activeLinkTriggers, function(i,trigger) {
+            var module = findModuleByTrigger(trigger);
+            if (module === undefined) {
+                log.error('Gimmick link: "' + trigger + '" found but no suitable gimmick loaded');
+                return;
+            }
+            var scriptinfo = registeredScripts.filter(function(info) {
+                return info.module.name === module.name;
+            })[0];
+            // register to load the script
+            if (scriptinfo !== undefined) {
+                loadScript(scriptinfo);
+            }
+        });
+    }
+
+    function findModuleByTrigger(trigger) {
+        var ret;
+        $.each(linkTriggers, function(i,e) {
+            if (e.trigger === trigger) {
+                ret = e.module;
+            }
+        });
+        return ret;
+    }
+
+    function getGimmickLinkParts($link) {
+        var link_text = $.trim($link.toptext());
+        // returns linkTrigger, options, linkText
+        if (link_text.match(/gimmick:/i) === null) {
+            return null;
+        }
+        var href = $.trim($link.attr('href'));
+        var r = new RegExp(/gimmick:\s*([^(\s]*)\s*(\(\s*{?(.*)\s*}?\s*\))*/i);
+        var matches = r.exec(link_text);
+        if (matches === null || matches[1] === undefined) {
+            $.error('Error matching a gimmick: ' + link_text);
+            return null;
+        }
+        var trigger = matches[1].toLowerCase();
+        var args = null;
+        // getting the parameters
+        if (matches[2] !== undefined) {
+            // remove whitespaces
+            var params = $.trim(matches[3].toString());
+            // remove the closing } if present
+            if (params.charAt (params.length - 1) === '}') {
+                params = params.substring(0, params.length - 1);
+            }
+            // add surrounding braces and paranthese
+            params = '({' + params + '})';
+            // replace any single quotes by double quotes
+            params = params.replace(/'/g, '"');
+            // finally, try if the json object is valid
+            try {
+                /*jshint -W061 */
+                args = eval(params);
+            } catch (err) {
+                log.error('error parsing argument of gimmick: ' + link_text + 'giving error: ' + err);
+            }
+        }
+        return { trigger: trigger, options: args, href: href };
+    }
+
+    function runGimmicksOnce() {
+        // runs the once: callback for each gimmick within the init stage
+        $.each($.md.gimmicks, function(i, module) {
+            if (module.once === undefined) {
+                return;
+            }
+            module.once();
+        });
+    }
+
+    // activate all gimmicks on a page, that are contain the text gimmick:
+    // TODO make private / merge closures
+    $.md.registerLinkGimmicks = function () {
+        var $gimmick_links = $('a:icontains(gimmick:)');
+        $gimmick_links.each(function(i, e) {
+            var $link = $(e);
+            var gimmick_arguments = getGimmickLinkParts($link);
+
+            $.each(linkTriggers, function(i, linktrigger) {
+                if (gimmick_arguments.trigger === linktrigger.trigger) {
+                    subscribeLinkTrigger($link, gimmick_arguments, linktrigger);
+                }
+            });
+        });
+    };
+
+    function subscribeLinkTrigger($link, args, linktrigger) {
+        log.debug('Subscribing gimmick ' + linktrigger.module.name + ' to stage: ' + linktrigger.stage);
+
+        $.md.stage(linktrigger.stage).subscribe(function(done) {
+            args.options = args.options ||{};
+
+            // it is possible that broken modules or any other transformation removed the $link
+            // from the dom in the meantime
+            if (!jQuery.contains(document.documentElement, $link[0])) {
+                log.error ('LINK IS NOT IN THE DOM ANYMORE: ');
+                console.log($link);
+            }
+
+            log.debug('Running gimmick ' + linktrigger.module.name);
+            linktrigger.callback($link, args.options, args.href, done);
+
+            // if the gimmick didn't call done, we trigger it here
+            done();
+        });
+    }
 }(jQuery));
 
 (function($) {
@@ -2598,6 +2661,27 @@ var MDwiki;
             $pilcrow.appendTo($heading);
         }
 
+        // adds a link to the navigation at the top of the page
+        function addJumpLinkToTOC($heading) {
+            if($.md.config.useSideMenu === false) return;
+            if($heading.prop("tagName") !== 'H2') return;
+
+            var c = $.md.config.tocAnchor;
+            if (c === '')
+                return;
+
+            var $jumpLink = $('<a class="visible-xs visible-sm jumplink" href="#md-page-menu">' + c + '</a>');
+            $jumpLink.click(function(ev) {
+                ev.preventDefault();
+
+                $('body').scrollTop($('#md-page-menu').position().top);
+            });
+
+            if ($heading.parents('#md-menu').length === 0) {
+                $jumpLink.insertAfter($heading);
+            }
+        }
+
         // adds a page inline anchor to each h1,h2,h3,h4,h5,h6 element
         // which can be accessed by the headings text
         $('h1,h2,h3,h4,h5,h6').not('#md-title h1').each (function () {
@@ -2606,6 +2690,9 @@ var MDwiki;
             var text = $heading.clone().children('.anchor-highlight').remove().end().text();
             var href = $.md.util.getInpageAnchorHref(text);
             addPilcrow($heading, href);
+
+            //add jumplink to table of contents
+            addJumpLinkToTOC($heading);
         });
     }
 
@@ -2735,12 +2822,46 @@ var MDwiki;
         $('#md-menu h1').remove();
         $('a.navbar-brand').text(brand_text);
 
-
-        // then comes md-title, and afterwards md-content
-        // offset md-title to account for the fixed menu space
-        // 50px is the menu width + 20px spacing until first text
-        // or heading
+        // initial offset
         $('#md-body').css('margin-top', '70px');
+        $.md.stage('pregimmick').subscribe(function (done) {
+            check_offset_to_navbar();
+            done();
+        });
+    }
+    // the navbar has different height depending on theme, number of navbar entries,
+    // and window/device width. Therefore recalculate on start and upon window resize
+    function set_offset_to_navbar () {
+        var height = $('#md-main-navbar').height() + 10;
+        $('#md-body').css('margin-top', height + 'px');
+    }
+    function check_offset_to_navbar () {
+        // HACK this is VERY UGLY. When an external theme is used, we don't know when the
+        // css style will be finished loading - and we can only correctly calculate
+        // the height AFTER it has completely loaded.
+        var navbar_height = 0;
+
+        var dfd1 = $.md.util.repeatUntil(40, function() {
+            navbar_height = $('#md-main-navbar').height();
+            return (navbar_height > 35) && (navbar_height < 481);
+        }, 25);
+
+        dfd1.done(function () {
+            navbar_height = $('#md-main-navbar').height();
+            set_offset_to_navbar();
+            // now bootstrap changes this maybe after a while, again watch for changes
+            var dfd2 = $.md.util.repeatUntil(20, function () {
+                return navbar_height !== $('#md-main-navbar').height();
+            }, 25);
+            dfd2.done(function() {
+                // it changed, so we need to change it again
+                set_offset_to_navbar();
+            });
+            // and finally, for real slow computers, make sure it is changed if changin very late
+            $.md.util.wait(2000).done(function () {
+                set_offset_to_navbar();
+            });
+        });
     }
     function buildSubNav() {
         // replace with the navbar skeleton
@@ -2918,6 +3039,7 @@ var MDwiki;
 
         $(window).resize(function () {
             recalc_width($('#md-page-menu'));
+            check_offset_to_navbar();
         });
         $.md.stage('postgimmick').subscribe(function (done) {
             // recalc_width();
@@ -3106,15 +3228,37 @@ var MDwiki;
 }(jQuery));
 
 (function($) {
-    //'use strict';
-    var alertsModule = new MDwiki.Core.Module();
-    alertsModule.init = function() {
-        $.md.stage('bootstrap').subscribe(function(done) {
-            createAlerts();
-            done();
-        });
+    $.gimmicks = $.fn.gimmicks = function(method) {
+        if (method === undefined) {
+            return;
+        }
+        // call the gimmick
+        if ($.fn.gimmicks.methods[method]) {
+            return $.fn.gimmicks.methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+        } else {
+            $.error('Gimmick ' + method + ' does not exist on jQuery.gimmicks');
+        }
     };
-    $.md.wiki.gimmicks.registerModule(alertsModule);
+
+    // TODO underscores _ in Markdown links are not allowed! bug in our MD imlemenation
+
+
+}(jQuery));
+
+(function($) {
+    //'use strict';
+    var alertsGimmick = {
+        name: 'alerts',
+        // TODO
+        //version: $.md.version,
+        load: function() {
+            $.md.stage('bootstrap').subscribe(function(done) {
+                createAlerts();
+                done();
+            });
+        }
+    };
+    $.md.registerGimmick(alertsGimmick);
 
     // takes a standard <img> tag and adds a hyperlink to the image source
     // needed since we scale down images via css and want them to be accessible
@@ -3176,56 +3320,110 @@ var MDwiki;
 (function($) {
     // makes trouble, find out why
     //'use strict';
-    var colorboxModule = new MDwiki.Core.Module();
-    colorboxModule.init = function() {
-        $.md.stage('gimmick').subscribe(function(done) {
-            make_colorbox();
-            done();
-        });
-    };
-    $.md.wiki.gimmicks.registerModule(colorboxModule);
-
-    function make_colorbox() {
-        var $image_groups;
-        if (!(this instanceof jQuery)) {
-            // select the image groups of the page
-            $image_groups = $('.md-image-group');
-        } else {
-            $image_groups = $(this);
-        }
-        // operate on md-image-group, which holds one
-        // or more images that are to be colorbox'ed
-        var counter = 0;
-        return $image_groups.each(function() {
-            var $this = $(this);
-
-            // each group requires a unique name
-            var gal_group = 'gallery-group-' + (counter++);
-
-            // create a hyperlink around the image
-            $this.find('a.md-image-selfref img')
-            // filter out images that already are a hyperlink
-            // (so won't be part of the gallery)
-
-            // apply colorbox on their parent anchors
-            .parents('a').colorbox({
-                rel: gal_group,
-                opacity: 0.75,
-                slideshow: true,
-                maxWidth: '95%',
-                maxHeight: '95%',
-                scalePhotos: true,
-                photo: true,
-                slideshowAuto: false
+    var colorboxGimmick = {
+        name: 'colorbox',
+        load: function() {
+            $.md.stage('gimmick').subscribe(function(done) {
+                $.gimmicks('colorbox');
+                done();
             });
+        }
+    };
+    $.md.registerGimmick(colorboxGimmick);
+
+    var methods = {
+        // takes a standard <img> tag and adds a hyperlink to the image source
+        // needed since we scale down images via css and want them to be accessible
+        // in original format
+        colorbox: function() {
+            var $image_groups;
+            if (!(this instanceof jQuery)) {
+                // select the image groups of the page
+                $image_groups = $('.md-image-group');
+            } else {
+                $image_groups = $(this);
+            }
+            // operate on md-image-group, which holds one
+            // or more images that are to be colorbox'ed
+            var counter = 0;
+            return $image_groups.each(function() {
+                var $this = $(this);
+
+                // each group requires a unique name
+                var gal_group = 'gallery-group-' + (counter++);
+
+                // create a hyperlink around the image
+                $this.find('a.md-image-selfref img')
+                // filter out images that already are a hyperlink
+                // (so won't be part of the gallery)
+
+                // apply colorbox on their parent anchors
+                .parents('a').colorbox({
+                    rel: gal_group,
+                    opacity: 0.75,
+                    slideshow: true,
+                    maxWidth: '95%',
+                    maxHeight: '95%',
+                    scalePhotos: true,
+                    photo: true,
+                    slideshowAuto: false
+                });
+            });
+        }
+    };
+    $.gimmicks.methods = $.extend({}, $.fn.gimmicks.methods, methods);
+}(jQuery));
+
+(function($) {
+    'use strict';
+
+    var themeChooserGimmick = {
+        name: 'Themes',
+        version: $.md.version,
+        once: function() {
+            $.md.linkGimmick(this, 'carousel', carousel);
+        }
+    };
+    $.md.registerGimmick(themeChooserGimmick);
+
+    function carousel($link, opt, href) {
+
+        var $c = $('<div id="myCarousel" class="carousel slide"></div>');
+        var $d = $('<div class="carousel-inner"/>');
+        $c.append('<ol class="carousel-indicators" />');
+
+        var imageUrls = [];
+        var i = 0;
+        $.each(href.split(','), function(i, e) {
+            imageUrls.push($.trim(e));
+            $c.find('ol').append('<li data-target="#myCarousel" data-slide-to="' + i + '" class="active" /');
+            var div;
+            if (i === 0) {
+                div = ('<div class="active item"/>');
+            } else {
+                div = ('<div class="item"/>');
+            }
+            $d.append($(div).append('<img src="' + e + '"/>'));
         });
+        $c.append($d);
+        $c.append('<a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>');
+        $c.append('<a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>');
+        $link.replaceWith($c);
     }
 }(jQuery));
 
 (function($) {
+    var disqusGimmick = {
+        name: 'disqus',
+        version: $.md.version,
+        once: function() {
+            $.md.linkGimmick(this, 'disqus', disqus);
+        }
+    };
+    $.md.registerGimmick(disqusGimmick);
 
     var alreadyDone = false;
-    function disqus ($links, opt, text) {
+    var disqus = function($links, opt, text) {
         var default_options = {
             identifier: ''
         };
@@ -3277,11 +3475,7 @@ var MDwiki;
                 }
             }
         });
-    }
-
-    var disqusGimmick = new MDwiki.Core.Gimmick();
-    disqusGimmick.addHandler('disqus', disqus);
-    $.md.wiki.gimmicks.registerGimmick(disqusGimmick);
+    };
 }(jQuery));
 
 (function($) {
@@ -3291,6 +3485,19 @@ var MDwiki;
     var fbScriptHref = $.md.prepareLink ('connect.facebook.net/' + code + '/all.js#xfbml=1', { forceHTTP: true });
     var fbscript ='(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = "' + fbScriptHref + '"; fjs.parentNode.insertBefore(js, fjs);}(document, "script", "facebook-jssdk"));';
 
+    var facebookLikeGimmick = {
+        name: 'FacebookLike',
+        version: $.md.version,
+        once: function() {
+            $.md.linkGimmick(this, 'facebooklike', facebooklike);
+            $.md.registerScript(this, fbscript, {
+                license: 'APACHE2',
+                loadstage: 'postgimmick',
+                finishstage: 'all_ready'
+            });
+        }
+    };
+    $.md.registerGimmick(facebookLikeGimmick);
 
     function facebooklike($link, opt, text) {
         var default_options = {
@@ -3320,19 +3527,19 @@ var MDwiki;
             $this.replaceWith ($fb_div);
         });
     }
-
-    var facebookLikeGimmick = new MDwiki.Core.Gimmick();
-    facebookLikeGimmick.addHandler('facebooklike', facebooklike);
-    facebookLikeGimmick.init = function () {
-        // license: 'APACHE2',
-        var the_script = new MDwiki.Core.ScriptResource(fbscript, 'postgimmick', 'all_ready');
-        this.registerScriptResource(the_script);
-    };
-    $.md.wiki.gimmicks.registerGimmick(facebookLikeGimmick);
 }(jQuery));
 
 (function($) {
     'use strict';
+    var forkmeongithubGimmick = {
+        name: 'forkmeongithub',
+        version: $.md.version,
+        once: function() {
+            $.md.linkGimmick(this, 'forkmeongithub', forkmeongithub);
+        }
+    };
+    $.md.registerGimmick(forkmeongithubGimmick);
+
     function forkmeongithub($links, opt, text) {
         return $links.each (function (i, link){
             var $link = $(link);
@@ -3380,14 +3587,17 @@ var MDwiki;
         });
     }
 
-    var gimmick = new MDwiki.Core.Gimmick();
-    gimmick.addHandler('forkmeongithub', forkmeongithub);
-    $.md.wiki.gimmicks.registerGimmick(gimmick);
-
 }(jQuery));
 
 (function($){
     'use strict';
+    var gistGimmick = {
+        name: 'gist',
+        once: function() {
+            $.md.linkGimmick(this, 'gist', gist);
+        }
+    };
+    $.md.registerGimmick(gistGimmick);
 
     function gist($links, opt, href) {
         $().lazygist('init');
@@ -3401,10 +3611,6 @@ var MDwiki;
             });
         });
     }
-
-    var gistGimmick = new MDwiki.Core.Gimmick();
-    gistGimmick.addHandler('gist', gist);
-    $.md.wiki.gimmicks.registerGimmick(gistGimmick);
 }(jQuery));
 
 
@@ -3665,27 +3871,50 @@ function googlemapsReady() {
         });
     }
 
-    var googleMapsGimmick = new MDwiki.Core.Gimmick();
-    googleMapsGimmick.init = function() {
-        googlemapsLoadDone = $.Deferred();
+    var googleMapsGimmick = {
+        name: 'googlemaps',
+        version: $.md.version,
+        once: function() {
+            googlemapsLoadDone = $.Deferred();
 
-        // googleMapsGimmick.subscribeGimmick('googlemaps', googlemaps);
-        // load the googlemaps js from the google server
-        var script = new MDwiki.Core.ScriptResource (scripturl, 'skel_ready', 'bootstrap');
-        googleMapsGimmick.registerScriptResource(script);
+            // register the gimmick:googlemaps identifier
+            $.md.linkGimmick(this, 'googlemaps', googlemaps);
 
-        $.md.stage('bootstrap').subscribe(function(done) {
-            // defer the pregimmick phase until the google script fully loaded
-            googlemapsLoadDone.done(function() {
-                done();
+            // load the googlemaps js from the google server
+            $.md.registerScript(this, scripturl, {
+                license: 'EXCEPTION',
+                loadstage: 'skel_ready',
+                finishstage: 'bootstrap'
             });
-        });
+
+            $.md.stage('bootstrap').subscribe(function(done) {
+                // defer the pregimmick phase until the google script fully loaded
+                if ($.md.triggerIsActive('googlemaps')) {
+                    googlemapsLoadDone.done(function() {
+                        done();
+                    });
+                } else {
+                    // immediately return as there will never a load success
+                    done();
+                }
+            });
+        }
     };
-    googleMapsGimmick.addHandler('googlemaps', googlemaps);
-    $.md.wiki.gimmicks.registerGimmick(googleMapsGimmick);
+    $.md.registerGimmick(googleMapsGimmick);
 }(jQuery));
 
 (function($) {
+    var highlightGimmick = {
+        name: 'highlight',
+        load: function() {
+            $.md.stage('gimmick').subscribe(function(done) {
+                highlight();
+                done();
+            });
+        }
+    };
+    $.md.registerGimmick(highlightGimmick);
+
 
     function highlight () {
         // marked adds lang-ruby, lang-csharp etc to the <code> block like in GFM
@@ -3702,18 +3931,18 @@ function googlemapsReady() {
         });
     }
 
-    var highlightGimmick = new MDwiki.Core.Module();
-    highlightGimmick.init = function() {
-        $.md.stage('gimmick').subscribe(function(done) {
-            highlight();
-            done();
-        });
-    };
-    $.md.wiki.gimmicks.registerModule(highlightGimmick);
 }(jQuery));
 
 (function($) {
     'use strict';
+    var iframeGimmick= {
+        name: 'iframe',
+        version: $.md.version,
+        once: function() {
+            $.md.linkGimmick(this, 'iframe', create_iframe);
+        }
+    };
+    $.md.registerGimmick(iframeGimmick);
 
     function create_iframe($links, opt, text) {
         return $links.each (function (i, link){
@@ -3746,13 +3975,16 @@ function googlemapsReady() {
 
         });
     }
-
-    var iframeGimmick = new MDwiki.Core.Gimmick();
-    iframeGimmick.addHandler('iframe', create_iframe);
-    $.md.wiki.gimmicks.registerGimmick(iframeGimmick);
 }(jQuery));
 
 (function($) {
+    var mathGimmick = {
+        name: 'math',
+        once: function() {
+            $.md.linkGimmick(this, 'math', load_mathjax);
+        }
+    };
+    $.md.registerGimmick(mathGimmick);
 
     function load_mathjax($links, opt, ref) {
         $links.remove();
@@ -3761,55 +3993,211 @@ function googlemapsReady() {
         script.src  = $.md.prepareLink('cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML', { forceHTTP: true });
         document.getElementsByTagName('head')[0].appendChild(script);
     }
-    var mathGimmick = new MDwiki.Core.Gimmick();
-    mathGimmick.addHandler('math', load_mathjax);
-    $.md.wiki.gimmicks.registerGimmick(mathGimmick);
 
 }(jQuery));
 
 (function($) {
-    //'use strict';
-    function twitterfollow($links, opt, text) {
-        return $links.each(function(i, link) {
-            var $link = $(link);
-            var user;
-            var href = $link.attr('href');
-            if (href.indexOf ('twitter.com') <= 0) {
-                user = $link.attr('href');
-                href = $.md.prepareLink('twitter.com/' + user);
-            }
-            else {
+    'use strict';
+
+    var themes = [
+        { name: 'bootstrap', url: 'netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css' },
+        { name: 'amelia', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/amelia/bootstrap.min.css' },
+        { name: 'cerulean', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/cerulean/bootstrap.min.css' },
+        { name: 'cosmo', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/cosmo/bootstrap.min.css' },
+        { name: 'cyborg', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/cyborg/bootstrap.min.css' },
+        { name: 'flatly', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/flatly/bootstrap.min.css' },
+        { name: 'journal', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/journal/bootstrap.min.css' },
+        { name: 'readable', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/readable/bootstrap.min.css' },
+        { name: 'simplex', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/simplex/bootstrap.min.css' },
+        { name: 'slate', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/slate/bootstrap.min.css' },
+        { name: 'spacelab', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/spacelab/bootstrap.min.css' },
+        { name: 'united', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.0/united/bootstrap.min.css' },
+        { name: 'yeti', url: 'netdna.bootstrapcdn.com/bootswatch/3.0.2/yeti/bootstrap.min.css' }
+    ];
+    var useChooser = false;
+    var themeChooserGimmick = {
+        name: 'Themes',
+        version: $.md.version,
+        once: function() {
+            $.md.linkGimmick(this, 'themechooser', themechooser, 'skel_ready');
+            $.md.linkGimmick(this, 'theme', apply_theme);
+
+        }
+    };
+    $.md.registerGimmick(themeChooserGimmick);
+
+    var log = $.md.getLogger();
+
+    var set_theme = function(theme) {
+        theme.inverse = theme.inverse || false;
+
+        if (theme.url === undefined) {
+            if (!theme.name) {
+                log.error('Theme name must be given!');
                 return;
             }
-            // remove the leading @ if given
-            if (user[0] === '@') {
-                user = user.substring(1);
+            var saved_theme = themes.filter(function(t) {
+                return t.name === theme.name;
+            })[0];
+            if (!saved_theme) {
+                log.error('Theme ' + name + ' not found, removing link')    ;
+                return;
             }
-            var twitter_src = $('<a href="' + href + '" class="twitter-follow-button" data-show-count="false" data-lang="en" data-show-screen-name="false">'+ '@' + user + '</a>');
-            $link.replaceWith (twitter_src);
-        });
-    }
+            theme = $.extend(theme, saved_theme);
+        }
 
+
+        $('link[rel=stylesheet][href*="netdna.bootstrapcdn.com"]')
+            .remove();
+
+        // slim instance has no bootstrap hardcoded in
+        var has_default_bootstrap_css = $('style[id*=bootstrap]').length > 0;
+
+        if (theme.name !== 'bootstrap' || !has_default_bootstrap_css) {
+            // in devel & fat version the style is inlined, remove it
+            $('style[id*=bootstrap]').remove();
+
+            $('<link rel="stylesheet" type="text/css">')
+                .attr('href', $.md.prepareLink(theme.url))
+                .appendTo('head');
+        }
+
+        if (theme.inverse === true) {
+            $('#md-main-navbar').removeClass ('navbar-default');
+            $('#md-main-navbar').addClass ('navbar-inverse');
+        } else {
+            $('#md-main-navbar').addClass ('navbar-default');
+            $('#md-main-navbar').removeClass ('navbar-inverse');
+        }
+    };
+
+    var apply_theme = function($links, opt, text) {
+        opt.name = opt.name || text;
+        $links.each(function(i, link) {
+            $.md.stage('postgimmick').subscribe(function(done) {
+                var $link = $(link);
+
+                // only set a theme if no theme from the chooser is selected,
+                // or if the chooser isn't enabled
+                if (window.localStorage.theme === undefined || !useChooser) {
+                    set_theme(opt);
+                }
+
+                done();
+            });
+        });
+        $links.remove();
+    };
+
+    var themechooser = function($links, opt, text) {
+
+        useChooser = true;
+        $.md.stage('bootstrap').subscribe(function(done) {
+            restore_theme(opt);
+            done();
+        });
+
+        return $links.each(function(i, e) {
+            var $this = $(e);
+            var $chooser = $('<a href=""></a><ul></ul>'
+            );
+            $chooser.eq(0).text(text);
+
+            $.each(themes, function(i, theme) {
+                var $li = $('<li></li>');
+                $chooser.eq(1).append($li);
+                var $a = $('<a/>')
+                    .text(theme.name)
+                    .attr('href', '')
+                    .click(function(ev) {
+                        ev.preventDefault();
+                        window.localStorage.theme = theme.name;
+                        window.location.reload();
+                    })
+                    .appendTo($li);
+            });
+
+            $chooser.eq(1).append('<li class="divider" />');
+            var $li = $('<li/>');
+            var $a_use_default = $('<a>Use default</a>');
+            $a_use_default.click(function(ev) {
+                ev.preventDefault();
+                window.localStorage.removeItem('theme');
+                window.location.reload();
+            });
+            $li.append($a_use_default);
+            $chooser.eq(1).append($li);
+
+            $chooser.eq(1).append('<li class="divider" />');
+            $chooser.eq(1).append('<li><a href="http://www.bootswatch.com">Powered by Bootswatch</a></li>');
+            $this.replaceWith($chooser);
+        });
+    };
+
+    var restore_theme = function(opt) {
+        if (window.localStorage.theme) {
+            opt = $.extend({ name: window.localStorage.theme }, opt);
+            set_theme(opt);
+        }
+    };
+}(jQuery));
+
+(function($) {
+    //'use strict';
     // no license information given in the widget.js -> OTHER
     var widgetHref = $.md.prepareLink('platform.twitter.com/widgets.js');
     var twitterscript = '!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="' + widgetHref + '";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");';
+    var twitterGimmick = {
+        name: 'TwitterGimmick',
+        version: $.md.version,
+        once: function() {
+            $.md.linkGimmick(this, 'twitterfollow', twitterfollow);
 
-    var twitterGimmick = new MDwiki.Core.Gimmick();
-    twitterGimmick.addHandler('twitterfollow', twitterfollow);
-    twitterGimmick.init = function() {
-        var script = new MDwiki.Core.ScriptResource();
-        script.url = twitterscript;
-        script.loadstage = 'postgimmick';
-        script.finishstage = 'all_ready';
-                // license: 'EXCEPTION',
-        twitterGimmick.registerScriptResource(script);
+            $.md.registerScript(this, twitterscript, {
+                license: 'EXCEPTION',
+                loadstage: 'postgimmick',
+                finishstage: 'all_ready'
+            });
+
+        }
     };
-    $.md.wiki.gimmicks.registerGimmick(twitterGimmick);
+    $.md.registerGimmick(twitterGimmick);
 
+	var twitterfollow = function($links, opt, text) {
+		return $links.each(function(i, link) {
+			var $link = $(link);
+			var user;
+			var href = $link.attr('href');
+			if (href.indexOf ('twitter.com') <= 0) {
+				user = $link.attr('href');
+				href = $.md.prepareLink('twitter.com/' + user);
+			}
+			else {
+				return;
+			}
+			// remove the leading @ if given
+			if (user[0] === '@') {
+				user = user.substring(1);
+			}
+			var twitter_src = $('<a href="' + href + '" class="twitter-follow-button" data-show-count="false" data-lang="en" data-show-screen-name="false">'+ '@' + user + '</a>');
+			$link.replaceWith (twitter_src);
+		});
+    };
 }(jQuery));
 
 (function($) {
     //'use strict';
+    var youtubeGimmick = {
+        name: 'youtube',
+        load: function() {
+            $.md.stage('gimmick').subscribe(function(done) {
+                youtubeLinkToIframe();
+                done();
+            });
+        }
+    } ;
+    $.md.registerGimmick(youtubeGimmick);
+
     function youtubeLinkToIframe() {
         var $youtube_links = $('a[href*=youtube\\.com]:empty, a[href*=youtu\\.be]:empty');
 
@@ -3833,19 +4221,194 @@ function googlemapsReady() {
             }
         });
     }
-    var youtubeGimmick = new MDwiki.Core.Module();
-    youtubeGimmick.init = function () {
-        $.md.stage('gimmick').subscribe(function(done) {
-            youtubeLinkToIframe();
-            done();
-        });
+}(jQuery));
+
+(function($) {
+    'use strict';
+
+    var scripturl = '//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js';
+
+    var chartGimmick = {
+        name: 'chart',
+        version: $.md.version,
+        once: function() {
+            $.md.linkGimmick(this, 'chart', chart);
+
+            // load the chart js
+            $.md.registerScript(this, scripturl, {
+                license: 'MIT',
+                loadstage: 'skel_ready',
+                finishstage: 'gimmick'
+            });
+        }
     };
-    $.md.wiki.gimmicks.registerModule(youtubeGimmick);
+    $.md.registerGimmick(chartGimmick);
+
+    var log = $.md.getLogger();
+
+    function chart($links, opt, text) {
+        return $links.each (function (i, link){
+
+            // Get the options for this gimmick
+            //      labelColumn: This is a string the indicates the column that will be used to
+            //                   label the data points
+            //      dataColumns: This is a array of strings that indicate each column to be plotted
+            //      canvasId:    This is a ID for the given chart. Defaults to a random number
+            //                   between 1-1000.
+            //      chartOptions: This is an object that is passed to chartjs to configure its
+            //                    options.
+            //      chartType:   This string is the type of chart we want to render. Bar, Line,
+            //                   or Radar. Defaults to Line.
+            var default_options = {
+                chartType: 'Line',
+                canvasId: 'chartGimmick' + Math.floor((Math.random() * 1000) + 1),
+                chartOptions: {
+                    responsive: false
+                }
+            };
+            var options = $.extend ({}, default_options, opt);
+
+            var $link = $(link);
+
+            var table = $link.parents().find("table").last();
+            if (table.length === 0) {
+                log.error('Chart Gimmick: No tables found on the page.');
+                $link.remove();
+                return;
+            }
+
+            // Replace the Gimmick with the canvas that chartJS needs
+            var myHtml = $('<canvas id="' + options.canvasId + '"></canvas>');
+            myHtml.width(options.width || '450px');
+            myHtml.height(options.height || '250px');
+            $link.replaceWith(myHtml);
+
+            // This is the object that is given to the chart frame work for rendering. It will be
+            // built up by processing the html table that is found on the table.
+            var chartConfig = {
+                "datasets": [],
+                "labels": []
+            };
+
+            var chartAvailableToRender = true;
+
+            // These variables hold the indices of the columns in the table we care about. They will
+            // be populated as we process the table based on the options that are given in the
+            // gimmick
+            var labelColumnIndex = -1;
+            var dataColumnIndices = [];
+
+            // Get the index of the columns that we care about for charting
+            table.find("th").each(function(index){
+
+                // This is the column that labels each data point
+                if(this.textContent === options.labelColumn) {
+                    labelColumnIndex = index;
+                }
+
+                // Check if this is a data column
+                else {
+                    for(var i = 0; i < options.dataColumns.length; i++) {
+                        if(this.textContent === options.dataColumns[i]) {
+                            dataColumnIndices.push(index);
+                        }
+                    }
+                }
+            });
+
+            // Get the data
+            table.find("tr").each(function(rowIndex){
+                $(this).find("td").each(function(colIndex){
+
+                    if(colIndex === labelColumnIndex) {
+                        chartConfig.labels.push(this.textContent);
+                    } else {
+                        for(var i = 0; i < dataColumnIndices.length; i++) {
+                            if(colIndex === dataColumnIndices[i]) {
+
+                                if(chartConfig.datasets[i] === undefined) {
+                                    chartConfig.datasets[i] = {};
+                                    chartConfig.datasets[i].data = [];
+                                }
+
+                                chartConfig.datasets[i].data.push(this.textContent);
+                            }
+                        }
+                    }
+                });
+            });
+
+            // No Chart data found
+            if (chartConfig.datasets[i] === undefined) {
+                chartAvailableToRender = false;
+                log.error('Chart Gimmick: No data was found for the chart. Make sure that there ' +
+                    'is a tables on the page. Check that your ' +
+                    'column headers match the chart configuration.');
+            }
+
+            if (chartAvailableToRender) {
+                var canvas = document.getElementById(options.canvasId);
+                var ctx = canvas.getContext('2d');
+                $.md.stage('postgimmick').subscribe(function(done) {
+                    setTimeout(function() {
+                        new Chart(ctx)[options.chartType](chartConfig, options.chartOptions);
+                    });
+                    done(); 
+                });
+            }
+        });
+    }
+
+}(jQuery));
+
+(function($) {
+    'use strict';
+    function yuml($link, opt, text) {
+        var default_options = {
+            type: 'class',  /* { class, activity, usecase } */
+            style: 'plain', /* { plain, scruffy } */
+            direction: 'LR',      /* LR, TB, RL */
+            scale: '100'
+        };
+        var options = $.extend ({}, default_options, opt);
+
+        return $link.each(function(i,e) {
+
+            var $this = $(e);
+            var url = 'http://yuml.me/diagram/';
+            var data = $this.attr('href');
+            var title = $this.attr('title');
+
+            title = (title ? title : '');
+
+            /* `FOOBAR´ => (FOOBAR) */
+            data = data.replace( new RegExp('`', 'g'), '(' ).replace( new RegExp('´', 'g'), ')' );
+
+            url += options.style + ';dir:' + options.direction + ';scale:' + options.scale + '/' + options.type + '/' + data;
+
+            var $img = $('<img src="' + url + '" title="' + title + '" alt="' + title + '">');
+
+            $this.replaceWith($img);
+        });
+    }
+    var yumlGimmick = {
+        name: 'yuml',
+        version: $.md.version,
+        once: function() {
+            $.md.linkGimmick(this, 'yuml', yuml);
+            $.md.registerScript(this, '', {
+                license: 'LGPL',
+                loadstage: 'postgimmick',
+                finishstage: 'all_ready'
+            });
+        }
+    };
+    $.md.registerGimmick(yumlGimmick);
 
 }(jQuery));
 </script>
 <!-- END dist/MDwiki.js -->
-
+<script type="text/javascript">$.md.logThreshold = $.md.loglevel.DEBUG;</script>
 </head>
 <body>
     <noscript>
