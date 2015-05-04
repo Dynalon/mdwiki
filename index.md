@@ -71,7 +71,7 @@ Cute kitten images provided by the great [placekitten.com] service.
   [colorbox]: http://www.jacklmoore.com/colorbox/
   [gists]: https://gist.github.com/
   [maps]: http://maps.google.com/
-  [highlightjs]: http://softwaremaniacs.org/soft/highlight/en/‎
+  [highlightjs]: https://highlightjs.org/
   [placekitten.com]: http://www.placekitten.com/
 
 License
