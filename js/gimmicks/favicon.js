@@ -25,7 +25,7 @@
                 + ' alt="favicon"'
                 + '>';
 
-			var htmlLink = '<a href="' + e + '"'
+            var htmlLink = '<a href="' + e + '"'
                 + (options.target ? ' target="' + options.target + '"' : '')
                 + (options.cssClass ? ' class="' + options.cssClass + '"' : '')
                 + '>'
