@@ -17,21 +17,21 @@
 
             var $this = $(e);
 
-            var htmlImage = '<img src="https://www.google.com/s2/favicons?'
-                + (options.domain ? 'domain=' + options.domain : 'domain_url=' + e)
-                + (options.alt ? '&alt=' + options.alt : '')
-                + '" width="' + options.width + '"'
-                + ' height="' + options.height + '"'
-                + ' alt="favicon"'
-                + '>';
+            var htmlImage = '<img src="https://www.google.com/s2/favicons?' +
+                (options.domain ? 'domain=' + options.domain : 'domain_url=' + e) +
+                (options.alt ? '&alt=' + options.alt : '') +
+                '" width="' + options.width + '"' +
+                ' height="' + options.height + '"' +
+                ' alt="favicon"' +
+                '>';
 
-            var htmlLink = '<a href="' + e + '"'
-                + (options.target ? ' target="' + options.target + '"' : '')
-                + (options.cssClass ? ' class="' + options.cssClass + '"' : '')
-                + '>'
-                + htmlImage
-                + (options.caption ? ' ' + options.caption : '')
-                + '</a>';
+            var htmlLink = '<a href="' + e + '"' +
+                (options.target ? ' target="' + options.target + '"' : '') +
+                (options.cssClass ? ' class="' + options.cssClass + '"' : '') +
+                '>' +
+                htmlImage +
+                (options.caption ? ' ' + options.caption : '') +
+                '</a>';
 
             $this.replaceWith(htmlLink);
         });
