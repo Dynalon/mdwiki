@@ -10,13 +10,13 @@
  *
  * ## Options
  *
- *  * **width**: image width          
- *  * **height**: image height         
- *  * **alt**: alternative favicon  
- *  * **domain**: favicon domain       
- *  * **caption**: link caption         
- *  * **target**: link target          
- *  * **cssClass**: link css class       
+ *  * **width**: image width
+ *  * **height**: image height
+ *  * **alt**: alternative favicon
+ *  * **domain**: favicon domain
+ *  * **caption**: link caption
+ *  * **target**: link target
+ *  * **cssClass**: link css class
  *
  * ## Author
  *
