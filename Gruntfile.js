@@ -228,6 +228,17 @@ module.exports = function(grunt) {
                     stdout: true
                 },
                 command: 'cd release && zip -r mdwiki-<%= grunt.config("pkg").version %>.zip mdwiki-<%= grunt.config("pkg").version %>'
+            },
+            /* precompilation of our handlebars templates */
+            compile_templates: {
+                options: {
+                    stdout: true
+                },
+                // -n mdwiki = Namespace is mdwiki
+                // -f outputfile
+                // -r root for the templates (will mirror the FS structure to the template name)
+                // -m = minify
+                command: './node_modules/.bin/handlebars -f tmp/templates.js -r templates -m templates/**/*.html'
             }
         },
         watch: {
@@ -270,7 +281,7 @@ module.exports = function(grunt) {
         createIndex(grunt, 'debug');
     });
 
-    grunt.registerTask('assembleTemplates', 'Adds a script tag with id to each template', function() {
+    /*grunt.registerTask('assembleTemplates', 'Adds a script tag with id to each template', function() {
         var templateString = '';
         grunt.file.recurse('templates/', function(abspath, rootdir, subdir, filename){
             var intro = '<script type="text/html" id="/' + rootdir.replace('/','') + '/' + subdir.replace('/','') + '/' + filename.replace('.html','') + '">\n';
@@ -279,11 +290,12 @@ module.exports = function(grunt) {
             templateString += intro + content + outro;
         });
         grunt.file.write('tmp/templates.html', templateString);
-    });
+    });*/
+    
 
     /*** NAMED TASKS ***/
-    grunt.registerTask('release', [ 'jshint', 'typescript', 'less:min', 'assembleTemplates', 'concat:dev', 'uglify:dist', 'index' ]);
-    grunt.registerTask('debug', [ 'jshint', 'typescript', 'less:dev', 'assembleTemplates', 'concat:dev',  'index_debug' ]);
+    grunt.registerTask('release', [ 'jshint', 'typescript', 'less:min', 'shell:compile_templates', 'concat:dev', 'uglify:dist', 'index' ]);
+    grunt.registerTask('debug', [ 'jshint', 'typescript', 'less:dev', 'shell:compile_templates', 'concat:dev',  'index_debug' ]);
     grunt.registerTask('devel', [ 'debug', 'server', 'unittests', 'reload', 'watch' ]);
     grunt.registerTask('unittests', [ 'copy:unittests' ]);
 

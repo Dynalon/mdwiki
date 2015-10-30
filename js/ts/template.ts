@@ -1,34 +1,30 @@
 ///<reference path="../../typings/tsd.d.ts" />
 ///<reference path="utils.ts" />
 
-declare var Hogan: any;
+declare var Handlebars: any;
 
 module MDwiki.Templating {
     export class Template {
 
-        public view: string = '';
         public model: any = {};
+        private templateFunction: Function;
 
         private renderedTemplate: any;
 
         constructor(path?: string) {
             if (path) {
-                if (!path.startsWith('/'))
-                    path = '/' + path;
-                path = '/templates' + path;
-                var elem = document.getElementById(path);
-                if (!elem)
-                    throw "Template view with path " + path + " could not be found";
-                this.view = $(elem).html();
+                // remove leading slashes
+                while (path.startsWith('/'))
+                    path = path.substring(1, path.length);
+                
+                // TODO remove .html from CALLER instead of this
+                path = path + ".html";
+                this.templateFunction = Handlebars.templates[path];
             }
         }
 
         render () {
-            // TODO allow precompiled templates
-            if (!this.view)
-                throw ("View cannot be undefined/null");
-            var compiledTemplate = Hogan.compile(this.view);
-            this.renderedTemplate = compiledTemplate.render(this.model);
+            this.renderedTemplate = this.templateFunction(this.model);
             return this.renderedTemplate;
         }
 

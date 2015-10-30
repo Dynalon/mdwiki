@@ -3,7 +3,6 @@
 ///<reference path="template.ts" />
 
 declare var $: JQueryStatic;
-declare var Hogan: any;
 
 import util = MDwiki.Utils.Util;
 import Template = MDwiki.Templating.Template;
