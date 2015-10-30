@@ -13,15 +13,6 @@
   <script type="text/javascript" src="/unittests/lib/jquery.min.js"></script>
   <script type="text/javascript" src="/node_modules/handlebars/dist/handlebars.runtime.js"></script>
 
-  <script type="text/javascript">
-    // load the templates into the document
-        $.get('/tmp/templates.html').done(function(res) {
-          var $div = $('<div></div>');
-          $div.appendTo('body');
-          $div.html(res);
-        });
-  </script>
-
   <script type="text/javascript" src="/unittests/lib/jasmine-jquery.js"></script>
   <script type="text/javascript">
   jasmine.getFixtures().fixturesPath = '/unittests/';

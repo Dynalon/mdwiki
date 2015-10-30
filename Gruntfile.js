@@ -175,7 +175,7 @@ module.exports = function(grunt) {
                     MDwiki: true,
                     Prism: true,
                     alert: true,
-                    Hogan: true
+                    Handlebars: true
                 }
             },
             /*gruntfile: {

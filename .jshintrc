@@ -27,6 +27,6 @@
         "hljs": true,
         "MDwiki": true,
         "L": true,
-        "Hogan": true
+        "Handlebars": true
     }
 }

@@ -1,4 +1,4 @@
-(function($, Hogan) {
+(function($, Handlebars) {
     var templateGimmick = new MDwiki.Gimmick.Gimmick('template');
     var templateHandler = new MDwiki.Gimmick.GimmickHandler('singleline');
     templateHandler.loadStage = 'ready';
@@ -19,7 +19,8 @@
         $.when(view_dfd, model_dfd).then(function(viewresult, modelresult) {
             var viewdata = viewresult[0];
             var modeldata = modelresult[0];
-            var template = Hogan.compile(viewdata);
+            // this will fail as we only have handlebars runtime :( need to include full stack?
+            var template = Handlebars.compile(viewdata);
             var output = template.render(modeldata);
             var new_elements;
             if (isMarkdown) {
