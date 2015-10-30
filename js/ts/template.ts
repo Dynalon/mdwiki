@@ -1,8 +1,6 @@
 ///<reference path="../../typings/tsd.d.ts" />
 ///<reference path="utils.ts" />
 
-declare var Handlebars: any;
-
 module MDwiki.Templating {
     export class Template {
 
@@ -16,7 +14,7 @@ module MDwiki.Templating {
                 // remove leading slashes
                 while (path.startsWith('/'))
                     path = path.substring(1, path.length);
-                
+
                 // TODO remove .html from CALLER instead of this
                 path = path + ".html";
                 this.templateFunction = Handlebars.templates[path];

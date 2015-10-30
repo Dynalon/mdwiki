@@ -2,7 +2,6 @@
 ///<reference path="utils.ts" />
 
 declare var marked: any;
-import Logger = MDwiki.Util.Logger;
 import Gimmick = MDwiki.Gimmick;
 import GimmickLoader = MDwiki.Gimmick.GimmickLoader;
 import Links = MDwiki.Links;
