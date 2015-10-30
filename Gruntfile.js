@@ -3,8 +3,7 @@ var createIndex = function (grunt, taskname) {
     var conf = grunt.config('index')[taskname],
         tmpl = grunt.file.read(conf.template);
 
-    var templatesString = grunt.file.read('tmp/templates.html');
-    grunt.config.set('templatesString', templatesString);
+    grunt.config.set('templatesString', '');
 
     // register the task name in global scope so we can access it in the .tmpl file
     grunt.config.set('currentTask', {name: taskname});
@@ -32,6 +31,7 @@ module.exports = function(grunt) {
             'js/marked.js',
             'js/init.js',
             'ts_compiled/mdwiki_ts.js',
+            'tmp/MDwiki.templates.js',
             'js/main.js',
             'js/util.js',
             'js/basic_skeleton.js',
@@ -67,9 +67,9 @@ module.exports = function(grunt) {
         ],
         jsFiles: [
             'bower_components/jquery/jquery.min.js',
+            'node_modules/handlebars/dist/handlebars.runtime.min.js',
             'extlib/js/jquery.colorbox.min.js',
             'extlib/js/prism.js',
-            'extlib/js/hogan-3.0.1.js',
             'bower_components/bootstrap/js/affix.js',
             'bower_components/bootstrap/js/dropdown.js',
         ],
@@ -81,9 +81,9 @@ module.exports = function(grunt) {
             'bower_components/jquery/jquery.js',
             'bower_components/bootstrap/js/affix.js',
             'bower_components/bootstrap/js/dropdown.js',
+            'node_modules/handlebars/dist/handlebars.runtime.js',
             'extlib/js/prism.js',
             'extlib/js/jquery.colorbox.js',
-            'extlib/js/hogan-3.0.1.js'
         ],
 
         typescript: {
@@ -93,7 +93,7 @@ module.exports = function(grunt) {
                 options: {
                     //module: 'amd', //or commonjs
                     target: 'es5', //or es3
-                    basePath: '/js/ts/',
+                    rootDir: '/js/ts/',
                     sourcemap: false,
                     fullSourceMapPath: false,
                     declaration: false,
@@ -238,7 +238,7 @@ module.exports = function(grunt) {
                 // -f outputfile
                 // -r root for the templates (will mirror the FS structure to the template name)
                 // -m = minify
-                command: './node_modules/.bin/handlebars -f tmp/templates.js -r templates -m templates/**/*.html'
+                command: './node_modules/.bin/handlebars -f tmp/MDwiki.templates.js -r templates -m templates/**/*.html'
             }
         },
         watch: {
@@ -291,7 +291,7 @@ module.exports = function(grunt) {
         });
         grunt.file.write('tmp/templates.html', templateString);
     });*/
-    
+
 
     /*** NAMED TASKS ***/
     grunt.registerTask('release', [ 'jshint', 'typescript', 'less:min', 'shell:compile_templates', 'concat:dev', 'uglify:dist', 'index' ]);

@@ -38,4 +38,4 @@
     templateGimmick.addHandler(templateHandler);
     $.md.wiki.gimmicks.registerGimmick(templateGimmick);
 
-})(jQuery, Hogan);
+})(jQuery, Handlebars);

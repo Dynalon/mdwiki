@@ -14,7 +14,7 @@ module MDwiki.Markdown {
 
         private removeLangPrefix (code: JQuery): void {
             var klass = code.attr('class');
-            if (klass.indexOf("lang-gimmick") === 0) {
+            if (klass && klass.indexOf("lang-gimmick") === 0) {
                 klass = klass.replace('lang-gimmick', 'gimmick');
                 code.attr('class', klass);
             }
