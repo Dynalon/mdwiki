@@ -16,7 +16,6 @@ describe('DataModels', function() {
             expect(model.pageTitle).toBe('MDwiki');
         });
 
-
         it('should find all top-level menu entries',function() {
             var model = navParser.parse();
             expect(model.toplevelEntries.length).toBe(3);

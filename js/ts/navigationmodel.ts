@@ -38,7 +38,6 @@ module MDwiki.DataModels {
             });
         }
 
-        // TODO use typed "JQuery" collection type for argument
         private findSublevelEntries (ul: JQuery): SublevelEntry[] {
             let found_sublevel_entries = [];
             $(ul).find("li").each((i, e) => {
@@ -82,6 +81,7 @@ module MDwiki.DataModels {
         seperator: boolean = false;
     }
 
+    // TODO remove this? is this used?
     function buildSampleMenu() {
         var navbar = new NavigationBarModel();
         var t1 = new ToplevelEntry();
