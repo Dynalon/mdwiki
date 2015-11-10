@@ -2,23 +2,35 @@
 module MDwiki.DataModels {
 
     export class NavigationBarParser {
-        parse(node: any): NavigationBarModel {
-            var root = $(node);
-            var navbar = new NavigationBarModel();
+        private navbar;
+        private node: any;
 
-            navbar.pageTitle = root.filter("h1").first().text() || "";
+        constructor (node: any) {
+            this.node = $(node);
+            this.navbar = new NavigationBarModel();
+        }
 
+        parse(): NavigationBarModel {
+            this.findPageTitle();
+            this.findTopLevelEntries();
+
+            return this.navbar;
+        }
+
+        private findPageTitle () {
+            this.navbar.pageTitle = this.node.filter("h1").first().text() || "";
+        }
+
+        private findTopLevelEntries () {
             // TODO fancy selector that selects only p's that aren't
             // followed by <ul>
-            root.filter("p").find("a").each(function(i, e) {
-                var $el = $(e);
-                var toplevelentry = new ToplevelEntry();
-                toplevelentry.title = ($el.text());
-                toplevelentry.href = ($el.attr("href"));
-                navbar.toplevelEntries.push(toplevelentry);
+            this.node.filter("p").find("a").each(function(i, e) {
+                let $el = $(e);
+                let toplevelentry = new ToplevelEntry();
+                toplevelentry.title = $el.text();
+                toplevelentry.href = $el.attr("href");
+                this.navbar.toplevelEntries.push(toplevelentry);
             });
-
-            return navbar;
         }
     }
 
