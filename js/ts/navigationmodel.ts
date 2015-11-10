@@ -29,8 +29,37 @@ module MDwiki.DataModels {
                 let toplevelentry = new ToplevelEntry();
                 toplevelentry.title = $el.text();
                 toplevelentry.href = $el.attr("href");
+
+                let parent_paragraph_successor = $el.parent().next();
+                if (parent_paragraph_successor.is("ul")) {
+                    toplevelentry.childs = this.findSublevelEntries(parent_paragraph_successor);
+                }
                 this.navbar.toplevelEntries.push(toplevelentry);
             });
+        }
+
+        // TODO use typed "JQuery" collection type for argument
+        private findSublevelEntries (ul: JQuery): SublevelEntry[] {
+            let found_sublevel_entries = [];
+            $(ul).find("li").each((i, e) => {
+                // TODO is this always only one child?
+                let child = $(e).children();
+                let sublevel_entry = this.getSublevelEntry(e);
+                found_sublevel_entries.push(sublevel_entry);
+            });
+            return found_sublevel_entries;
+        }
+
+        private getSublevelEntry (el: Element): SublevelEntry {
+            let $el = $(el);
+            let entry = new SublevelEntry();
+            if ($el.is("h1")) {
+                entry.seperator = true;
+            } else if ($el.is("a")) {
+                entry.href = $el.attr("href");
+                entry.title = $el.text();
+            }
+            return entry;
         }
     }
 
