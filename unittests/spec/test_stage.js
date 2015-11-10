@@ -3,17 +3,17 @@ describe('Stages', function() {
 
     describe('StageChain', function() {
 
-        var two_test_stages = ['first', 'second']
+        var two_test_stages = ['first', 'second'];
 
         it('should process all stages', function (jasmineDone) {
             var stage_chain = new MDwiki.Stages.StageChain(two_test_stages);
 
             var count = 0;
-            stage_chain.getStage("first").subscribe(function (done) {
+            stage_chain.getStage('first').subscribe(function (done) {
                 count++;
                 done();
             });
-            stage_chain.getStage("second").subscribe(function (done) {
+            stage_chain.getStage('second').subscribe(function (done) {
                 count++;
                 done();
             });
@@ -24,7 +24,7 @@ describe('Stages', function() {
         it('should not allow a stage to a previous stage', function(jasmineDone) {
             var stage_chain = new MDwiki.Stages.StageChain(two_test_stages);
             var exception_thrown = false;
-            
+
             stage_chain.getStage('second').subscribe(function(done) {
                 try {
                     stage_chain.getStage('first').subscribe(function(done) {
@@ -42,8 +42,8 @@ describe('Stages', function() {
         });
     });
 
-    describe("Stage", function() {
-        it("should allow to subscribe to self", function() {
+    describe('Stage', function() {
+        it('should allow to subscribe to self', function() {
             var stage = new MDwiki.Stages.Stage('sample');
             var count = 0;
             stage.subscribe(function(done1) {

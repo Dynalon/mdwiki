@@ -7,13 +7,13 @@ describe('DataModels', function() {
         var navParser;
         beforeEach(function () {
             loadFixtures('rendered-markdown/navigation.html');
-            var navElements = $("#basic-navigation").children();
+            var navElements = $('#basic-navigation').children();
             navParser = new MDwiki.DataModels.NavigationBarParser(navElements);
         });
 
         it('should find the page title', function() {
             var model = navParser.parse();
-            expect(model.pageTitle).toBe("MDwiki");
+            expect(model.pageTitle).toBe('MDwiki');
         });
 
 
@@ -24,9 +24,9 @@ describe('DataModels', function() {
 
         it('should find the top-level entries in the correct order with their text',function() {
             var model = navParser.parse();
-            expect(model.toplevelEntries[0].title).toBe("About");
-            expect(model.toplevelEntries[1].title).toBe("Docs");
-            expect(model.toplevelEntries[2].title).toBe("Gimmicks");
+            expect(model.toplevelEntries[0].title).toBe('About');
+            expect(model.toplevelEntries[1].title).toBe('Docs');
+            expect(model.toplevelEntries[2].title).toBe('Gimmicks');
         });
 
         it('find sublevel entries',function() {

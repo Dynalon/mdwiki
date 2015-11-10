@@ -10,10 +10,10 @@ describe('MarkdownPostProcessor', function() {
     //var rendered = marked(md);
 
     it('should correctly postprocess a multiline gimmick', function() {
-        var input = $("#postprocessing-multiline-gimmick");
+        var input = $('#postprocessing-multiline-gimmick');
         postprocessor.process(input);
 
-        expect(input.find("code").hasClass("gimmick:somegimmick")).toBe(true);
-        expect(input.find("code").hasClass("lang-gimmick:somegimmick")).toBe(false);
+        expect(input.find('code').hasClass('gimmick:somegimmick')).toBe(true);
+        expect(input.find('code').hasClass('lang-gimmick:somegimmick')).toBe(false);
     });
 });

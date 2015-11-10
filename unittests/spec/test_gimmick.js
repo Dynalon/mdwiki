@@ -18,6 +18,7 @@ describe('GimmickHandler', function() {
 });
 
 describe('Gimmick', function() {
+    'use strict';
 
     beforeEach(function() {
         // loadFixtures('gimmick.html');
