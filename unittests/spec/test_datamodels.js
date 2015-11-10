@@ -7,25 +7,23 @@ describe('DataModels', function() {
         var navParser;
         beforeEach(function () {
             loadFixtures('rendered-markdown/navigation.html');
-            navParser = new MDwiki.DataModels.NavigationBarParser();
+            var navElements = $("#basic-navigation").children();
+            navParser = new MDwiki.DataModels.NavigationBarParser(navElements);
         });
 
         it('should find the page title', function() {
-            var navElements = $("#basic-navigation").children();
-            var model = navParser.parse(navElements);
+            var model = navParser.parse();
             expect(model.pageTitle).toBe("MDwiki");
         });
 
 
         it('should find all top-level menu entries',function() {
-            var navElements = $("#basic-navigation").children();
-            var model = navParser.parse(navElements);
+            var model = navParser.parse();
             expect(model.toplevelEntries.length).toBe(3);
         });
 
         it('find sublevel entries',function() {
-            var navElements = $("#basic-navigation").children();
-            var model = navParser.parse(navElements);
+            var model = navParser.parse();
             expect(model.toplevelEntries[1].childs.length).toBe(5);
         });
     });

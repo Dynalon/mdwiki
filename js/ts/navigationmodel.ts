@@ -24,7 +24,7 @@ module MDwiki.DataModels {
         private findTopLevelEntries () {
             // TODO fancy selector that selects only p's that aren't
             // followed by <ul>
-            this.node.filter("p").find("a").each(function(i, e) {
+            this.node.filter("p").find("a").each((i, e) => {
                 let $el = $(e);
                 let toplevelentry = new ToplevelEntry();
                 toplevelentry.title = $el.text();
@@ -35,7 +35,7 @@ module MDwiki.DataModels {
     }
 
     export class NavigationBarModel {
-        toplevelEntries: any[] = [];
+        toplevelEntries: ToplevelEntry[] = [];
         pageTitle: string = "";
     }
 
