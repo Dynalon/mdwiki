@@ -266,7 +266,7 @@ module.exports = function(grunt) {
                 showDir : true,
                 autoIndex: true,
                 defaultExt: "html",
-                runInBackground: true
+                runInBackground: false
             }
         }
     });
@@ -307,5 +307,5 @@ module.exports = function(grunt) {
         'shell:zip_release'
     ]);
     // Default task
-    grunt.registerTask('default', [ 'release', 'debug' ] );
+    grunt.registerTask('default', [ 'release', 'debug', 'unittests' ] );
 };
