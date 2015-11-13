@@ -1,6 +1,12 @@
 ///<reference path="../../typings/tsd.d.ts" />
 declare var $: JQueryStatic;
 
+/* TODO:
+    Split this out into:
+      * tasks that need to be done as part of markdown postprocessing
+      * plugins that are independent from out HTML creation process (TOC, jumplinks, image links etc.)
+      * move to the according places
+*/
 
 module MDwiki.Legacy {
 
