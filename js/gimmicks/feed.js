@@ -48,11 +48,11 @@
             maxChars:    140,
             target:      '_blank',
             loading:     'Loading\u2026',
-            cssClass:    "feed-gimmick"
+            cssClass:    'feed-gimmick'
         };
         var options   = $.extend({}, default_options, opt);
         var url       = text;
-        var feedId    = "FEED_" + Math.random().toString(36).substr(2);
+        var feedId    = 'FEED_' + Math.random().toString(36).substr(2);
         var loadItems = function(data){
             var html = '';
             if(data.responseData){
@@ -61,7 +61,7 @@
                     if(options.showArticle && value.content){
                         article = value.content;
                         if(!options.raw){
-                            article = article.replace(/<(?:.|\n)*?>/gm, '').replace(/\</gm, '{').replace(/\>/gm, '}');
+                            article = article.replace(/<(?:.|\n)*?>/gm, '').replace(/</gm, '&lt;').replace(/>/gm, '&gt;');
                             if(options.maxChars > 0 && article.length > options.maxChars){
                                 article = article.substr(0, options.maxChars) + '\u2026';
                             }
@@ -71,13 +71,13 @@
                     html += '<li><a target="' + options.target + '" href="' + value.link + '">' + value.title + '</a>' + article + '</li>';
                 });
             }else{
-                html = '<li class="alert-warning"><a href="' + url + '">' + data.responseDetails + "</a></li>";
+                html = '<li class="alert-warning"><a href="' + url + '">' + data.responseDetails + '</a></li>';
             }
             $('#' + feedId).empty().append(html);
-        }
+        };
         return $link.each(function(i,e){
 
-            $(e).replaceWith("<ul id='" + feedId + "' class='" + options.cssClass + "'><li><a href=''>" + options.loading + "</a></li></ul>");
+            $(e).replaceWith('<ul id="' + feedId + '" class="' + options.cssClass + '"><li><a href="">' + options.loading + '</a></li></ul>');
 
             $.ajax( { 'url': 'http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&output=json&callback=?&q=' + encodeURIComponent(url) + '&num=' + options.max, 'dataType': 'json', 'success': loadItems } );
         });
