@@ -86,17 +86,18 @@ module.exports = function(grunt) {
             'extlib/js/jquery.colorbox.js',
         ],
 
-        typescript: {
+        ts: {
             base: {
-                src: ['js/ts/**/*.ts'],
+                src: ['js/ts/**/*.ts', 'js/ts/**/*.tsx' ],
                 dest: 'ts_compiled/mdwiki_ts.js',
                 options: {
                     //module: 'amd', //or commonjs
                     target: 'es5', //or es3
                     rootDir: '/js/ts/',
-                    sourcemap: false,
+                    sourceMap: false,
                     fullSourceMapPath: false,
                     declaration: false,
+                    additionalFlags: '--jsx react'
                 }
             }
         },
@@ -246,7 +247,7 @@ module.exports = function(grunt) {
                 'Gruntfile.js',
                 'js/*.js',
                 'js/**/*.js',
-                'js/ts/**/*.ts',
+                'js/ts/**/*.ts?',
                 'unittests/**/*.js',
                 'unittests/**/*.html',
                 'index.tmpl'
@@ -294,8 +295,8 @@ module.exports = function(grunt) {
 
 
     /*** NAMED TASKS ***/
-    grunt.registerTask('release', [ 'jshint', 'typescript', 'less:min', 'shell:compile_templates', 'concat:dev', 'uglify:dist', 'index' ]);
-    grunt.registerTask('debug', [ 'jshint', 'typescript', 'less:dev', 'shell:compile_templates', 'concat:dev',  'index_debug' ]);
+    grunt.registerTask('release', [ 'jshint', 'ts', 'less:min', 'shell:compile_templates', 'concat:dev', 'uglify:dist', 'index' ]);
+    grunt.registerTask('debug', [ 'jshint', 'ts', 'less:dev', 'shell:compile_templates', 'concat:dev',  'index_debug' ]);
     grunt.registerTask('devel', [ 'debug', 'server', 'unittests', 'reload', 'watch' ]);
     grunt.registerTask('unittests', [ 'copy:unittests' ]);
 
