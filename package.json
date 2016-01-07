@@ -14,11 +14,11 @@
     "grunt-http-server": "~0.0.5",
     "grunt-reload": "git://github.com/webxl/grunt-reload.git",
     "grunt-shell": "~0.4.0",
-    "grunt-typescript": "^0.7.0",
+    "grunt-typescript": "^0.8.0",
     "handlebars": "^4.0.4",
     "load-grunt-tasks": "~0.4.0",
     "tsd": "^0.6.5",
-    "typescript": "~1.6.2"
+    "typescript": "^1.7.5"
   },
   "engines": {
     "node": "~0.10.0"
