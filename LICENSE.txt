@@ -3,7 +3,7 @@ linking exceptions. The AGPLv3 license text can be found in the AGPLv3.txt file,
 additional terms are given below this paragraph.
 
 Linking exceptions
-------------------
+------------------test Windows GitHub
 
 In addition to the terms in the AGPLv3 the following linking exceptions apply:
 
