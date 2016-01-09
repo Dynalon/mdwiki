@@ -4,6 +4,7 @@ additional terms are given below this paragraph.
 
 Linking exceptions
 ------------------test Windows GitHub
+------------------test 2
 
 In addition to the terms in the AGPLv3 the following linking exceptions apply:
 
