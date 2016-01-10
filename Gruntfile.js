@@ -97,7 +97,7 @@ module.exports = function(grunt) {
                     sourceMap: false,
                     fullSourceMapPath: false,
                     declaration: false,
-                    additionalFlags: '--jsx react'
+                    additionalFlags: '--jsx react --reactNamespace JsxRender'
                 }
             }
         },
@@ -247,7 +247,8 @@ module.exports = function(grunt) {
                 'Gruntfile.js',
                 'js/*.js',
                 'js/**/*.js',
-                'js/ts/**/*.ts?',
+                'js/ts/**/*.ts',
+                'js/**/*.tsx',
                 'unittests/**/*.js',
                 'unittests/**/*.html',
                 'index.tmpl'
