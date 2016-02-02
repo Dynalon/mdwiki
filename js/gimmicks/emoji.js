@@ -20,14 +20,9 @@
  *
  * <https://github.com/guillermocalvo/>
  *
- * ## License
- *
- * Licensed under the [GNU Lesser General Public License][LGPL].
- *
  * [GITHUB_EMOJIS]: https://github.com/blog/1289-emoji-autocomplete
  * [CHEAT_SHEET]: http://www.emoji-cheat-sheet.com/
  * [TORTUE_CDN]: http://www.tortue.me/
- * [LGPL]: http://www.gnu.org/copyleft/lesser.html
  */
 (function($) {
     'use strict';
