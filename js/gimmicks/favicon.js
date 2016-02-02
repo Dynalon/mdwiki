@@ -23,12 +23,6 @@
  * Copyright 2015 Guillermo Calvo
  *
  * <https://github.com/guillermocalvo/>
- *
- * ## License
- *
- * Licensed under the [GNU Lesser General Public License][LGPL].
- *
- * [LGPL]: http://www.gnu.org/copyleft/lesser.html
  */
 (function($){
     'use strict';
