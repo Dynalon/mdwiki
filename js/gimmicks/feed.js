@@ -30,13 +30,8 @@
  *
  * <https://github.com/guillermocalvo/>
  *
- * ## License
- *
- * Licensed under the [GNU Lesser General Public License][LGPL].
- *
  * [GOOGLE_FEED]: https://developers.google.com/feed/v1/reference
  * [NAVIGATION]: http://dynalon.github.io/mdwiki/#!quickstart.md#Adding_a_navigation
- * [LGPL]: http://www.gnu.org/copyleft/lesser.html
  */
 (function($){
     'use strict';
