@@ -11,12 +11,17 @@
     function gist($links, opt, href) {
         $().lazygist('init');
         return $links.each(function(i,link) {
+            var default_options = {
+                scheme: 'https',
+                path: 'gist.github.com/'
+            };
+            var options = $.extend (default_options, opt);
             var $link = $(link);
             var gistDiv = $('<div class="gist_here" data-id="' + href + '" />');
             $link.replaceWith(gistDiv);
             gistDiv.lazygist({
                 // we dont want a specific file so modify the url template
-                url_template: 'https://gist.github.com/{id}.js?'
+                url_template: '{scheme}://{path}{id}.js'.replace(/\{scheme\}/g, options.scheme).replace(/\{path\}/g, options.path)
             });
         });
     }
@@ -170,9 +175,17 @@
             }
 
         } else if( content.indexOf( 'id="gist' ) !== -1 ) {
-            expression = /https:\/\/gist.github.com\/.*\/(.*)#/.exec(content);
-            id = expression[1];
-
+            // This is the newer gist URL style, ignoring the hostname for GitHub EE instances
+            expression = /https?:\/\/gist.*?\/.*\/(.*)#/.exec(content);
+            if(expression !== null) {
+                id = expression[1];
+            } else {
+                // This will catch older versions of GitHub EE
+                expression = /gist\/.+?\/([a-f0-9]+)\/raw/g.exec(content);
+                if(expression !== null) {
+                    id = expression[1];
+                }
+            }
             if( id !== undefined ) {
 
                 // test if id is already loaded
