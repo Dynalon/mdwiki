@@ -167,8 +167,8 @@
             }
 
         } else if( content.indexOf( 'id="gist' ) !== -1 ) {
-            expression = /https:\/\/gist.github.com\/.*\/(.*)#/.exec(content);
-            id = expression[1];
+            expression = /https:\/\/gist.github.com\/(\w{1,})\/([0-9a-z]{1,})\//g.exec(content);
+            id = expression[2];
 
             if( id !== undefined ) {
 
