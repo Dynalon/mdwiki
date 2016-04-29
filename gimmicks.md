@@ -37,7 +37,7 @@ Trigger words are case insensitive, and must be one of the following:
 Type       | Trigger
 -----------|---------
 Warning    |warning, achtung, attention, warnung, atención, guarda, advertimiento, attenzione
-Note       |note, beachte, nota, 
+Note       |note, beachte, nota 
 Hint       |hint, tip, tipp, hinweis, suggerimento
 
 Preview:
