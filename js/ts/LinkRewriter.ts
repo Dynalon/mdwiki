@@ -1,4 +1,3 @@
-///<reference path="../../typings/tsd.d.ts" />
 
 module MDwiki.Links {
     export class LinkRewriter {

@@ -1,4 +1,3 @@
-///<reference path="../../typings/tsd.d.ts" />
 ///<reference path="utils.ts" />
 
 declare var marked: any;

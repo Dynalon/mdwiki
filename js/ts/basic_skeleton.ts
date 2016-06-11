@@ -1,5 +1,3 @@
-///<reference path="../../typings/tsd.d.ts" />
-declare var $: JQueryStatic;
 
 /* TODO:
     Split this out into:

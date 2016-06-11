@@ -1,8 +1,5 @@
-///<reference path="../../typings/tsd.d.ts" />
 ///<reference path="utils.ts" />
 ///<reference path="template.ts" />
-
-declare var $: JQueryStatic;
 
 import util = MDwiki.Utils.Util;
 import Template = MDwiki.Templating.Template;

@@ -87,6 +87,7 @@ module.exports = function(grunt) {
         ],
 
         ts: {
+            // TOD: use tsconfig.json as soon as tsconfig.json supports globs/wildcards
             base: {
                 src: ['js/ts/**/*.ts', 'js/ts/**/*.tsx' ],
                 dest: 'ts_compiled/mdwiki_ts.js',

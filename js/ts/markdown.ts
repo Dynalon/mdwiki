@@ -51,7 +51,7 @@ module MDwiki.Markdown {
             this.uglyHtml = md.transform();
         }
         render() {
-            var h = $('<div>' + this.uglyHtml + '</div>');
+            var h = $(`<div>${this.uglyHtml}</div>`);
             // TODO .html() is evil!!!
             h.find('p').each(function(i,e) {
                 var el = $(e);

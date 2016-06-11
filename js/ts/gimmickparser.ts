@@ -1,5 +1,3 @@
-///<reference path="../../typings/tsd.d.ts" />
-
 module MDwiki.Gimmick {
 
     export class MultilineGimmickReference {
@@ -41,7 +39,7 @@ module MDwiki.Gimmick {
 
         // magic string: gimmick:somegimmck({foo: 'bar'})
         private extractOptionsFromMagicString(s: string): any {
-            // we split the string at the FIRST closing parens: ) 
+            // we split the string at the FIRST closing parens: )
             // anything right of that is considered additional text
             var gimmick_string = s.split(')', 1)[0];
             var additionalText = $.trim(s.split(")").slice(1).join(")"));

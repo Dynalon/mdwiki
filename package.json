@@ -18,7 +18,8 @@
     "handlebars": "^4.0.4",
     "load-grunt-tasks": "~0.4.0",
     "tsd": "^0.6.5",
-    "typescript": "^1.8.0-dev.20160110"
+    "typescript": "^1.8.0",
+    "typings": "^1.0.5"
   },
   "engines": {
     "node": "~0.10.0"

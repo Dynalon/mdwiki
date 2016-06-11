@@ -1,5 +1,3 @@
-///<reference path="../../typings/tsd.d.ts" />
-
 module MDwiki.Utils {
 
     export class Url {

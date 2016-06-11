@@ -1,5 +1,3 @@
-///<reference path="../../typings/tsd.d.ts" />
-
 interface JQueryStatic {
     md: any;
     toptext: () => string;
@@ -39,7 +37,7 @@ module MDwiki.Gimmick {
             if (kind)
                 this.kind = kind;
             if (callback)
-                this.callback = callback; 
+                this.callback = callback;
         }
     }
     export class ScriptResource {
