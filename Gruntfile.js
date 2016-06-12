@@ -141,42 +141,6 @@ module.exports = function(grunt) {
                 dest: 'dist/mdwiki-debug.html'
             }
         },
-        /* make it use .jshintrc */
-        jshint: {
-            options: {
-                curly: false,
-                eqeqeq: true,
-                immed: true,
-                latedef: true,
-                newcap: true,
-                noarg: true,
-                sub: true,
-                undef: true,
-                unused: false,
-                boss: true,
-                eqnull: true,
-                browser: true,
-                globals: {
-                    jQuery: true,
-                    marked: true,
-                    google: true,
-                    hljs: true,
-                    /* leaflet.js*/
-                    L: true,
-                    console: true,
-                    MDwiki: true,
-                    Prism: true,
-                    alert: true,
-                    Handlebars: true
-                }
-            },
-            /*gruntfile: {
-                src: 'Gruntfile.js'
-            },*/
-            js: {
-                src: ['js/*.js', 'js/**/*.js', '!js/marked.js']
-            }
-        },
         lib_test: {
             src: ['lib/**/*.js', 'test/**/*.js']
         },
@@ -288,8 +252,8 @@ module.exports = function(grunt) {
 
 
     /*** NAMED TASKS ***/
-    grunt.registerTask('release', [ 'jshint', 'ts', 'less:min', 'shell:compile_templates', 'concat:dev', 'uglify:dist', 'index' ]);
-    grunt.registerTask('debug', [ 'jshint', 'ts', 'less:dev', 'shell:compile_templates', 'concat:dev',  'index_debug' ]);
+    grunt.registerTask('release', [ 'ts', 'less:min', 'shell:compile_templates', 'concat:dev', 'uglify:dist', 'index' ]);
+    grunt.registerTask('debug', [ 'ts', 'less:dev', 'shell:compile_templates', 'concat:dev',  'index_debug' ]);
     grunt.registerTask('devel', [ 'debug', 'server', 'unittests', 'reload', 'watch' ]);
     grunt.registerTask('unittests', [ 'copy:unittests' ]);
 
