@@ -89,17 +89,7 @@ module.exports = function(grunt) {
         ts: {
             // TOD: use tsconfig.json as soon as tsconfig.json supports globs/wildcards
             base: {
-                src: ['js/ts/**/*.ts', 'js/ts/**/*.tsx' ],
-                dest: 'ts_compiled/mdwiki_ts.js',
-                options: {
-                    //module: 'amd', //or commonjs
-                    target: 'es5', //or es3
-                    rootDir: '/js/ts/',
-                    sourceMap: false,
-                    fullSourceMapPath: false,
-                    declaration: false,
-                    additionalFlags: '--jsx react --reactNamespace JsxRender'
-                }
+                tsconfig: "js/ts/tsconfig.json"
             }
         },
 
@@ -252,6 +242,7 @@ module.exports = function(grunt) {
                 'js/**/*.tsx',
                 'unittests/**/*.js',
                 'unittests/**/*.html',
+                'templates/**/*.html',
                 'index.tmpl'
             ],
             tasks: ['debug','reload' ]

@@ -14,7 +14,7 @@
     "grunt-http-server": "~0.0.5",
     "grunt-reload": "git://github.com/webxl/grunt-reload.git",
     "grunt-shell": "~0.4.0",
-    "grunt-ts": "^5.2.0",
+    "grunt-ts": "^5.5.1",
     "handlebars": "^4.0.4",
     "load-grunt-tasks": "~0.4.0",
     "tsd": "^0.6.5",
