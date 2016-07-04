@@ -191,7 +191,7 @@ module MDwiki.Legacy {
                     mouse_entered = true;
                     MDwiki.Utils.Util.wait(300).then(function () {
                         if (!mouse_entered) return;
-                        $pilcrow.fadeIn(200);
+                        $pilcrow.fadeIn(200).css('display', 'inline');
                     });
                 });
                 $heading.mouseleave(function () {
