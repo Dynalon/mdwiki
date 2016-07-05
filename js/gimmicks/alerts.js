@@ -23,9 +23,9 @@
     $.md.wiki.gimmicks.registerGimmick(alertsGimmick);
 
     function get_alert_type(text) {
-        var note = ['note', 'beachte' ];
-        var warning = [ 'achtung', 'attention', 'warnung', 'warning', 'atención', 'guarda', 'advertimiento' ];
-        var hint = ['hint', 'tipp', 'tip', 'hinweis'];
+        var note = ['note', 'beachte', 'nota' ];
+        var warning = [ 'achtung', 'attention', 'warnung', 'warning', 'atención', 'guarda', 'advertimiento', 'attenzione', 'suggerimento' ];
+        var hint = ['hint', 'tipp', 'tip', 'hinweis', 'conseil';
         var exp = note.concat(warning);
         exp = exp.concat(hint);
         var txt = text.toLowerCase ();
