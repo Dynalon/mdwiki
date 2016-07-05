@@ -38,6 +38,7 @@ module MDwiki.Core {
         run() {
             // main run loop
             this.registerFetchConfigAndNavigation();
+            this.registerCustomCss();
             this.registerFetchMarkdown();
             this.registerPageTransformation();
             this.registerGimmickLoad ();
@@ -76,6 +77,18 @@ module MDwiki.Core {
                 done();
             });
         }
+
+        private registerCustomCss() {
+            this.stages.getStage('load').subscribe((done) => {
+                // If user added customCss property to the config file load it 
+                if (this.config.customCss != undefined) {
+                    var css = this.config.customCss;
+                    $('head').append('<link rel="stylesheet" type="text/css" href="' + css + '" />');
+                }
+                done();
+            }); 
+        }
+            
 
         private transformMarkdown(markdown: string) {
             var options = {
