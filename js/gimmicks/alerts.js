@@ -15,6 +15,8 @@
             $p.addClass('alert-success');
         } else if (type === 'warning') {
             $p.addClass('alert-warning');
+        } else if (type === 'danger') {
+            $p.addClass('alert-danger');
         }
         $p.text(text);
         $(domElement).replaceWith($p);
@@ -24,8 +26,9 @@
 
     function get_alert_type(text) {
         var note = ['note', 'beachte' ];
-        var warning = [ 'achtung', 'attention', 'warnung', 'warning', 'atención', 'guarda', 'advertimiento' ];
-        var hint = ['hint', 'tipp', 'tip', 'hinweis'];
+        var warning = [ 'achtung', 'attention', 'warnung', 'warning', 'atención', 'guarda', 'advertimiento'];
+        var hint = ['hint', 'tipp', 'tip', 'hinweis', 'astuce'];
+        var danger = ['danger', 'achtung', 'peligro'];
         var exp = note.concat(warning);
         exp = exp.concat(hint);
         var txt = text.toLowerCase ();
@@ -43,6 +46,8 @@
                     returnval = 'warning';
                 } else if ($.inArray(trigger, hint) >= 0) {
                     returnval = 'hint';
+                } else if ($.inArray(trigger, danger) >= 0) {
+                    returnval = 'danger';
                 }
             }
         });
