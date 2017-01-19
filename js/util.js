@@ -70,11 +70,11 @@
     });
 
     $.md.util.getInpageAnchorText = function (text) {
-        var subhash = text.replace(/ /g, '_');
-        // TODO remove more unwanted characters like ?/,- etc.
-        return subhash;
-
+        // Remove unwanted characters, reduce to '-'; convert all lowercase
+        var subhash = text.replace(/[^\w]+/g, '-');
+        return subhash.toLowerCase();
     };
+    
     $.md.util.getInpageAnchorHref = function (text, href) {
         href = href || $.md.mainHref;
         var subhash = $.md.util.getInpageAnchorText(text);
