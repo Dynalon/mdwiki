@@ -19,7 +19,6 @@ This is a lose collection of websites that are known to be realized with MDwiki.
 ----     | -----
 [dynalon.github.io/Rainy](http://dynalon.github.io/Rainy)      |   Open source project website
 [appletons.ca](http://www.appletons.ca)      | Private website
-[ccfcoop.ca](http://ccfcoop.ca/)             | Community Food co-op
 [help.caleydo.org](http://help.caleydo.org/) | Software documentation for biomolecular visualization project
 [fooirc.com](http://fooirc.com/)             | A windows IRC Client
 [khannover.de](http://khannover.de/)         | Private website
