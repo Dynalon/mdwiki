@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "declarationDir": "dist",
+        "target": "ES5",
+        "module": "commonjs",
+        "jsx": "react",
+        "jsxFactory": "h",
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "strictNullChecks": false,
+        "lib": [
+            "es5",
+            "es2015.promise",
+            "dom"
+        ],
+        "baseUrl": "./",
+        "paths": {
+            "*": [
+                "../node_modules/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.tsx"
+    ],
+    "exclude": [
+        "src/**/*.d.ts"
+    ]
+}

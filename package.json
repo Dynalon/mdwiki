@@ -1,0 +1,30 @@
+{
+  "name": "mdwiki",
+  "version": "0.8.0",
+  "description": "MDwiki",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --open",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dynalon/mdwiki.git"
+  },
+  "author": "Timo Dörr",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Dynalon/mdwiki/issues"
+  },
+  "homepage": "https://github.com/Dynalon/mdwiki#readme",
+  "devDependencies": {
+    "awesome-typescript-loader": "^3.2.3",
+    "commonmark": "^0.28.1",
+    "html-webpack-plugin": "^2.30.1",
+    "html-webpack-react-root-plugin": "^0.9.0",
+    "preact": "^8.2.6",
+    "typescript": "^2.5.3",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.3"
+  }
+}
