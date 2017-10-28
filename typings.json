@@ -1,6 +1,0 @@
-{
-  "globalDependencies": {
-    "handlebars": "github:DefinitelyTyped/DefinitelyTyped/handlebars/handlebars.d.ts#7de6c3dd94feaeb21f20054b9f30d5dabc5efabd",
-    "jquery": "github:DefinitelyTyped/DefinitelyTyped/jquery/jquery.d.ts#4cdfbe96b666eec5e1defbb519a62abf04e96764"
-  }
-}
