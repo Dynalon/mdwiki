@@ -7,7 +7,7 @@
         "jsx": "react",
         "jsxFactory": "h",
         "sourceMap": true,
-        "noImplicitAny": true,
+        "noImplicitAny": false,
         "strictNullChecks": false,
         "lib": [
             "es5",
