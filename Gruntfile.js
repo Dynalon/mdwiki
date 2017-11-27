@@ -44,9 +44,9 @@ module.exports = function(grunt) {
             //'js/gimmicks/github_gist.js',
             'js/gimmicks/gist.js',
             'js/gimmicks/googlemaps.js',
-            'js/gimmicks/highlight.js',
             'js/gimmicks/iframe.js',
             'js/gimmicks/math.js',
+            'js/gimmicks/prism.js',
             // 'js/gimmicks/leaflet.js',
             'js/gimmicks/themechooser.js',
             'js/gimmicks/twitter.js',
@@ -69,22 +69,22 @@ module.exports = function(grunt) {
         externalJsFiles: [
             'extlib/js/jquery-1.8.3.min.js',
             'extlib/js/bootstrap-3.0.0.min.js',
-            'extlib/js/highlight-7.3.pack.min.js'
+            'extlib/js/prism.1.4.1.min.js'
         ],
         externalCssFiles: [
-            'extlib/css/highlight.github.css',
             'extlib/css/bootstrap-3.0.0.min.css',
+            'extlib/css/prism.1.4.1.default.min.css'
         ],
 
         // references we add in the slim release (stuff available on CDN locations)
         externalJsRefs: [
             'ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js',
             'netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js',
-            'yandex.st/highlightjs/7.3/highlight.min.js'
+            'raw.azureedge.net/joelself/mdwiki/0.6.x.0/extlib/js/prism.1.4.1.min.js'
         ],
         externalCssRefs: [
             'netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css',
-            'yandex.st/highlightjs/7.3/styles/github.min.css'
+            'raw.azureedge.net/joelself/mdwiki/0.6.x.0/extlib/css/prism.1.4.1.default.min.css'
 //            'www.3solarmasses.com/retriever-bootstrap/css/retriever.css'
 //            '3solarmasses.com/corgi-bootstrap/css/corgi.css'
         ],
@@ -145,7 +145,8 @@ module.exports = function(grunt) {
                     /* leaflet.js*/
                     L: true,
                     console: true,
-                    Chart: true
+                    Chart: true,
+                    Prism: true
                 }
             },
             /*gruntfile: {
