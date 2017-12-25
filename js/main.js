@@ -150,7 +150,7 @@
             return $('a').filter (function () {
                 var href = $(this).attr('href');
                 var text = $(this).toptext();
-                var isMarkdown = $.md.util.hasMarkdownFileExtension(href);
+                var isMarkdown = href ? $.md.util.hasMarkdownFileExtension(href) : false;
                 var isInclude = text === 'include';
                 var isPreview = text.startsWith('preview:');
                 return (isInclude || isPreview) && isMarkdown;
