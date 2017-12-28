@@ -38,6 +38,15 @@ declare var MDwikiEnableDebug: any;
                 } else {
                     href = window.location.hash.substring(1);
                 }
+
+                // Validation of the href 
+                var parser = document.createElement('a');
+                parser.href = href;
+                if (window.location.hostname != parser.hostname) {
+                    // fall to default
+                    href = 'index.md';
+                }
+
                 href = decodeURIComponent(href);
 
                 // extract possible in-page anchor
