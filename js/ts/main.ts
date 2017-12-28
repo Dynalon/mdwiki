@@ -38,6 +38,22 @@ declare var MDwikiEnableDebug: any;
                 } else {
                     href = window.location.hash.substring(1);
                 }
+
+                // Validation of the href 
+                var parser = document.createElement('a');
+                console.log('-------------------------');
+                console.log('Validation and Sanitization of the href');
+                parser.href = href;
+                console.log("href: " + href);
+                console.log("current domain: " + window.location.hostname);
+                console.log("requested domain: " + parser.hostname);
+                if (window.location.hostname != parser.hostname) {
+                    console.error("invalid href");
+                    // fall to default
+                    href = 'index.md';
+                }
+                console.log('-------------------------');
+
                 href = decodeURIComponent(href);
 
                 // extract possible in-page anchor
