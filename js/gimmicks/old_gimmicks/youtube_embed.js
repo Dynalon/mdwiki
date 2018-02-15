@@ -1,8 +1,8 @@
 (function($) {
-
     //'use strict';
     function youtubeLinkToIframe() {
         var $youtube_links = $('a[href*=youtube\\.com]:empty, a[href*=youtu\\.be]:empty');
+
         $youtube_links.each(function() {
             var $this = $(this);
             var href = $this.attr('href');
@@ -15,8 +15,7 @@
                     // insert the iframe
                     var short_handle = m[1];
                     var frame = $('<iframe class="md-external" frameborder="0" allowfullscreen></iframe>');
-                    var protocol = window.location.protocol;
-                    frame.attr('src', protocol + '//youtube.com/embed/' + short_handle);
+                    frame.attr('src', 'http://youtube.com/embed/' + short_handle);
                     // remove the a tag
                     $this.replaceWith(frame);
 
@@ -24,10 +23,13 @@
             }
         });
     }
-
-    $.md.wiki.stages.getStage('gimmick').subscribe(function(done) {
-        youtubeLinkToIframe();
-        done();
-    });
+    var youtubeGimmick = new MDwiki.Core.Module();
+    youtubeGimmick.init = function () {
+        $.md.stage('gimmick').subscribe(function(done) {
+            youtubeLinkToIframe();
+            done();
+        });
+    };
+    $.md.wiki.gimmicks.registerModule(youtubeGimmick);
 
 }(jQuery));
