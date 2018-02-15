@@ -40,23 +40,29 @@ module.exports = function(grunt) {
             // gimmicks
             'js/gimmicks/templating.js',
             'js/gimmicks/prism.js',
-            /*
-             'js/gimmicks/googlemaps.js',
-             'js/gimmicks/alerts.js',
-            'js/gimmicks/colorbox.js',
-            // 'js/gimmicks/carousel.js',
+
+            //'js/gimmicks/googlemaps.js',
+            'js/gimmicks/alerts.js',
+            //'js/gimmicks/colorbox.js',
+            //'js/gimmicks/carousel.js',
             'js/gimmicks/disqus.js',
-            'js/gimmicks/editme.js',
-            'js/gimmicks/facebooklike.js',
-            'js/gimmicks/forkmeongithub.js',
-            'js/gimmicks/gist.js',
-            'js/gimmicks/iframe.js',
-            'js/gimmicks/math.js',
-            // // 'js/gimmicks/leaflet.js',
-            'js/gimmicks/twitter.js',
+            //'js/gimmicks/editme.js',
+            //'js/gimmicks/facebooklike.js',
+            //'js/gimmicks/forkmeongithub.js',
+            //'js/gimmicks/gist.js',
+            //'js/gimmicks/iframe.js',
+            //'js/gimmicks/math.js',
+            //'js/gimmicks/leaflet.js',
+            //'js/gimmicks/twitter.js',
             'js/gimmicks/youtube_embed.js',
-            'js/gimmicks/yuml.js'
-            */
+            //'js/gimmicks/yuml.js',
+            'js/gimmicks/plantuml.js',
+            'js/gimmicks/themeChooser.js',
+
+            // default gimmicks
+            'js/gimmicks/defaults/singleline.js',
+            'js/gimmicks/defaults/multiline.js',
+            'js/gimmicks/defaults/link.js'
         ],
 
         // REMEMBER:
@@ -65,17 +71,22 @@ module.exports = function(grunt) {
         cssFiles: [
             'tmp/main.min.css',
         ],
+        externalCssFiles: [
+            'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
+        ],
         jsFiles: [
             'bower_components/jquery/jquery.min.js',
             'node_modules/handlebars/dist/handlebars.runtime.min.js',
             'extlib/js/jquery.colorbox.min.js',
             'extlib/js/prism.js',
+            'extlib/js/pako_deflate.min.js',
             'bower_components/bootstrap/js/affix.js',
             'bower_components/bootstrap/js/dropdown.js',
         ],
         // for debug builds use unminified versions:
         unminifiedCssFiles: [
-            'tmp/main.css'
+            'tmp/main.css',
+            'bower_components/bootstrap/dist/css/bootstrap.min.css'
         ],
         unminifiedJsFiles: [
             'bower_components/jquery/jquery.js',
@@ -84,6 +95,7 @@ module.exports = function(grunt) {
             'node_modules/handlebars/dist/handlebars.runtime.js',
             'extlib/js/prism.js',
             'extlib/js/jquery.colorbox.js',
+            'extlib/js/pako_deflate.min.js'
         ],
 
         ts: {

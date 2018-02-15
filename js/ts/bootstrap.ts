@@ -216,6 +216,7 @@ module MDwiki.Legacy {
         private createPageContentMenu () {
             // assemble the menu
             var $headings = $('#md-content').find(this.config.pageMenu.useHeadings);
+            var $headings2 = $('#md-content').find(this.config.pageMenu.useHeadings2);
 
             $headings.children().remove();
 
@@ -260,13 +261,15 @@ module MDwiki.Legacy {
 
             var affixDiv: any = $('<div id="md-page-menu" />');
 
-            //var top_spacing = $('#md-menu').height() + 15;
-            var top_spacing = 70;
+            var top_spacing = $('#md-menu').height() + 75;
+            var bottom_spacing = $('#md-footer').height() + 50;
             affixDiv.affix({
                 //offset: affix.position() - 50,
-                offset: 130
+                //offset: 130
             });
+            var menuHeight = window.innerHeight - top_spacing - bottom_spacing;
             affixDiv.css('top', top_spacing);
+            affixDiv.css('height', menuHeight);
             //affix.css('top','-250px');
 
             var $pannel = $('<div class="panel panel-default"><ul class="list-group"/></div>');
@@ -276,6 +279,7 @@ module MDwiki.Legacy {
             function createMenuItem(heading, className) {
                 var $heading = $(heading);
                 var $a = $('<a class="list-group-item" />');
+                var $l;
                 $a.addClass(className);
                 $a.attr('href', util.getInpageAnchorHref($heading.toptext()));
                 $a.click(function(ev) {
@@ -283,18 +287,37 @@ module MDwiki.Legacy {
 
                     var $this = $(this);
                     var anchortext = util.getInpageAnchorText($this.toptext());
-                    //$.md.scrollToInPageAnchor(anchortext);
+                    $.md.scrollToInPageAnchor(anchortext);
                 });
                 $a.text($heading.toptext());
-                return $a;
+                if($heading[0].localName == 'h2') {
+                    $l = $('<li>');
+                }
+                else {
+                    $l = $('<ul></ul>');
+                }
+                $l.append($a);
+                return $l;
             }
 
+            var configH3 = this.config.useSideSubMenu;
             $($headings).each(function(i,e) {
                 var hClass = $(e).prop('tagName');
                 var currLevel = parseInt(hClass.substr(1,1), 10);
                 var $hli = createMenuItem(e, hClass.toLowerCase() + '-nav');
 
+                if(configH3 !== false){
+                    $($headings[i]).nextUntil($headings[i + 1], 'h3').each(function(i,e) {
+                        var hClass = $(e).prop('tagName');
+                        var currLevel = parseInt(hClass.substr(1,1), 10);
+                        var $hli2 = createMenuItem(e, hClass.toLowerCase() + '-nav');
+                    
+                        $hli.append($hli2);
+                    });
+                }
+                $hli.append('</li>')
                 $ul.append($hli);
+
             });
 
             $(window).resize(() => {
