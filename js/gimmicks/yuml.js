@@ -46,7 +46,7 @@
         return $link.each(function(i,e) {
 
             var $this = $(e);
-            var url = 'http://yuml.me/diagram/';
+            var url = 'https://yuml.me/diagram/';
             var data = $this.attr('href');
             var title = $this.attr('title');
 

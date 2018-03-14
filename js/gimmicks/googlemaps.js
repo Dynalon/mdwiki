@@ -8,7 +8,7 @@ function googlemapsReady() {
 
 (function($) {
     //'use strict';
-    var scripturl = 'http://maps.google.com/maps/api/js?sensor=false&callback=googlemapsReady';
+    var scripturl = 'https://maps.google.com/maps/api/js?sensor=false&callback=googlemapsReady';
 
     function googlemaps(trigger, text, options, domElement) {
         var $maps_links = $(domElement);
