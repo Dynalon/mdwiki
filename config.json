@@ -1,7 +1,7 @@
 {
     "useSideMenu": true,
     "lineBreaks": "gfm",
-    "additionalFooterText": "",
+    "additionalFooterText": "<p>Get images from a users phone via QRCode or Link with <a href='https://upld.app' target='_blank'>upld.app JavaScript API.</a></p>",
     "anchorCharacter": "&#x2693;",
     "title": "MDwiki - Markdown based wiki done 100% on the client via javascript"
 }
