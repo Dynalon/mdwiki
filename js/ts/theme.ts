@@ -161,12 +161,8 @@ module MDwiki.Core {
             $chooser.eq(1).append($li);
 
             $chooser.eq(1).append('<li class="divider" />');
-            $chooser.eq(1).append('<li><a href="http://www.bootswatch.com">Powered by Bootswatch</a></li>');
+            $chooser.eq(1).append('<li><a href="https://www.bootswatch.com">Powered by Bootswatch</a></li>');
             $this.replaceWith($chooser);
         });
     };
 }
-
-
-
-

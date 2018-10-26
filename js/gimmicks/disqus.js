@@ -6,7 +6,7 @@
             identifier: ''
         };
         var options = $.extend (default_options, opt);
-        var disqus_div = $('<div id="disqus_thread" class="md-external md-external-noheight md-external-nowidth" >' + '<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>');
+        var disqus_div = $('<div id="disqus_thread" class="md-external md-external-noheight md-external-nowidth" >' + '<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>');
         disqus_div.css ('margin-top', '2em');
         return $links.each(function(i,link) {
             if (alreadyDone === true) {
@@ -47,7 +47,7 @@
                         var dsq = document.createElement('script');
                         dsq.type = 'text/javascript';
                         dsq.async = true;
-                        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+                        dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
                         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
                     })();
                 }

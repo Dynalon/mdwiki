@@ -15,7 +15,7 @@
                     // insert the iframe
                     var short_handle = m[1];
                     var frame = $('<iframe class="md-external" frameborder="0" allowfullscreen></iframe>');
-                    frame.attr('src', 'http://youtube.com/embed/' + short_handle);
+                    frame.attr('src', 'https://youtube.com/embed/' + short_handle);
                     // remove the a tag
                     $this.replaceWith(frame);
 

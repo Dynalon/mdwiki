@@ -1,7 +1,7 @@
 (function($) {
     //'use strict';
-    var jsUrl = 'http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.js';
-    var cssUrl = 'http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css';
+    var jsUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.5.1/leaflet.js';
+    var cssUrl = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.5.1/leaflet.css';
 
     function leaflet_map($link, opt, linkText) {
         var $maps_links = $link;
