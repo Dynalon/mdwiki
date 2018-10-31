@@ -8,7 +8,7 @@
             $.md.linkGimmick(this, 'carousel', carousel);
         }
     };
-    $.md.registerGimmick(themeChooserGimmick);
+    $.md.wiki.gimmicks.registerGimmick(themeChooserGimmick);
 
     function carousel($link, opt, href) {
 
