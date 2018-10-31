@@ -14,11 +14,13 @@ module MDwiki.Core {
         title:  null,
         lineBreaks: 'gfm',
         additionalFooterText: '',
+        useSideSubMenu: true,
         anchorCharacter: '&para;',
         pageMenu: {
             disable: false,
             returnAnchor: "[top]",
-            useHeadings: "h2"
+            useHeadings: "h2",
+            useHeadings2: "h3",
         },
         parseHeader: false
     };
@@ -69,6 +71,18 @@ module MDwiki.Core {
                 done();
             });
 
+            // If the user has set the theme in config
+            this.stages.getStage('bootstrap').subscribe((done) => {
+                if(this.config.useTheme !== null && this.config.useTheme !== undefined && this.config.useTheme.toLowerCase() !== 'default') {
+                    var theme = new MDwiki.Core.BootswatchTheme(this.config.useTheme);
+                    $('link[rel=stylesheet][href*="bootstrapcdn.com"]')
+                    .replaceWith(
+                        $('<link rel="stylesheet" type="text/css">').attr('href', theme.styles[0])
+                    );
+                }
+                done();
+            })
+
             this.stages.getStage('bootstrap').subscribe((done) => {
                 var bootstrapper = new MDwiki.Legacy.Bootstrap(this.stages, this.config);
                 bootstrapper.bootstrapify();
@@ -88,7 +102,7 @@ module MDwiki.Core {
             else if (this.config.lineBreaks === 'gfm')
                 options.breaks = true;
 
-            marked.setOptions(options);
+            marked.setOptions(options); // useless since it's set anyway in the transformer's constructor
 
             // get sample markdown
             var transformer = new MDwiki.Markdown.Markdown(markdown, options);
@@ -118,7 +132,7 @@ module MDwiki.Core {
                     dataType: 'text'
                 };
                 $.ajax(ajaxReq).done(function(data) {
-                    // TODO do this elsewhere
+                    // TODO: do this elsewhere
                     md = data;
                     done();
                 }).fail(function() {
@@ -159,7 +173,7 @@ module MDwiki.Core {
             this.stages.getStage('transform').subscribe(function(done) {
                 if (navMD === '') {
                     var log = $.md.getLogger();
-                    log.info('no navgiation.md found, not using a navbar');
+                    log.info('no navigation.md found, not using a navbar');
                     done();
                     return;
                 }
@@ -181,7 +195,7 @@ module MDwiki.Core {
             });
 
             this.stages.getStage('postgimmick').subscribe(function(done) {
-                // hide if has no links
+                // hide if has no links FIXME: Should be a TODO:???
                 done();
             });
         }

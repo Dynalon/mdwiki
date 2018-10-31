@@ -86,7 +86,7 @@ module MDwiki.Gimmick {
         findHandler(kind: string, trigger: string) {
             var match = null;
             this.handlers.forEach(handler => {
-                if (handler.trigger == trigger && handler.kind == kind)
+                if (handler.trigger.toLowerCase() == trigger.toLowerCase() && handler.kind.toLowerCase() == kind.toLowerCase())
                     match = handler;
             });
             return match;
@@ -191,22 +191,56 @@ module MDwiki.Gimmick {
         subscribeGimmickExecution(parser: GimmickParser) {
             parser.singlelineReferences.forEach(ref => {
                 var handler = this.selectHandler('singleline', ref.trigger);
+                if(handler === null)
+                    handler = this.replaceGimmickWithDefault(ref, 'singleline');
+                
                 this.stages.getStage(handler.loadStage).subscribe(done => {
                     handler.callback(ref, done);
                 });
             });
             parser.multilineReferences.forEach(ref => {
                 var handler = this.selectHandler('multiline', ref.trigger);
+                if(handler === null)
+                    handler = this.replaceGimmickWithDefault(ref, 'multiline');
+
                 this.stages.getStage(handler.loadStage).subscribe(done => {
                     handler.callback(ref, done);
                 });
             });
             parser.linkReferences.forEach(ref => {
                 var handler = this.selectHandler('link', ref.trigger);
+                if(handler === null)
+                    handler = this.replaceGimmickWithDefault(ref, 'link');
+
                 this.stages.getStage(handler.loadStage).subscribe(done => {
                     handler.callback(ref, done);
                 });
             });
+        }
+
+        private replaceGimmickWithDefault(ref: any, gmkType: string): GimmickHandler {
+            var trigger: string;
+            var originalTrigger: string = ref.trigger;
+
+            switch(gmkType.toLowerCase()) {
+            case 'singleline':
+                trigger = 'defaultsl';
+                break;
+            case 'multiline':
+                trigger = 'defaultml';
+                break;
+            case 'link':
+                trigger = 'defaultlnk';
+                break;
+            default:
+                return null;
+            }
+
+            ref.trigger = trigger;
+            if(ref.options === null || ref.options === undefined)
+                ref.options = {};
+            ref.options.__originalTrigger__ = originalTrigger;
+            return this.selectHandler(gmkType, trigger);
         }
     }
 }

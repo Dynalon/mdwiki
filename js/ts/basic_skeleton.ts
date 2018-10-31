@@ -71,9 +71,11 @@ module MDwiki.Legacy {
                     // else
                     return false;
                 });
+                            
                 // images & hyperlinked images within a paragraph always go first/last of the paragraph
                 // so we apply the corresponding float classes
 
+                //Create a bug that add div in code blocks
                 var templ = new Template('layout/paragraph');
                 var $inserted_node = templ.insertAfter($p);
 
@@ -185,7 +187,6 @@ module MDwiki.Legacy {
                 var $pilcrow = $('<span class="anchor-highlight"><a>' + c + '</a></span>');
                 $pilcrow.find('a').attr('href', href);
                 $pilcrow.hide();
-
                 var mouse_entered = false;
                 $heading.mouseenter(function () {
                     mouse_entered = true;
@@ -200,7 +201,6 @@ module MDwiki.Legacy {
                 });
                 $pilcrow.appendTo($heading);
             }
-
             // adds a link to the navigation at the top of the page
             function addJumpLinkToTOC($heading) {
                 if (config.pageMenu && config.pageMenu.disable !== false) return;
@@ -217,24 +217,23 @@ module MDwiki.Legacy {
 
                     return supported;
                 }
-
+                
                 if (!supportedHeading($heading.prop("tagName"))) return;
-
                 var c = config.pageMenu.returnAnchor;
 
                 if (c === '')
                     return;
 
-                var $jumpLink = $('<a class="visible-xs visible-sm jumplink" href="#md-page-menu">' + c + '</a>');
+                //Jumping to top not working
+                /*var $jumpLink = $('<a class="visible-xs visible-sm jumplink" href="#md-page-menu">' + c + '</a>');
                 $jumpLink.click((ev) => {
                     ev.preventDefault();
-
-                    this.domElement.find('body').scrollTop(this.domElement.find('#md-page-menu').position().top);
+                    this.domElement.find('body').scrollTop(this.domElement.find('#md-page-menu').position().top);                   
                 });
 
                 if ($heading.parents('#md-menu').length === 0) {
                     $jumpLink.insertAfter($heading);
-                }
+                }*/
             }
 
             // adds a page inline anchor to each h1,h2,h3,h4,h5,h6 element
@@ -251,4 +250,24 @@ module MDwiki.Legacy {
             });
         }
     }
+    
+    $.md.scrollToInPageAnchor = function(anchortext) {
+        if (anchortext.startsWith ('#'))
+            anchortext = anchortext.substring (1, anchortext.length);
+        // we match case insensitive
+        var doBreak = false;
+        $('.md-inpage-anchor').each (function () {
+            if (doBreak) { return; }
+            var $this = $(this);
+            // don't use the text of any subnode
+            var text = $this.toptext();
+            var match = util.getInpageAnchorText (text);
+            if (anchortext === match) {
+                this.scrollIntoView (true);
+                var navbar_offset = $('.navbar-collapse').height() + 5;
+                window.scrollBy(0, -navbar_offset + 5);
+                doBreak = true;
+            }
+        });
+    };
 }

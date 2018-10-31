@@ -1,5 +1,5 @@
 module MDwiki.Core {
-    class StringUtil {
+    export class StringUtil {
         static startsWith (search: string, suffix: string) {
             return search.slice(0, suffix.length) == suffix;
         }
@@ -8,7 +8,7 @@ module MDwiki.Core {
         }
     }
 
-    class Theme {
+    export class Theme {
         public name: string;
         public styles: string[];
         public scripts: string[];
@@ -22,7 +22,7 @@ module MDwiki.Core {
         }
     }
 
-    class BootswatchTheme extends Theme {
+    export class BootswatchTheme extends Theme {
         private baseUrl: string =  '//netdna.bootstrapcdn.com/bootswatch/3.0.2/'
         private baseFilename: string = '/bootstrap.min.css';
         private get url() {
@@ -36,9 +36,11 @@ module MDwiki.Core {
     }
 
 
-    class ThemeChooser {
+    export class ThemeChooser {
         private themes: Theme[] = [];
         public enableChooser: boolean = false;
+
+        public constructor() {}
 
         public get themeNames (): string[] {
             return this.themes.map(t => t.name);
@@ -70,9 +72,17 @@ module MDwiki.Core {
             else this.applyTheme(target[0]);
         }
 
+        public registerDefaultThemes() {
+            var bootswatch_theme_names : string[] = [
+                'amelia', 'cerulean', 'cosmo', 'cyborg', 'flatly', 'journal',
+                'readable','simplex','slate','spacelab','united', 'yeti'
+            ];
+            bootswatch_theme_names.map(name => this.register(new BootswatchTheme (name)));
+        }
+
         private applyTheme (theme: Theme): void {
 
-            $('link[rel=stylesheet][href*="netdna.bootstrapcdn.com"]').remove();
+            $('link[rel=stylesheet][href*="bootstrapcdn.com"]').remove();
             var link_tag = this.createLinkTag(theme.styles[0]);
             $('head').append(link_tag);
         }
@@ -80,93 +90,54 @@ module MDwiki.Core {
         private createLinkTag (url: string) {
             return $('<link rel="stylesheet" type="text/css">').attr('href', url);
         }
+
     }
-/*
-    export class ThemeChooserGimmick extends Gimmick {
+
+    /*export class ThemeChooserGimmick extends Gimmick.Gimmick {
         constructor() {
-            super();
+            super('ThemeChooser');
             var tc = new ThemeChooser ();
             registerDefaultThemes(tc);
 
-            $.md.stage('bootstrap').subscribe(function(done) {
+            $.md.wiki.stages.getStage('bootstrap').subscribe(function(done) {
                 tc.loadDefaultTheme();
                 done();
             });
 
-            var build_chooser = ($links, opt, text) => {
+            var build_chooser = (params: Gimmick.LinkGimmickReference, done: Function) => {
                 tc.enableChooser = true;
-                themechooser($links, opt, text, tc);
+                themechooser(
+                    params.domElement, 
+                    params.options,
+                    params.text,
+                    tc);
+                done();
             };
-            var apply_theme = ($links, opt, text) => {
-                set_theme($links, opt, text, tc);
+            var apply_theme = (params: Gimmick.SinglelineGimmickReference, done: Function) => {
+                set_theme(
+                    params.domElement,
+                    params.options,
+                    params.text,
+                    tc
+                );
+                done();
             }
 
-            this.addHandler('themechooser', build_chooser, 'skel_ready');
-            this.addHandler('theme', apply_theme);
-
+            this.addHandler(new Gimmick.GimmickHandler('link', build_chooser));
+            this.addHandler(new Gimmick.GimmickHandler('singleline', apply_theme));
         }
-    };
-*/
-    var set_theme = function($links, opt, text, tc: ThemeChooser) {
+    };*/
+
+    var set_theme = function($elem: JQuery, opt: any, text: string, tc: ThemeChooser) {
         opt.name = opt.name || text;
-        $links.each(function (i, link) {
-            $.md.stage('postgimmick').subscribe(function(done) {
-                if (!tc.currentTheme ||  tc.currentTheme == '' || tc.enableChooser == false)
-                    tc.load(opt.name);
-                done();
-            });
+
+        $.md.wiki.stages.getStage('postgimmick').subscribe(function(done) {
+            if (!tc.currentTheme || tc.currentTheme == '' || !tc.enableChooser) {
+                tc.load(opt.name);
+            }
+            done();
         });
-        $links.remove();
-    };
 
-    function registerDefaultThemes(tc: ThemeChooser) {
-        var bootswatch_theme_names : string[] = [
-            'amelia', 'cerulean', 'cosmo', 'cyborg', 'flatly', 'journal',
-            'readable','simplex','slate','spacelab','united', 'yeti'
-        ];
-        bootswatch_theme_names.map(name => tc.register(new BootswatchTheme (name)));
-    }
-
-    // creates the "Select Theme" navbar entry
-    var themechooser = function($links, opt, text, tc: ThemeChooser) {
-        return $links.each(function(i, e) {
-            var $this = $(e);
-            var $chooser = $('<a href=""></a><ul></ul>'
-            );
-            $chooser.eq(0).text(text);
-
-            $.each(tc.themeNames, function(i: number, themeName: string) {
-                var $li = $('<li></li>');
-                $chooser.eq(1).append($li);
-                var $a = $('<a/>')
-                    .text(themeName)
-                    .attr('href', '')
-                    .click(function(ev) {
-                        ev.preventDefault();
-                        tc.currentTheme = themeName;
-                        window.location.reload();
-                    })
-                    .appendTo($li);
-            });
-
-            $chooser.eq(1).append('<li class="divider" />');
-            var $li = $('<li/>');
-            var $a_use_default = $('<a>Use default</a>');
-            $a_use_default.click(function(ev) {
-                ev.preventDefault();
-                tc.currentTheme = '';
-                window.location.reload();
-            });
-            $li.append($a_use_default);
-            $chooser.eq(1).append($li);
-
-            $chooser.eq(1).append('<li class="divider" />');
-            $chooser.eq(1).append('<li><a href="http://www.bootswatch.com">Powered by Bootswatch</a></li>');
-            $this.replaceWith($chooser);
-        });
+        $elem.remove();
     };
 }
-
-
-
-

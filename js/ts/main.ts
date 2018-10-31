@@ -12,7 +12,7 @@ declare var MDwikiEnableDebug: any;
         return logger;
     };
 
-    $.initMDwiki = function (name: string, registerDomReady: boolean = true) {
+    $.md.initMDwiki = function (name: string, registerDomReady: boolean = true) {
 
         // this is the main object graph composition root
         var stageChain = new StageChain();
