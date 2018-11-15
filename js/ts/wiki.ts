@@ -159,7 +159,7 @@ module MDwiki.Core {
             this.stages.getStage('transform').subscribe(function(done) {
                 if (navMD === '') {
                     var log = $.md.getLogger();
-                    log.info('no navgiation.md found, not using a navbar');
+                    log.info('no navigation.md found, not using a navbar');
                     done();
                     return;
                 }
