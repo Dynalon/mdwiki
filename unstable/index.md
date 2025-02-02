@@ -54,7 +54,7 @@ MDwiki would not exist if it weren't for those great pieces of software:
 
 MDwiki is created by Timo Dörr. Follow me to get updates on MDwiki! [Follow @timodoerr](http://www.twitter.com/timodoerr).
 
-Cute kitten images provided by the great [placekitten.com] service.
+Cute cat images provided by the great [placecats.com] service.
 
   [download]: download.md
   [quickstart]: quickstart.md
@@ -69,7 +69,7 @@ Cute kitten images provided by the great [placekitten.com] service.
   [gists]: https://gist.github.com/
   [maps]: http://maps.google.com/
   [highlightjs]: http://softwaremaniacs.org/soft/highlight/en/‎
-  [placekitten.com]: http://www.placekitten.com/
+  [placecats.com]: http://www.placecats.com/
 
 License
 -------
