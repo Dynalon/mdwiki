@@ -25,7 +25,7 @@ SubHeading
   This is a hyperlink to [Google](http://google.com).
 
   Images are like hyperlinks, but with an exclamation mark in front of them:
-  ![](http://placekitten.com/g/250/250)
+  ![](http://placecats.com/250/250)
 
 ```
 
@@ -123,25 +123,25 @@ Images are regularly placed as in standard markdown using the `![alt](href "titl
 
 Example:
 
-    ![](http://placekitten.com/g/1200/300 "A kitten")
+    ![](http://placecats.com/1200/300 "A cat")
 
-    ![](http://placekitten.com/g/550/450 "First of two kittens")
-    ![](http://placekitten.com/g/550/450 "Second of two kittens")
+    ![](http://placecats.com/550/450 "First of two cats")
+    ![](http://placecats.com/550/450 "Second of two cats")
 
-    ![](http://placekitten.com/g/400/350)
-    ![](http://placekitten.com/g/400/350)
-    ![](http://placekitten.com/g/400/350)
+    ![](http://placecats.com/400/350)
+    ![](http://placecats.com/400/350)
+    ![](http://placecats.com/400/350)
 
 Will be rendered as:
 
-![](http://placekitten.com/g/1200/300 "A kitten")
+![](http://placecats.com/1200/300 "A cat")
 
-![](http://placekitten.com/g/550/450 "First of two kittens")
-![](http://placekitten.com/g/550/450 "Second of two kittens")
+![](http://placecats.com/550/450 "First of two cats")
+![](http://placecats.com/550/450 "Second of two cats")
 
-![](http://placekitten.com/g/400/350)
-![](http://placekitten.com/g/400/350)
-![](http://placekitten.com/g/400/350)
+![](http://placecats.com/400/350)
+![](http://placecats.com/400/350)
+![](http://placecats.com/400/350)
 
 ### Images as Links
 
@@ -150,9 +150,9 @@ To use an image as a link, use the following syntax:
     [![ImageCaption](path/to/image.png)](http://www.linktarget.com)
 
     Example:
-    [![A kitten](http://placekitten.com/g/400/400)](http://www.placekitten.com)
+    [![A cat](http://placecats.com/400/400)](http://www.placecats.com)
 
-[![A kitten](http://placekitten.com/g/400/400)](http://www.placekitten.com)
+[![A cat](http://placecats.com/400/400)](http://www.placecats.com)
 
 - - - -
 
